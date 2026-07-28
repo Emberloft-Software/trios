@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Trio — "Court Day" design system.  Source of truth: docs/04-design-system.md.
+   Tailwind v4 CSS-first config: tokens live here in @theme, not in a JS file.
+   No dark mode in v1 — the identity is a bright daytime one.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Palette — drawn from court surfaces, boundary tape, line paint, net shadow */
+  --color-court: #e7ede4; /* page background — pale court green-grey */
+  --color-chalk: #ffffff; /* card surfaces */
+  --color-ink: #1b1a16; /* text, borders, hard shadows — warm near-black */
+  --color-tape: #ff5e3a; /* primary action — sports-tape orange */
+  --color-line: #ffd23f; /* highlight, active slot, hover fills */
+  --color-net: #12706b; /* secondary, links, verified badge */
+  --color-dust: #9a9b8f; /* muted text, disabled, empty sockets */
+
+  /* Type — loaded as CSS vars by next/font in app/layout.tsx */
+  --font-display: var(--font-gabarito), system-ui, sans-serif;
+  --font-body: var(--font-instrument), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+
+  /* Shape and depth — inconsistent radii by element type is deliberate */
+  --radius-card: 20px;
+  --radius-btn: 999px; /* buttons only */
+  --radius-chip: 8px;
+  --radius-tile: 4px;
+
+  /* Hard offset shadows — no blur, ever */
+  --shadow-hard: 4px 4px 0 var(--color-ink);
+  --shadow-lift: 6px 6px 0 var(--color-ink);
+}
+
+/* Custom static utilities Tailwind v4 can't infer from the theme */
+@utility border-ink {
+  border: 2px solid var(--color-ink);
+}
+@utility shadow-hard {
+  box-shadow: var(--shadow-hard);
+}
+@utility shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--color-court);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* Data face — for counts, codes, timers, LKR amounts only. Never decoration. */
+.font-data {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+/* ── Accessibility floor (docs/04 § Quality floor) ────────────────────────── */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-net);
+  outline-offset: 2px;
+}
+
+/* Respect reduced motion everywhere, including the SlotStrip spring */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
