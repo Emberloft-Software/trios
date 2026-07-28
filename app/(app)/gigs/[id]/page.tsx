@@ -31,12 +31,18 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
   // RLS only returns crew rows if the viewer is themselves crew. So if we get
   // rows back, the viewer is in the crew and this is the lobby; otherwise it's
   // the blind preview.
-  const { data: crewRows } = await supabase
+  const { data: crewRows, error: crewError } = await supabase
     .from("gig_crew")
     .select("user_id, position, state")
     .eq("gig_id", id)
     .in("state", ["claimed", "attended", "no_show"])
     .order("position", { ascending: true });
+
+  // Surface RLS/query failures instead of silently falling back to the blind
+  // preview — a swallowed error here is what hid the whole crew view before.
+  if (crewError) {
+    console.error("gig_crew read failed:", crewError.code, crewError.message);
+  }
 
   const isCrew = (crewRows ?? []).some((r) => r.user_id === user?.id);
   const confirmed = gig.claimed_count >= gig.min_to_confirm;
@@ -94,6 +100,9 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
       isHost: r.position === 1,
     };
   });
+  const crewNames: Record<string, string> = Object.fromEntries(
+    crew.map((m) => [m.userId, m.name]),
+  );
 
   // Partner perk — shown once the gig locks, with the gig code (docs/08).
   let perk: { venueId: string; text: string; redeemed: boolean } | null = null;
@@ -209,7 +218,8 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
 
       {/* Chat — realtime, opens at confirmation (R8) */}
       <LobbyChat gigId={gig.id} confirmed={confirmed} completed={gig.status === "completed"}
-        minToConfirm={gig.min_to_confirm} claimedCount={gig.claimed_count} currentUserId={user!.id} />
+        minToConfirm={gig.min_to_confirm} claimedCount={gig.claimed_count} currentUserId={user!.id}
+        crewNames={crewNames} />
 
       {/* Leave doors (host can't leave — they cancel instead) */}
       {gig.host_id !== user!.id && gig.status !== "completed" && (

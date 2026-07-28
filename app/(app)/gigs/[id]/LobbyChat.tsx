@@ -27,6 +27,7 @@ export function LobbyChat({
   minToConfirm,
   claimedCount,
   currentUserId,
+  crewNames,
 }: {
   gigId: string;
   confirmed: boolean;
@@ -34,6 +35,8 @@ export function LobbyChat({
   minToConfirm: number;
   claimedCount: number;
   currentUserId: string;
+  /** userId → first name, for labelling who sent each message */
+  crewNames: Record<string, string>;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
@@ -59,7 +62,27 @@ export function LobbyChat({
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "gig_messages", filter: `gig_id=eq.${gigId}` },
-        (payload) => setMessages((m) => [...m, payload.new as Msg]),
+        (payload) => {
+          const incoming = payload.new as Msg;
+          setMessages((m) => {
+            // already have the real row? ignore (prevents any double-add)
+            if (m.some((x) => x.id === incoming.id)) return m;
+            // reconcile our own optimistic placeholder with the real row so the
+            // sender doesn't see it twice, and it picks up the real id
+            const tempIdx = m.findIndex(
+              (x) =>
+                x.id.startsWith("tmp-") &&
+                x.user_id === incoming.user_id &&
+                x.body === incoming.body,
+            );
+            if (tempIdx !== -1) {
+              const next = [...m];
+              next[tempIdx] = incoming;
+              return next;
+            }
+            return [...m, incoming];
+          });
+        },
       )
       .subscribe();
 
@@ -103,7 +126,7 @@ export function LobbyChat({
     const remaining = minToConfirm - claimedCount;
     return (
       <Card className="p-5">
-        <h2 className="mb-2 font-display text-[1.125rem] font-600">Chat</h2>
+        <h2 className="mb-2 font-display text-[1.125rem] font-600">{copy.chat.heading}</h2>
         <p className="text-[0.9375rem] text-[var(--color-dust)]">
           {remaining <= 1 ? copy.chat.beforeConfirm2 : copy.chat.beforeConfirm1}
         </p>
@@ -111,28 +134,46 @@ export function LobbyChat({
     );
   }
 
+  function senderName(userId: string | null): string {
+    if (!userId) return copy.chat.someone;
+    if (userId === currentUserId) return copy.chat.you;
+    return crewNames[userId] ?? copy.chat.someone;
+  }
+
   return (
     <Card className="p-5">
-      <h2 className="mb-3 font-display text-[1.125rem] font-600">Chat</h2>
-      <div className="max-h-80 space-y-2 overflow-y-auto">
-        {messages.map((m) =>
-          m.system_kind ? (
-            <p key={m.id} className="text-center font-data text-[0.75rem] uppercase tracking-[0.06em] text-[var(--color-dust)]">
-              {m.body}
-            </p>
-          ) : (
-            <div
-              key={m.id}
-              className={`max-w-[80%] rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] px-3 py-2 text-[0.9375rem] ${
-                m.user_id === currentUserId
-                  ? "ml-auto bg-[var(--color-line)]"
-                  : "bg-[var(--color-chalk)]"
-              }`}
-            >
-              {m.body}
+      <h2 className="mb-3 font-display text-[1.125rem] font-600">{copy.chat.heading}</h2>
+      <div className="max-h-80 space-y-1 overflow-y-auto">
+        {messages.map((m, i) => {
+          if (m.system_kind) {
+            return (
+              <p key={m.id} className="py-1 text-center font-data text-[0.75rem] uppercase tracking-[0.06em] text-[var(--color-dust)]">
+                {m.body}
+              </p>
+            );
+          }
+          const mine = m.user_id === currentUserId;
+          const prev = messages[i - 1];
+          // start of a run: first message, or the previous one was a system
+          // message or a different sender (group by sender — docs/03)
+          const startsRun = !prev || prev.system_kind != null || prev.user_id !== m.user_id;
+          return (
+            <div key={m.id} className={mine ? "flex flex-col items-end" : "flex flex-col items-start"}>
+              {startsRun && (
+                <span className={`mt-2 mb-0.5 text-[0.75rem] font-500 text-[var(--color-dust)] ${mine ? "pr-1" : "pl-1"}`}>
+                  {senderName(m.user_id)}
+                </span>
+              )}
+              <div
+                className={`max-w-[80%] rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] px-3 py-2 text-[0.9375rem] ${
+                  mine ? "bg-[var(--color-line)]" : "bg-[var(--color-chalk)]"
+                }`}
+              >
+                {m.body}
+              </div>
             </div>
-          ),
-        )}
+          );
+        })}
         <div ref={endRef} />
       </div>
 
@@ -152,7 +193,7 @@ export function LobbyChat({
             disabled={sending || !draft.trim()}
             className="rounded-[var(--radius-btn)] border-2 border-[var(--color-ink)] bg-[var(--color-tape)] px-4 text-[var(--color-chalk)] disabled:opacity-60"
           >
-            Send
+            {copy.chat.send}
           </button>
         </form>
       )}

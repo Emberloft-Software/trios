@@ -104,11 +104,15 @@ export const copy = {
   },
 
   chat: {
+    heading: "Chat",
     beforeConfirm1: "Chat opens when three people are in. Two more to go.",
     beforeConfirm2: "One more person and this is on. Chat opens then too.",
     opens: "Three of you. Chat's open — sort out who's bringing what.",
     readOnly: "This gig's done. Chat's read-only now.",
     placeholder: "Message the crew",
+    send: "Send",
+    you: "You",
+    someone: "Someone",
   },
 
   verification: {
