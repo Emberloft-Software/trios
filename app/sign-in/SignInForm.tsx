@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/client";
+import { getSiteURL } from "@/lib/site-url";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 
@@ -34,7 +35,10 @@ export function SignInForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email: parsed.data.email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/feed`,
+        // Uses NEXT_PUBLIC_SITE_URL when set (your Vercel domain), so the magic
+        // link lands on production instead of localhost. Must also be
+        // allow-listed in Supabase → Auth → URL Configuration.
+        emailRedirectTo: `${getSiteURL()}/auth/callback?next=/feed`,
       },
     });
     if (error) {
