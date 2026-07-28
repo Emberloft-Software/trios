@@ -266,7 +266,17 @@ export function VerifyFlow({ userId }: { userId: string }) {
       .from("verification")
       .upload(path, b.blob, { contentType: b.mime, upsert: true });
     if (upErr) {
-      setError(v.tooLarge);
+      // Log the real storage error (bucket missing, policy, size) to the console
+      // instead of masking every failure as "too large".
+      console.error("verification upload failed:", upErr);
+      const msg = upErr.message?.toLowerCase() ?? "";
+      setError(
+        msg.includes("exceeded") || msg.includes("maximum")
+          ? v.tooLarge
+          : msg.includes("bucket") || msg.includes("not found")
+            ? "Storage isn't set up yet — the 'verification' bucket is missing (migration 0008)."
+            : v.uploadFailed,
+      );
       setPhase("review");
       return;
     }

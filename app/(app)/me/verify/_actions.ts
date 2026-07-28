@@ -19,8 +19,25 @@ export type StartResult =
  *  start_verification() (security definer), never here. */
 export async function startVerificationAction(): Promise<StartResult> {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: errorCopy("not_authenticated") };
+
   const { data, error } = await supabase.rpc("start_verification");
-  if (error || !data) return { ok: false, error: errorCopy(error?.message ?? "generic") };
+  if (error || !data) {
+    // Surface the real reason — a swallowed error here just reads as "generic".
+    console.error("start_verification failed:", {
+      code: error?.code,
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+    });
+    if (error?.code === "23503") return { ok: false, error: errorCopy("profile_missing") };
+    if (error?.code === "PGRST202" || error?.message?.includes("function"))
+      return { ok: false, error: "Verification isn't set up on the database yet (migration 0010)." };
+    return { ok: false, error: errorCopy(error?.message ?? "generic") };
+  }
   return {
     ok: true,
     requestId: data.id,
@@ -47,6 +64,14 @@ export async function submitVerificationAction(input: unknown): Promise<SubmitRe
     p_media_path: parsed.data.mediaPath,
     p_media_mime: parsed.data.mediaMime,
   });
-  if (error) return { ok: false, error: errorCopy(error.message) };
+  if (error) {
+    console.error("submit_verification failed:", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+    return { ok: false, error: errorCopy(error.message) };
+  }
   return { ok: true };
 }

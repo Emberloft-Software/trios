@@ -160,6 +160,7 @@ export const copy = {
     rateLimited: "You've had a few goes today. Try again tomorrow.",
     challengeExpired: "That took too long and the code expired. Let's start again.",
     tooLarge: "That recording came out too big. Try again — it should be well under the limit.",
+    uploadFailed: "We couldn't upload that recording. Check your connection and try again.",
     fallbackNote: "Your browser can't record video here, so we'll take three quick photos at the prompts instead.",
     pendingStatus: "We've got your recording. A human will review it, usually within a day.",
     rejectedStatus: "Your last try didn't pass. You can record a new one.",
@@ -289,6 +290,9 @@ export const copy = {
     verification_rate_limited: "You've had a few goes today. Try again tomorrow.",
     challenge_expired: "That took too long and the code expired. Let's start again.",
     already_submitted: "This one's already in for review.",
+    bad_media_path: "Something went wrong saving that recording. Try again.",
+    not_owner: "Something went wrong. Reload and try again.",
+    request_not_found: "That verification session expired. Start again.",
     generic: "That didn't work. Try again in a moment.",
   } as Record<string, string>,
 
