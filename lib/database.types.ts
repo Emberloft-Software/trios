@@ -44,6 +44,8 @@ export interface Database {
           reliability_band: ReliabilityBand;
           is_admin: boolean;
           suspended_until: string | null;
+          posting_restricted_until: string | null;
+          joining_restricted_until: string | null;
           created_at: string;
         };
         Insert: {
@@ -69,6 +71,8 @@ export interface Database {
           reliability_band?: ReliabilityBand;
           is_admin?: boolean;
           suspended_until?: string | null;
+          posting_restricted_until?: string | null;
+          joining_restricted_until?: string | null;
         };
         Relationships: [];
       };
@@ -100,6 +104,7 @@ export interface Database {
       venues: {
         Row: {
           id: string;
+          slug: string;
           name: string;
           address: string;
           lat: number;
@@ -125,10 +130,31 @@ export interface Database {
           address: string;
           lat: number;
           lng: number;
+          slug?: string;
           google_place_id?: string | null;
           google_types?: string[];
+          photo_refs?: string[];
+          photo_attribution?: string[];
+          photos_refreshed_at?: string | null;
+          maps_url?: string | null;
+          price_level?: number | null;
+          activity_tags?: string[];
+          verified_public?: boolean;
         };
-        Update: Partial<Database["public"]["Tables"]["venues"]["Insert"]>;
+        Update: {
+          name?: string;
+          address?: string;
+          google_types?: string[];
+          photo_refs?: string[];
+          photo_attribution?: string[];
+          photos_refreshed_at?: string | null;
+          maps_url?: string | null;
+          is_partner?: boolean;
+          partner_perk?: string | null;
+          partner_since?: string | null;
+          verified_public?: boolean;
+          active?: boolean;
+        };
         Relationships: [];
       };
       gigs: {
@@ -243,6 +269,56 @@ export interface Database {
           category: string;
           details: string;
         };
+        Update: {
+          status?: ReportStatus;
+          resolution?: string | null;
+          handled_by?: string | null;
+        };
+        Relationships: [];
+      };
+      crew_removals: {
+        Row: {
+          id: string;
+          gig_id: string;
+          actor_id: string;
+          target_id: string;
+          reason: string;
+          created_at: string;
+        };
+        Insert: never; // via remove_crew_member()
+        Update: never;
+        Relationships: [];
+      };
+      moderation_actions: {
+        Row: {
+          id: string;
+          admin_id: string;
+          target_id: string;
+          action: ModAction;
+          reason: string;
+          expires_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          admin_id: string;
+          target_id: string;
+          action: ModAction;
+          reason: string;
+          expires_at?: string | null;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      reliability_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          gig_id: string | null;
+          kind: ReliabilityKind;
+          weight: number;
+          created_at: string;
+        };
+        Insert: { user_id: string; gig_id?: string | null; kind: ReliabilityKind; weight?: number };
         Update: never;
         Relationships: [];
       };
@@ -399,9 +475,38 @@ export interface Database {
         Relationships: [];
       };
       friend_hosted_gigs: {
-        Row: Database["public"]["Tables"]["gigs"]["Row"] & {
+        Row: {
+          id: string;
+          code: string;
+          title: string;
+          place_label: string;
+          lat: number;
+          lng: number;
+          starts_at: string;
+          duration_min: number;
+          capacity: number;
+          claimed_count: number;
+          min_to_confirm: number;
+          cost_note: string | null;
+          status: GigStatus;
+          locks_at: string;
+          created_at: string;
+          activity_slug: string;
+          activity_name: string;
+          activity_emoji: string;
+          activity_category: string;
           host_name: string;
           host_avatar: string | null;
+        };
+        Relationships: [];
+      };
+      admin_flags: {
+        Row: {
+          kind: string;
+          subject_id: string;
+          count: number;
+          detail: string;
+          last_at: string;
         };
         Relationships: [];
       };
@@ -445,9 +550,18 @@ export interface Database {
         Args: { p_request_id: string };
         Returns: Database["public"]["Tables"]["friendships"]["Row"];
       };
+      invite_friend: { Args: { p_gig_id: string; p_friend: string }; Returns: undefined };
       block_user: { Args: { p_blocked: string }; Returns: undefined };
+      file_report: {
+        Args: { p_target: string; p_category: string; p_details: string; p_gig_id?: string | null };
+        Returns: Database["public"]["Tables"]["reports"]["Row"];
+      };
       redeem_perk: {
         Args: { p_gig_id: string; p_venue_id: string };
+        Returns: Database["public"]["Tables"]["perk_redemptions"]["Row"];
+      };
+      redeem_perk_by_code: {
+        Args: { p_slug: string; p_code: string };
         Returns: Database["public"]["Tables"]["perk_redemptions"]["Row"];
       };
       gig_is_confirmed: { Args: { p_gig_id: string }; Returns: boolean };

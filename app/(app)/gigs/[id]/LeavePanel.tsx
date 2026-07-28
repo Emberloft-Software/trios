@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { copy } from "@/lib/copy";
 import { leaveGigAction } from "./_actions";
 
 /**
@@ -39,21 +40,19 @@ export function LeavePanel({ gigId }: { gigId: string }) {
 
   return (
     <Card className="p-5">
-      <h2 className="mb-3 font-display text-[1.125rem] font-600">Leaving?</h2>
+      <h2 className="mb-3 font-display text-[1.125rem] font-600">{copy.lobby.leaving}</h2>
       <div className="space-y-2">
         <Button variant="secondary" onClick={() => leave(false)} disabled={pending} className="w-full">
-          Something came up
+          {copy.lobby.somethingCameUp}
         </Button>
         <Button variant="secondary" onClick={() => leave(true)} disabled={pending} className="w-full">
-          I didn&apos;t feel comfortable
+          {copy.lobby.didntFeelComfortable}
         </Button>
-        <p className="text-[0.8125rem] text-[var(--color-dust)]">
-          The second door never costs you anything, at any time. It quietly flags this to us.
-        </p>
+        <p className="text-[0.8125rem] text-[var(--color-dust)]">{copy.lobby.leaveHint}</p>
       </div>
       {error && <p className="mt-3 text-[0.9375rem] text-[var(--color-tape)]">{error}</p>}
       <button onClick={() => setOpen(false)} className="mt-3 text-[0.875rem] text-[var(--color-net)] hover:underline">
-        Never mind
+        {copy.lobby.neverMind}
       </button>
     </Card>
   );

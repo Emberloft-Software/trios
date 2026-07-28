@@ -4,14 +4,13 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { errorCopy } from "@/lib/copy";
 
-// Colombo city centre — placeholder coordinates until the Places picker (M6)
-// supplies real venue lat/lng. Residential rejection also lands in M6.
-const COLOMBO = { lat: 6.9271, lng: 79.8612 };
-
 const schema = z.object({
   activityId: z.string().uuid(),
   title: z.string().min(4).max(80),
+  venueId: z.string().uuid(),
   placeLabel: z.string().min(2).max(120),
+  lat: z.number(),
+  lng: z.number(),
   startsAt: z.string().min(1), // ISO from the client (already UTC)
   capacity: z.coerce.number().int().min(3).max(12),
   durationMin: z.coerce.number().int().min(30).max(480).default(90),
@@ -32,10 +31,10 @@ export async function createGigAction(input: unknown): Promise<CreateGigResult> 
   const { data, error } = await supabase.rpc("create_gig", {
     p_activity_id: v.activityId,
     p_title: v.title,
-    p_venue_id: null,
+    p_venue_id: v.venueId,
     p_place_label: v.placeLabel,
-    p_lat: COLOMBO.lat,
-    p_lng: COLOMBO.lng,
+    p_lat: v.lat,
+    p_lng: v.lng,
     p_starts_at: v.startsAt,
     p_capacity: v.capacity,
     p_duration_min: v.durationMin,
@@ -43,9 +42,18 @@ export async function createGigAction(input: unknown): Promise<CreateGigResult> 
     p_cost_note: v.costNote ?? null,
   });
 
-  if (error) {
-    // Postgres exception message (e.g. 'capacity_too_low', 'starts_too_soon')
-    return { ok: false, error: errorCopy(error.message) };
+  if (error || !data) {
+    // Surface the real reason server-side for debugging; map to friendly copy.
+    console.error("create_gig failed:", {
+      code: error?.code,
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+    });
+    // A missing profiles row (FK violation on host_id) means the signup trigger
+    // never ran for this user — common if the account predates the migrations.
+    if (error?.code === "23503") return { ok: false, error: errorCopy("profile_missing") };
+    return { ok: false, error: errorCopy(error?.message ?? "generic") };
   }
   return { ok: true, gigId: data.id };
 }

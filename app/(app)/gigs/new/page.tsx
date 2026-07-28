@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NewGigForm } from "./NewGigForm";
+import { copy } from "@/lib/copy";
 
 export const metadata = { title: "Post a gig — Trio" };
 
@@ -13,7 +14,7 @@ export default async function NewGigPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 font-display text-[clamp(1.75rem,4vw,2.5rem)] font-700">Post a gig</h1>
+      <h1 className="mb-6 font-display text-[clamp(1.75rem,4vw,2.5rem)] font-700">{copy.newGig.heading}</h1>
       <NewGigForm activities={activities ?? []} />
     </div>
   );

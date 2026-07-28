@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import { SlotStrip } from "@/components/ui/SlotStrip";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { VenuePicker } from "@/components/gig/VenuePicker";
 import { copy } from "@/lib/copy";
+import { colomboLocalToUtcISO } from "@/lib/time";
 import { createGigAction } from "./_actions";
+import type { PickedVenue } from "./venue-actions";
 
 interface Activity {
   id: string;
@@ -32,7 +35,7 @@ export function NewGigForm({ activities }: { activities: Activity[] }) {
   );
   const [capacity, setCapacity] = useState<number>(selected?.default_capacity ?? 4);
   const [title, setTitle] = useState("");
-  const [placeLabel, setPlaceLabel] = useState("");
+  const [venue, setVenue] = useState<PickedVenue | null>(null);
   const [startsAtLocal, setStartsAtLocal] = useState("");
   const [durationMin, setDurationMin] = useState(90);
   const [notes, setNotes] = useState("");
@@ -51,18 +54,28 @@ export function NewGigForm({ activities }: { activities: Activity[] }) {
     e.preventDefault();
     setError(null);
     if (!agree) {
-      setError("Please confirm you understand what Trio is.");
+      setError(copy.gig.mustAgree);
       return;
     }
-    // The datetime-local value is Colombo wall-time; convert to a UTC ISO.
-    // (A tz-correct conversion lands with the Places picker in M6; the browser
-    //  local offset is assumed here for the scaffold.)
-    const startsAt = startsAtLocal ? new Date(startsAtLocal).toISOString() : "";
+    if (!startsAtLocal) {
+      setError(copy.gig.needTime);
+      return;
+    }
+    if (!venue) {
+      setError(copy.gig.needVenue);
+      return;
+    }
+    // The datetime-local value is Colombo wall-time — interpret it as Asia/
+    // Colombo (not the browser's zone) before converting to a UTC ISO.
+    const startsAt = colomboLocalToUtcISO(startsAtLocal);
     setBusy(true);
     const res = await createGigAction({
       activityId,
       title,
-      placeLabel,
+      venueId: venue.id,
+      placeLabel: venue.name,
+      lat: venue.lat,
+      lng: venue.lng,
       startsAt,
       capacity,
       durationMin,
@@ -81,7 +94,7 @@ export function NewGigForm({ activities }: { activities: Activity[] }) {
     <form onSubmit={submit} className="space-y-6">
       {/* Activity picker */}
       <Card className="p-5">
-        <h2 className="mb-3 font-display text-[1.25rem] font-600">Pick an activity</h2>
+        <h2 className="mb-3 font-display text-[1.25rem] font-600">{copy.newGig.pickActivity}</h2>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
           {activities.map((a) => (
             <button
@@ -105,47 +118,43 @@ export function NewGigForm({ activities }: { activities: Activity[] }) {
       {/* When & where */}
       <Card className="p-5 space-y-4">
         <div>
-          <label htmlFor="title" className="mb-1 block text-[0.875rem] font-500">Title</label>
+          <label htmlFor="title" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.title}</label>
           <input id="title" className={FIELD} maxLength={80} value={title}
-            onChange={(e) => setTitle(e.target.value)} placeholder="Sunday doubles at Havelock" />
+            onChange={(e) => setTitle(e.target.value)} placeholder={copy.newGig.titlePlaceholder} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="when" className="mb-1 block text-[0.875rem] font-500">When</label>
+            <label htmlFor="when" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.when}</label>
             <input id="when" type="datetime-local" className={`${FIELD} font-data`}
               value={startsAtLocal} onChange={(e) => setStartsAtLocal(e.target.value)} />
           </div>
           <div>
-            <label htmlFor="dur" className="mb-1 block text-[0.875rem] font-500">Length (min)</label>
+            <label htmlFor="dur" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.length}</label>
             <input id="dur" type="number" min={30} max={480} step={15} className={`${FIELD} font-data`}
               value={durationMin} onChange={(e) => setDurationMin(Number(e.target.value))} />
           </div>
         </div>
         <div>
-          <label htmlFor="place" className="mb-1 block text-[0.875rem] font-500">Where</label>
-          <input id="place" className={FIELD} maxLength={120} value={placeLabel}
-            onChange={(e) => setPlaceLabel(e.target.value)} placeholder="Havelock City Badminton Courts" />
-          <p className="mt-1 text-[0.8125rem] text-[var(--color-dust)]">
-            A public place — cafe, court, park, or venue. Real venue search comes later.
-          </p>
+          <span className="mb-1 block text-[0.875rem] font-500">{copy.newGig.where}</span>
+          <VenuePicker value={venue} onPick={setVenue} />
         </div>
         <div>
-          <label htmlFor="cost" className="mb-1 block text-[0.875rem] font-500">Cost note (optional)</label>
+          <label htmlFor="cost" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.costNote}</label>
           <input id="cost" className={FIELD} maxLength={120} value={costNote}
-            onChange={(e) => setCostNote(e.target.value)} placeholder="Court fee ~LKR 800 split" />
+            onChange={(e) => setCostNote(e.target.value)} placeholder={copy.newGig.costPlaceholder} />
         </div>
         <div>
-          <label htmlFor="notes" className="mb-1 block text-[0.875rem] font-500">Notes (optional)</label>
+          <label htmlFor="notes" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.notes}</label>
           <textarea id="notes" className={FIELD} rows={3} maxLength={600} value={notes}
-            onChange={(e) => setNotes(e.target.value)} placeholder="Bring your own racket if you have one." />
+            onChange={(e) => setNotes(e.target.value)} placeholder={copy.newGig.notesPlaceholder} />
         </div>
       </Card>
 
       {/* Capacity stepper with live SlotStrip */}
       <Card className="p-5">
-        <h2 className="mb-1 font-display text-[1.25rem] font-600">How many people</h2>
+        <h2 className="mb-1 font-display text-[1.25rem] font-600">{copy.newGig.howMany}</h2>
         <p className="mb-4 text-[0.875rem] text-[var(--color-dust)]">
-          You take slot one. Minimum three, max twelve.
+          {copy.newGig.howManyHint}
         </p>
         <div className="mb-4 flex items-center gap-3">
           <button type="button" onClick={() => setCapacity((c) => Math.max(3, c - 1))}
@@ -170,7 +179,7 @@ export function NewGigForm({ activities }: { activities: Activity[] }) {
       {error && <p className="text-[0.9375rem] text-[var(--color-tape)]">{error}</p>}
 
       <Button type="submit" disabled={busy} className="w-full">
-        {busy ? "Posting…" : "Post the gig"}
+        {busy ? copy.newGig.submitting : copy.newGig.submit}
       </Button>
     </form>
   );

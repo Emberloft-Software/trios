@@ -26,7 +26,13 @@ This repo is a working **M0 foundation + the complete database layer + the start
 | Admin shell + dashboard (gigs-at-risk list) with the two access gates | ✅ |
 | **Full SQL: tables, RLS, functions, triggers, views, storage, cron, seed** | ✅ |
 | Edge Function stubs: `purge-verification-media`, `send-emails` | ✅ |
-| Verification capture (M3), trust/removals/reports UI (M4), friends (M5), venues/Places (M6), polish (M7) | ⏳ not yet — DB is ready for all of them |
+| **M3 — Verification:** `/me/verify` liveness capture (feature-detected mime + 3-still fallback, 12s challenge, 20MB cap), server-side challenge + rate limit, admin review queue with 60s signed URLs and A/R/J/K shortcuts, approve/reject/retake with audit + email | ✅ |
+| **M4 — Trust & safety:** reports with priority routing + admin email, blocking with block-aware feed, host removals (rate-limited, logged), moderation ladder (`restrict_posting`/`restrict_joining`/`suspend`/`ban`/`clear` enforced in `claim_slot`/`create_gig`), admin `/reports` `/flags` `/users/[id]` (co-occurrence, blocks-received, friend-request ratio) | ✅ |
+| **M5 — Friends:** post-gig `Add` (only entry point, R9-gated), `/me/friends` (accept-only, no decline, vague outgoing, why-no-DMs), friend-hosted gigs in the feed, host `Invite` (no slot held) | ✅ |
+| **M6 — Venues & partners:** Places (New) autocomplete + details via session-token proxy, server-side photo proxy w/ attribution, residential rejection, venue picker in create-gig, partner perk in lobby + host redeem, `/spot/[slug]` no-login redemption, `/admin/partners` report + CSV, `/admin/venues` partner toggle | ✅ (needs a Google key — see §6) |
+| **M7 — Polish:** banned-patterns audit (clean — no gradients/glassmorphism/soft-shadows/fake social proof), feed page-load stagger, product copy extracted to `lib/copy.ts`, verified landing at 375px, global focus-visible + `prefers-reduced-motion` | ✅ |
+
+**All seven milestones (M0–M7) are built.** Remaining work is post-v1 (self-serve venue billing/PayHere, sponsored gigs, staked deposits) and the seeding *operations*, not build milestones.
 
 `pnpm typecheck` (or `npx tsc --noEmit`) is clean and `next build` succeeds.
 
@@ -172,6 +178,23 @@ $$);
 The purely-SQL jobs (`lock-gigs`, `complete-gigs`, `recompute-bands`, the expiry jobs) are already registered by `0009` when `pg_cron` is enabled — verify with `select * from cron.job;`.
 
 ---
+
+## 6. Google Places (M6 — venue picking)
+
+The venue picker uses **Places API (New)**, fully proxied server-side so the key never reaches the browser.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/): create a project, enable **Places API (New)**, and create an API key.
+2. Restrict the key to **Places API (New)** (API restriction). It's a server key — no HTTP-referrer restriction needed.
+3. Put it in `.env.local` as `GOOGLE_MAPS_SERVER_KEY`. That single key powers autocomplete, place details, and the photo proxy.
+4. Billing must be enabled on the project (Places has a free tier but requires a billing account).
+
+How the cost controls work (all already implemented):
+- **Session tokens** span the autocomplete keystrokes and are terminated by the Details call, so a whole search bills as **one session** (verify in the billing console: a 10-keystroke search = one session, not ten requests).
+- **Field masks** on Details request only `id, displayName, formattedAddress, location, types, photos, googleMapsUri, regularOpeningHours`.
+- Photos are served through `/api/place-photo` (key server-side); we store only photo **references** + attribution, never image bytes, and Google's attribution renders alongside every photo.
+- A venue already in `venues` with fresh `photos_refreshed_at` (< 30 days) is reused **without** a new Details call.
+
+Residential addresses are rejected at creation (R7). Without the key, the picker's search returns nothing — the rest of the app still runs.
 
 ## Commands
 

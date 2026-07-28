@@ -6,6 +6,10 @@ import { ReliabilityMark, VerifiedBadge } from "@/components/gig/Badges";
 import { JoinPanel } from "./JoinPanel";
 import { LeavePanel } from "./LeavePanel";
 import { LobbyChat } from "./LobbyChat";
+import { CrewActions } from "./CrewActions";
+import { AddFriendButton } from "./AddFriendButton";
+import { InvitePanel } from "./InvitePanel";
+import { PerkCard } from "./PerkCard";
 import { formatGigTime } from "@/lib/time";
 import { publicAvatarUrl, firstName } from "@/lib/avatar";
 import { copy } from "@/lib/copy";
@@ -78,6 +82,9 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
     .in("id", crewIds);
 
   const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
+  const stateById = new Map((crewRows ?? []).map((r) => [r.user_id, r.state]));
+  const viewerAttended = stateById.get(user!.id) === "attended";
+  const isCompleted = gig.status === "completed";
   const crew: CrewMember[] = (crewRows ?? []).map((r) => {
     const p = profileById.get(r.user_id);
     return {
@@ -87,6 +94,38 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
       isHost: r.position === 1,
     };
   });
+
+  // Partner perk — shown once the gig locks, with the gig code (docs/08).
+  let perk: { venueId: string; text: string; redeemed: boolean } | null = null;
+  if (gig.venue_id && (gig.status === "locked" || gig.status === "completed")) {
+    const { data: venue } = await supabase
+      .from("venues")
+      .select("id, is_partner, partner_perk")
+      .eq("id", gig.venue_id)
+      .maybeSingle();
+    if (venue?.is_partner && venue.partner_perk) {
+      const { data: redemption } = await supabase
+        .from("perk_redemptions")
+        .select("id")
+        .eq("gig_id", gig.id)
+        .maybeSingle();
+      perk = { venueId: venue.id, text: venue.partner_perk, redeemed: !!redemption };
+    }
+  }
+
+  // Host of an open gig can invite friends — the invite holds no slot (R10).
+  let inviteFriends: { id: string; name: string }[] = [];
+  if (gig.host_id === user!.id && gig.status === "open") {
+    const { data: fr } = await supabase.from("friendships").select("user_a, user_b");
+    const fids = (fr ?? []).map((x) => (x.user_a === user!.id ? x.user_b : x.user_a));
+    if (fids.length) {
+      const { data: fp } = await supabase
+        .from("profiles_public")
+        .select("id, display_name")
+        .in("id", fids);
+      inviteFriends = (fp ?? []).map((p) => ({ id: p.id, name: firstName(p.display_name) }));
+    }
+  }
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -99,7 +138,7 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
 
       {/* When & where — full address shown once locked (docs/03) */}
       <Card className="p-5">
-        <h2 className="mb-2 font-display text-[1.125rem] font-600">When &amp; where</h2>
+        <h2 className="mb-2 font-display text-[1.125rem] font-600">{copy.lobby.whenWhere}</h2>
         <p className="font-data text-[0.9375rem]">{formatGigTime(gig.starts_at)}</p>
         <p className="mt-1 text-[0.9375rem]">{gig.place_label}</p>
         {locked && (
@@ -109,25 +148,64 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
         )}
       </Card>
 
-      {/* Crew cards */}
+      {/* Crew cards (post-completion, this doubles as the "you did this
+          together" summary where friend requests can be sent) */}
       <Card className="p-5">
-        <h2 className="mb-3 font-display text-[1.125rem] font-600">Crew</h2>
+        <h2 className="mb-1 font-display text-[1.125rem] font-600">
+          {isCompleted ? copy.friends.summaryTitle : copy.lobby.crew}
+        </h2>
+        {isCompleted && viewerAttended && (
+          <p className="mb-3 text-[0.875rem] text-[var(--color-dust)]">{copy.friends.summaryHint}</p>
+        )}
         <ul className="space-y-2">
           {crew.map((m) => {
             const p = profileById.get(m.userId);
+            const isSelf = m.userId === user!.id;
+            const viewerIsHost = gig.host_id === user!.id;
+            const bothAttended = viewerAttended && stateById.get(m.userId) === "attended";
             return (
-              <li key={m.userId} className="flex items-center gap-2 text-[0.9375rem]">
+              <li key={m.userId} className="flex flex-wrap items-center gap-2 text-[0.9375rem]">
                 <span className="font-500">{m.name}</span>
                 {m.isHost && (
                   <span className="font-data text-[0.6875rem] uppercase tracking-[0.06em] text-[var(--color-dust)]">Host</span>
                 )}
                 {p && <ReliabilityMark band={p.reliability_band} />}
                 {p?.verification_status === "verified" && <VerifiedBadge />}
+                {!isSelf && (
+                  <div className="ml-auto flex items-center gap-2">
+                    {isCompleted && bothAttended && (
+                      <AddFriendButton recipientId={m.userId} gigId={gig.id} />
+                    )}
+                    <CrewActions
+                      gigId={gig.id}
+                      targetId={m.userId}
+                      targetName={m.name}
+                      canRemove={viewerIsHost && !m.isHost && gig.status !== "completed"}
+                    />
+                  </div>
+                )}
               </li>
             );
           })}
         </ul>
       </Card>
+
+      {/* Partner perk — after lock, with the gig code (docs/08) */}
+      {perk && (
+        <PerkCard
+          gigId={gig.id}
+          venueId={perk.venueId}
+          perk={perk.text}
+          code={gig.code}
+          isHost={gig.host_id === user!.id}
+          alreadyRedeemed={perk.redeemed}
+        />
+      )}
+
+      {/* Host-only: invite friends (no slot held — R10) */}
+      {gig.host_id === user!.id && gig.status === "open" && (
+        <InvitePanel gigId={gig.id} friends={inviteFriends} />
+      )}
 
       {/* Chat — realtime, opens at confirmation (R8) */}
       <LobbyChat gigId={gig.id} confirmed={confirmed} completed={gig.status === "completed"}

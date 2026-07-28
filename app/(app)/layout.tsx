@@ -22,6 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <nav className="flex items-center gap-4 text-[0.9375rem]">
             <Link href="/feed" className="hover:underline">{copy.nav.feed}</Link>
             <Link href="/gigs/new" className="hover:underline">{copy.nav.newGig}</Link>
+            <Link href="/me/friends" className="hover:underline">{copy.friends.title}</Link>
             <Link href="/me" className="hover:underline">{copy.nav.me}</Link>
             <SignOutButton />
           </nav>
