@@ -566,6 +566,7 @@ export interface Database {
       };
       gig_is_confirmed: { Args: { p_gig_id: string }; Returns: boolean };
       is_admin: { Args: { p_user?: string }; Returns: boolean };
+      check_handle: { Args: { p_handle: string }; Returns: boolean };
       start_verification: {
         Args: Record<string, never>;
         Returns: Database["public"]["Tables"]["verification_requests"]["Row"];

@@ -5,7 +5,15 @@ import Link from "next/link";
 
 export const metadata = { title: "Sign in — Trio" };
 
-export default function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  // only allow internal redirect targets
+  const safeNext = next && next.startsWith("/") ? next : "/feed";
+
   return (
     <div className="grid min-h-dvh place-items-center px-5">
       <div className="w-full max-w-sm">
@@ -15,7 +23,7 @@ export default function SignInPage() {
         <p className="mt-2 mb-6 text-[0.9375rem] text-[var(--color-dust)]">
           {copy.productLine}
         </p>
-        <SignInForm />
+        <SignInForm next={safeNext} />
       </div>
     </div>
   );

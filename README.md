@@ -196,6 +196,26 @@ How the cost controls work (all already implemented):
 
 Residential addresses are rejected at creation (R7). Without the key, the picker's search returns nothing — the rest of the app still runs.
 
+## 7. Deploying to Vercel — auth gotchas
+
+Two things bite everyone on the first deploy. Neither is controlled by your Vercel env vars — both live in the **Supabase dashboard**.
+
+### Magic links redirect to localhost
+
+If a magic link sends you to `localhost:3000` from production, it's because Supabase **ignores a `redirect_to` that isn't allow-listed and falls back to the Site URL**. Fix in **Supabase → Authentication → URL Configuration**:
+
+- **Site URL** → `https://your-app.vercel.app`
+- **Redirect URLs** → add `https://your-app.vercel.app/**` and `http://localhost:3000/**`
+
+Then set **`NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app`** in Vercel (Production, no trailing slash) and redeploy. `lib/site-url.ts` uses it to build the redirect. **Request a fresh link afterwards** — old emails have the old redirect baked in.
+
+### "Email rate limit exceeded"
+
+Supabase's **built-in email sender is throttled** (a few per hour) and is for testing only. Don't raise the limit while on it — it won't send more.
+
+- **Local testing:** `supabase start` runs **Inbucket** at `http://localhost:54324` — it catches every auth email with no rate limit.
+- **Production:** configure **custom SMTP** in **Project Settings → Authentication → SMTP Settings**, then raise the cap in **Authentication → Rate Limits**. With Resend (already scaffolded via `RESEND_API_KEY`): verify a domain, then host `smtp.resend.com`, port `465`/`587`, user `resend`, password = your `re_...` key, sender = an address on the verified domain. No domain? Brevo allows single-sender verification with ~300/day free.
+
 ## Commands
 
 ```bash

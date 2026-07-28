@@ -15,6 +15,33 @@ export const copy = {
     signOut: "Sign out",
   },
 
+  auth: {
+    signInTitle: "Welcome back",
+    signUpTitle: "Make an account",
+    name: "Your name",
+    namePlaceholder: "First name is fine",
+    username: "Username",
+    usernamePlaceholder: "e.g. chanka",
+    usernameHint: "Letters, numbers and underscores. This is how you'll be @-known.",
+    email: "Email",
+    password: "Password",
+    passwordHint: "At least 8 characters.",
+    signInCta: "Sign in",
+    signUpCta: "Create account",
+    working: "One sec…",
+    toggleToSignUp: "New here? Make an account",
+    toggleToSignIn: "Already have an account? Sign in",
+    confirmEmail: "Almost there — check your email to confirm, then sign in.",
+    errors: {
+      username_taken: "That username's taken. Try another.",
+      username_format: "Usernames are 3–20 characters: letters, numbers, underscores.",
+      bad_credentials: "That email or password isn't right.",
+      email_in_use: "There's already an account with that email. Sign in instead.",
+      weak_password: "Use at least 8 characters.",
+      generic: "That didn't work. Try again in a moment.",
+    } as Record<string, string>,
+  },
+
   feed: {
     empty: "Nothing on yet. Someone has to go first — might as well be you.",
     emptyCta: "Post a gig",
