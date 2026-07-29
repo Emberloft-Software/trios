@@ -29,12 +29,14 @@ export function ModerationForm({ targetId, verified }: { targetId: string; verif
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
+  const [activeAction, setActiveAction] = useState<"apply" | "verify" | null>(null);
 
   const current = LADDER.find((l) => l.action === action)!;
 
   function apply() {
     setError(null);
     setOk(null);
+    setActiveAction("apply");
     start(async () => {
       const res = await moderateUserAction({
         targetId,
@@ -50,6 +52,7 @@ export function ModerationForm({ targetId, verified }: { targetId: string; verif
   }
 
   function toggleVerify() {
+    setActiveAction("verify");
     start(async () => {
       const res = await setVerificationAction(targetId, !verified);
       if (!res.ok) return setError(res.error);
@@ -80,13 +83,24 @@ export function ModerationForm({ targetId, verified }: { targetId: string; verif
           placeholder="Reason (recorded; a ban should name the second admin who signed off)" />
         {error && <p className="text-[0.8125rem] text-[var(--color-tape)]">{error}</p>}
         {ok && <p className="text-[0.8125rem] text-[var(--color-net)]">{ok}</p>}
-        <Button onClick={apply} disabled={pending || reason.trim().length < 3} className="w-full">
+        <Button
+          onClick={apply}
+          disabled={pending || reason.trim().length < 3}
+          loading={activeAction === "apply"}
+          className="w-full"
+        >
           Apply
         </Button>
       </div>
 
       <div className="mt-4 border-t-2 border-[var(--color-ink)] pt-4">
-        <Button variant="secondary" onClick={toggleVerify} disabled={pending} className="w-full">
+        <Button
+          variant="secondary"
+          onClick={toggleVerify}
+          disabled={pending}
+          loading={activeAction === "verify"}
+          className="w-full"
+        >
           {verified ? "Revoke verification" : "Force-verify"}
         </Button>
       </div>

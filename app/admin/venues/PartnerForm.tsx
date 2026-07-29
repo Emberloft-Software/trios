@@ -49,7 +49,7 @@ export function PartnerForm({
         />
       )}
       <div className="mt-2 flex items-center gap-3">
-        <Button variant="secondary" onClick={save} disabled={pending}>Save</Button>
+        <Button variant="secondary" onClick={save} disabled={pending} loading={pending}>Save</Button>
         {ok && <span className="text-[0.8125rem] text-[var(--color-net)]">Saved</span>}
       </div>
     </div>

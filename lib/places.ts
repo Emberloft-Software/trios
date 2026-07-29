@@ -75,6 +75,8 @@ export interface PlaceDetails {
   photoAttribution: string[];
   googleMapsUri: string | null;
   openingHours: unknown | null;
+  rating: number | null;
+  userRatingCount: number | null;
 }
 
 /**
@@ -95,6 +97,8 @@ export async function placeDetails(
     "photos",
     "googleMapsUri",
     "regularOpeningHours",
+    "rating",
+    "userRatingCount",
   ].join(",");
 
   const res = await fetch(
@@ -113,6 +117,8 @@ export async function placeDetails(
     photos?: { name: string; authorAttributions?: { displayName: string }[] }[];
     googleMapsUri?: string;
     regularOpeningHours?: unknown;
+    rating?: number;
+    userRatingCount?: number;
   };
 
   return {
@@ -128,6 +134,8 @@ export async function placeDetails(
     ),
     googleMapsUri: d.googleMapsUri ?? null,
     openingHours: d.regularOpeningHours ?? null,
+    rating: d.rating ?? null,
+    userRatingCount: d.userRatingCount ?? null,
   };
 }
 

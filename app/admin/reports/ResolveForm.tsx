@@ -15,9 +15,11 @@ export function ResolveForm({ reportId, targetId }: { reportId: string; targetId
   const [note, setNote] = useState("");
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [resolving, setResolving] = useState<"actioned" | "dismissed" | null>(null);
 
   function resolve(resolution: "actioned" | "dismissed") {
     setError(null);
+    setResolving(resolution);
     start(async () => {
       const res = await resolveReportAction({ reportId, resolution, note });
       if (!res.ok) return setError(res.error);
@@ -36,10 +38,19 @@ export function ResolveForm({ reportId, targetId }: { reportId: string; targetId
       />
       {error && <p className="text-[0.8125rem] text-[var(--color-tape)]">{error}</p>}
       <div className="flex flex-wrap gap-2">
-        <Button onClick={() => resolve("actioned")} disabled={pending || !note.trim()}>
+        <Button
+          onClick={() => resolve("actioned")}
+          disabled={pending || !note.trim()}
+          loading={resolving === "actioned"}
+        >
           Actioned
         </Button>
-        <Button variant="secondary" onClick={() => resolve("dismissed")} disabled={pending || !note.trim()}>
+        <Button
+          variant="secondary"
+          onClick={() => resolve("dismissed")}
+          disabled={pending || !note.trim()}
+          loading={resolving === "dismissed"}
+        >
           Dismiss
         </Button>
         <a href={`/admin/users/${targetId}`} className="self-center text-[0.875rem] text-[var(--color-net)] hover:underline">

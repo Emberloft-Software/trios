@@ -17,6 +17,8 @@ export interface PickedVenue {
   photoRef: string | null;
   photoAttribution: string | null;
   mapsUrl: string | null;
+  rating: number | null;
+  userRatingCount: number | null;
 }
 
 export type UpsertVenueResult = { ok: true; venue: PickedVenue } | { ok: false; error: string };
@@ -48,7 +50,9 @@ export async function upsertVenueFromPlaceAction(input: unknown): Promise<Upsert
   // Reuse a fresh existing venue for this place — no Details call needed.
   const { data: existing } = await admin
     .from("venues")
-    .select("id, name, address, lat, lng, is_partner, partner_perk, photo_refs, photo_attribution, maps_url, photos_refreshed_at")
+    .select(
+      "id, name, address, lat, lng, is_partner, partner_perk, photo_refs, photo_attribution, maps_url, photos_refreshed_at, rating, user_rating_count",
+    )
     .eq("google_place_id", parsed.data.placeId)
     .maybeSingle();
 
@@ -87,13 +91,17 @@ export async function upsertVenueFromPlaceAction(input: unknown): Promise<Upsert
     photo_attribution: details.photoAttribution,
     photos_refreshed_at: new Date().toISOString(),
     maps_url: details.googleMapsUri,
+    rating: details.rating,
+    user_rating_count: details.userRatingCount,
     verified_public: true,
   };
 
   const { data: upserted, error } = await admin
     .from("venues")
     .upsert(row, { onConflict: "google_place_id" })
-    .select("id, name, address, lat, lng, is_partner, partner_perk, photo_refs, photo_attribution, maps_url")
+    .select(
+      "id, name, address, lat, lng, is_partner, partner_perk, photo_refs, photo_attribution, maps_url, rating, user_rating_count",
+    )
     .single();
 
   if (error || !upserted) return { ok: false, error: copy.errors.generic };
@@ -111,6 +119,8 @@ function toPicked(v: {
   photo_refs: string[];
   photo_attribution: string[];
   maps_url: string | null;
+  rating: number | null;
+  user_rating_count: number | null;
 }): PickedVenue {
   return {
     id: v.id,
@@ -123,5 +133,7 @@ function toPicked(v: {
     photoRef: v.photo_refs?.[0] ?? null,
     photoAttribution: v.photo_attribution?.[0] ?? null,
     mapsUrl: v.maps_url,
+    rating: v.rating,
+    userRatingCount: v.user_rating_count,
   };
 }

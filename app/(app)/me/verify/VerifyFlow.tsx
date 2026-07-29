@@ -417,7 +417,7 @@ export function VerifyFlow({ userId }: { userId: string }) {
         )}
 
         {phase === "uploading" && (
-          <Button disabled className="w-full">
+          <Button disabled loading className="w-full">
             {v.uploading}
           </Button>
         )}

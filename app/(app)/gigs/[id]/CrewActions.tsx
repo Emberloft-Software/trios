@@ -111,7 +111,7 @@ export function CrewActions({
             onChange={(e) => setReportDetails(e.target.value)} placeholder={t.report.detailsPlaceholder} />
           {error && <p className="text-[0.8125rem] text-[var(--color-tape)]">{error}</p>}
           <div className="flex gap-2">
-            <Button onClick={submitReport} disabled={pending || !reportDetails.trim()}>{t.report.submit}</Button>
+            <Button onClick={submitReport} disabled={pending || !reportDetails.trim()} loading={pending}>{t.report.submit}</Button>
             <Button variant="ghost" onClick={close}>Cancel</Button>
           </div>
         </div>
@@ -123,7 +123,7 @@ export function CrewActions({
           <p className="text-[0.8125rem] text-[var(--color-dust)]">{t.block.confirmBody}</p>
           {error && <p className="text-[0.8125rem] text-[var(--color-tape)]">{error}</p>}
           <div className="flex gap-2">
-            <Button onClick={submitBlock} disabled={pending}>{t.block.confirm}</Button>
+            <Button onClick={submitBlock} disabled={pending} loading={pending}>{t.block.confirm}</Button>
             <Button variant="ghost" onClick={close}>{t.block.cancel}</Button>
           </div>
         </div>
@@ -141,7 +141,7 @@ export function CrewActions({
             onChange={(e) => setRemoveReason(e.target.value)} placeholder={t.remove.reasonPlaceholder} />
           {error && <p className="text-[0.8125rem] text-[var(--color-tape)]">{error}</p>}
           <div className="flex gap-2">
-            <Button onClick={submitRemove} disabled={pending || removeReason.trim().length < 10}>{t.remove.submit}</Button>
+            <Button onClick={submitRemove} disabled={pending || removeReason.trim().length < 10} loading={pending}>{t.remove.submit}</Button>
             <Button variant="ghost" onClick={close}>Cancel</Button>
           </div>
         </div>

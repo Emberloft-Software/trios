@@ -21,6 +21,7 @@ export function AcceptButton({ requestId }: { requestId: string }) {
           })
         }
         disabled={pending}
+        loading={pending}
       >
         {copy.friends.accept}
       </Button>
@@ -43,6 +44,7 @@ export function UnfriendButton({ otherId }: { otherId: string }) {
         })
       }
       disabled={pending}
+      loading={pending}
     >
       {copy.friends.unfriend}
     </Button>

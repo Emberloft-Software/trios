@@ -1,6 +1,7 @@
 import { SlotStrip } from "@/components/ui/SlotStrip";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { VenueMedia } from "@/components/gig/VenueMedia";
 import { formatGigTime } from "@/lib/time";
 import type { Database } from "@/lib/database.types";
 
@@ -30,14 +31,10 @@ export function GigCard({ gig, tiltIndex = 0 }: { gig: FeedGig; tiltIndex?: numb
         </span>
       </div>
 
-      <dl className="mb-4 space-y-1 text-[0.875rem]">
+      <dl className="mb-3 space-y-1 text-[0.875rem]">
         <div className="flex gap-2">
           <dt className="text-[var(--color-dust)]">When</dt>
           <dd className="font-data">{formatGigTime(gig.starts_at)}</dd>
-        </div>
-        <div className="flex gap-2">
-          <dt className="text-[var(--color-dust)]">Where</dt>
-          <dd className="truncate">{gig.place_label}</dd>
         </div>
         {gig.cost_note && (
           <div className="flex gap-2">
@@ -46,6 +43,20 @@ export function GigCard({ gig, tiltIndex = 0 }: { gig: FeedGig; tiltIndex?: numb
           </div>
         )}
       </dl>
+
+      <div className="mb-4">
+        <VenueMedia
+          placeLabel={gig.place_label}
+          lat={gig.lat}
+          lng={gig.lng}
+          venueName={gig.venue_name}
+          photoRef={gig.venue_photo_ref}
+          photoAttribution={gig.venue_photo_attribution}
+          rating={gig.venue_rating}
+          ratingCount={gig.venue_rating_count}
+          mapsUrl={gig.venue_maps_url}
+        />
+      </div>
 
       <SlotStrip
         variant="blind"

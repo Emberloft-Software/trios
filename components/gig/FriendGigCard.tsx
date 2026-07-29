@@ -1,6 +1,7 @@
 import { SlotStrip } from "@/components/ui/SlotStrip";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { VenueMedia } from "@/components/gig/VenueMedia";
 import { formatGigTime } from "@/lib/time";
 import { firstName } from "@/lib/avatar";
 import type { Database } from "@/lib/database.types";
@@ -22,9 +23,20 @@ export function FriendGigCard({ gig, tiltIndex = 0 }: { gig: FriendGig; tiltInde
         </span>
       </div>
       <h3 className="mb-1 font-display text-[1.25rem] font-600">{gig.title}</h3>
-      <p className="mb-3 text-[0.875rem]">
-        <span className="font-data">{formatGigTime(gig.starts_at)}</span> · {gig.place_label}
-      </p>
+      <p className="mb-3 font-data text-[0.875rem]">{formatGigTime(gig.starts_at)}</p>
+      <div className="mb-4">
+        <VenueMedia
+          placeLabel={gig.place_label}
+          lat={gig.lat}
+          lng={gig.lng}
+          venueName={gig.venue_name}
+          photoRef={gig.venue_photo_ref}
+          photoAttribution={gig.venue_photo_attribution}
+          rating={gig.venue_rating}
+          ratingCount={gig.venue_rating_count}
+          mapsUrl={gig.venue_maps_url}
+        />
+      </div>
       <SlotStrip
         variant="blind"
         capacity={gig.capacity}

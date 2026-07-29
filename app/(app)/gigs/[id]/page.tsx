@@ -10,6 +10,7 @@ import { CrewActions } from "./CrewActions";
 import { AddFriendButton } from "./AddFriendButton";
 import { InvitePanel } from "./InvitePanel";
 import { PerkCard } from "./PerkCard";
+import { VenueMedia } from "@/components/gig/VenueMedia";
 import { formatGigTime } from "@/lib/time";
 import { publicAvatarUrl, firstName } from "@/lib/avatar";
 import { copy } from "@/lib/copy";
@@ -23,10 +24,21 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
 
   const { data: gig } = await supabase
     .from("gigs")
-    .select("*, activities(name, emoji)")
+    .select(
+      "*, activities(name, emoji), venues(name, photo_refs, photo_attribution, maps_url, rating, user_rating_count)",
+    )
     .eq("id", id)
     .maybeSingle();
   if (!gig) notFound();
+
+  const venue = gig.venues as {
+    name: string;
+    photo_refs: string[];
+    photo_attribution: string[];
+    maps_url: string | null;
+    rating: number | null;
+    user_rating_count: number | null;
+  } | null;
 
   // RLS only returns crew rows if the viewer is themselves crew. So if we get
   // rows back, the viewer is in the crew and this is the lobby; otherwise it's
@@ -61,6 +73,19 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
     return (
       <div className="mx-auto max-w-2xl">
         <PreviewHeader activity={activity} gig={gig} />
+        <div className="mt-4">
+          <VenueMedia
+            placeLabel={gig.place_label}
+            lat={gig.lat}
+            lng={gig.lng}
+            venueName={venue?.name}
+            photoRef={venue?.photo_refs?.[0]}
+            photoAttribution={venue?.photo_attribution?.[0]}
+            rating={venue?.rating}
+            ratingCount={venue?.user_rating_count}
+            mapsUrl={venue?.maps_url}
+          />
+        </div>
         <Card className="mt-5 p-5">
           <SlotStrip variant="blind" capacity={gig.capacity} filled={gig.claimed_count}
             minToConfirm={gig.min_to_confirm} locked={locked} />
@@ -149,7 +174,19 @@ export default async function GigPage({ params }: { params: Promise<{ id: string
       <Card className="p-5">
         <h2 className="mb-2 font-display text-[1.125rem] font-600">{copy.lobby.whenWhere}</h2>
         <p className="font-data text-[0.9375rem]">{formatGigTime(gig.starts_at)}</p>
-        <p className="mt-1 text-[0.9375rem]">{gig.place_label}</p>
+        <div className="mt-2">
+          <VenueMedia
+            placeLabel={gig.place_label}
+            lat={gig.lat}
+            lng={gig.lng}
+            venueName={venue?.name}
+            photoRef={venue?.photo_refs?.[0]}
+            photoAttribution={venue?.photo_attribution?.[0]}
+            rating={venue?.rating}
+            ratingCount={venue?.user_rating_count}
+            mapsUrl={venue?.maps_url}
+          />
+        </div>
         {locked && (
           <p className="mt-3 rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-line)] p-3 text-[0.875rem]">
             {copy.safetyReminder}

@@ -17,8 +17,11 @@ export function LeavePanel({ gigId }: { gigId: string }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  const [leaving, setLeaving] = useState<"cameUp" | "uncomfortable" | null>(null);
+
   function leave(uncomfortable: boolean) {
     setError(null);
+    setLeaving(uncomfortable ? "uncomfortable" : "cameUp");
     start(async () => {
       const res = await leaveGigAction(gigId, uncomfortable);
       if (!res.ok) {
@@ -42,10 +45,22 @@ export function LeavePanel({ gigId }: { gigId: string }) {
     <Card className="p-5">
       <h2 className="mb-3 font-display text-[1.125rem] font-600">{copy.lobby.leaving}</h2>
       <div className="space-y-2">
-        <Button variant="secondary" onClick={() => leave(false)} disabled={pending} className="w-full">
+        <Button
+          variant="secondary"
+          onClick={() => leave(false)}
+          disabled={pending}
+          loading={leaving === "cameUp"}
+          className="w-full"
+        >
           {copy.lobby.somethingCameUp}
         </Button>
-        <Button variant="secondary" onClick={() => leave(true)} disabled={pending} className="w-full">
+        <Button
+          variant="secondary"
+          onClick={() => leave(true)}
+          disabled={pending}
+          loading={leaving === "uncomfortable"}
+          className="w-full"
+        >
           {copy.lobby.didntFeelComfortable}
         </Button>
         <p className="text-[0.8125rem] text-[var(--color-dust)]">{copy.lobby.leaveHint}</p>

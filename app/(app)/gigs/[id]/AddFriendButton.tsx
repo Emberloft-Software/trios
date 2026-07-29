@@ -31,6 +31,7 @@ export function AddFriendButton({ recipientId, gigId }: { recipientId: string; g
           })
         }
         disabled={pending}
+        loading={pending}
       >
         {copy.friends.add}
       </Button>

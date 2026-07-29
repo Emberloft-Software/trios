@@ -178,8 +178,8 @@ export function NewGigForm({ activities }: { activities: Activity[] }) {
 
       {error && <p className="text-[0.9375rem] text-[var(--color-tape)]">{error}</p>}
 
-      <Button type="submit" disabled={busy} className="w-full">
-        {busy ? copy.newGig.submitting : copy.newGig.submit}
+      <Button type="submit" disabled={busy} loading={busy} className="w-full">
+        {copy.newGig.submit}
       </Button>
     </form>
   );

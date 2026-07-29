@@ -19,6 +19,7 @@ export function InvitePanel({
 }) {
   const [pending, start] = useTransition();
   const [invited, setInvited] = useState<Set<string>>(new Set());
+  const [invitingId, setInvitingId] = useState<string | null>(null);
 
   if (friends.length === 0) return null;
 
@@ -38,12 +39,14 @@ export function InvitePanel({
               <Button
                 variant="secondary"
                 disabled={pending}
-                onClick={() =>
+                loading={invitingId === fr.id}
+                onClick={() => {
+                  setInvitingId(fr.id);
                   start(async () => {
                     const res = await inviteFriendAction(gigId, fr.id);
                     if (res.ok) setInvited((s) => new Set(s).add(fr.id));
-                  })
-                }
+                  });
+                }}
               >
                 {copy.friends.invite}
               </Button>

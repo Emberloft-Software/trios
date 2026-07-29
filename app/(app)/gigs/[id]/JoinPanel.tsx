@@ -38,8 +38,8 @@ export function JoinPanel({ gigId, status }: { gigId: string; status: GigStatus 
   return (
     <Card className="p-5">
       <p className="mb-3 text-[0.9375rem]">{copy.lobby.joinHint}</p>
-      <Button onClick={join} disabled={pending} className="w-full">
-        {pending ? "Taking…" : copy.gig.take}
+      <Button onClick={join} disabled={pending} loading={pending} className="w-full">
+        {copy.gig.take}
       </Button>
       {error && <p className="mt-3 text-[0.9375rem] text-[var(--color-tape)]">{error}</p>}
     </Card>

@@ -44,7 +44,12 @@ export function SpotForm({ slug }: { slug: string }) {
           className="w-full rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] px-3 py-2.5 font-data text-lg tracking-[0.1em] outline-none"
         />
         {error && <p className="mt-2 text-[0.875rem] text-[var(--color-tape)]">{error}</p>}
-        <Button type="submit" disabled={pending || code.trim().length < 3} className="mt-4 w-full">
+        <Button
+          type="submit"
+          disabled={pending || code.trim().length < 3}
+          loading={pending}
+          className="mt-4 w-full"
+        >
           {copy.spot.submit}
         </Button>
       </form>

@@ -84,6 +84,20 @@ h4 {
   outline-offset: 2px;
 }
 
+/* Button-loading spinner — three dots, bounce in sequence (docs/04 motion budget) */
+@keyframes trio-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* Respect reduced motion everywhere, including the SlotStrip spring */
 @media (prefers-reduced-motion: reduce) {
   *,

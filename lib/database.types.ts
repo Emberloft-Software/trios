@@ -123,6 +123,8 @@ export interface Database {
           partner_since: string | null;
           verified_public: boolean;
           active: boolean;
+          rating: number | null;
+          user_rating_count: number | null;
           created_at: string;
         };
         Insert: {
@@ -140,6 +142,8 @@ export interface Database {
           price_level?: number | null;
           activity_tags?: string[];
           verified_public?: boolean;
+          rating?: number | null;
+          user_rating_count?: number | null;
         };
         Update: {
           name?: string;
@@ -154,6 +158,8 @@ export interface Database {
           partner_since?: string | null;
           verified_public?: boolean;
           active?: boolean;
+          rating?: number | null;
+          user_rating_count?: number | null;
         };
         Relationships: [];
       };
@@ -471,6 +477,12 @@ export interface Database {
           activity_name: string;
           activity_emoji: string;
           activity_category: string;
+          venue_name: string | null;
+          venue_photo_ref: string | null;
+          venue_photo_attribution: string | null;
+          venue_rating: number | null;
+          venue_rating_count: number | null;
+          venue_maps_url: string | null;
         };
         Relationships: [];
       };
@@ -497,6 +509,12 @@ export interface Database {
           activity_category: string;
           host_name: string;
           host_avatar: string | null;
+          venue_name: string | null;
+          venue_photo_ref: string | null;
+          venue_photo_attribution: string | null;
+          venue_rating: number | null;
+          venue_rating_count: number | null;
+          venue_maps_url: string | null;
         };
         Relationships: [];
       };

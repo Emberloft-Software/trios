@@ -45,6 +45,7 @@ export function PerkCard({
           <Button
             variant="secondary"
             disabled={pending}
+            loading={pending}
             onClick={() =>
               start(async () => {
                 const res = await redeemPerkAction(gigId, venueId);

@@ -71,6 +71,11 @@ export const copy = {
     redeemed: "Redeemed",
   },
 
+  // Venue media card — feed, lobby, and preview all reuse this (docs/03)
+  venue: {
+    openInMaps: "Open in Google Maps",
+  },
+
   // Create-gig flow (docs/03)
   newGig: {
     heading: "Post a gig",
