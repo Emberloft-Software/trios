@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FieldError, Input, Label, Textarea } from "@/components/ui/Field";
@@ -9,7 +8,6 @@ import { copy } from "@/lib/copy";
 import { updateProfileAction } from "./_actions";
 
 export function ProfileEditor({ displayName, bio }: { displayName: string; bio: string }) {
-  const router = useRouter();
   const [name, setName] = useState(displayName);
   const [about, setAbout] = useState(bio);
   const [saved, setSaved] = useState(false);
@@ -28,7 +26,6 @@ export function ProfileEditor({ displayName, bio }: { displayName: string; bio: 
           if (!res.ok) return setError(res.error);
           setSaved(true);
           setTimeout(() => setSaved(false), 2000);
-          router.refresh();
         });
       }}
     >

@@ -47,7 +47,7 @@ npm run dev        # http://localhost:3000
 
 `.env.local` needs (see `.env.example`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only), `GOOGLE_MAPS_SERVER_KEY` (Places API New, server-only), `NEXT_PUBLIC_SITE_URL`.
 
-Database: migrations in `supabase/migrations/0001–0007` + `supabase/seed.sql` are already applied to the hosted project. See [`supabase/README-ops.md`](supabase/README-ops.md) for applying new ones, the admin allowlist, auth/SMTP settings and scheduled jobs.
+Database: migrations in `supabase/migrations/0001–0018` + `supabase/seed.sql` are already applied to the hosted project. See [`supabase/README-ops.md`](supabase/README-ops.md) for applying new ones, the admin allowlist, auth/SMTP settings and scheduled jobs.
 
 Before shipping changes: `npm run typecheck` and `npm run build`.
 

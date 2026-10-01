@@ -37,15 +37,18 @@ Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + 
 6. **Privileges are explicit.** `0003` revokes table/function access and grants back narrowly (column-level `update` grants on `profiles`/`gigs`). Any new function must be granted explicitly — nothing is callable by default.
 7. **No `any`.** Types come from `npm run gen:types` (`scripts/gen-types.mjs`, which also tightens view nullability).
 8. **Mutations are server actions or route handlers.**
-9. **User-facing strings live in `lib/copy.ts`** (legal text in `lib/legal.ts`). Admin-only screens may inline strings.
+9. **User-facing strings live in `lib/copy/`** (one file per area, merged in `lib/copy/index.ts`; legal text in `lib/legal/`). Admin-only screens may inline strings.
+10. **No source file over 200 lines** (TS/TSX/CSS/SQL). Split by responsibility. Exempt: the generated `lib/database.types.ts`.
+11. **Never call `router.refresh()` after a server action that already `revalidatePath`s the current page** — it doubles the round trip. For realtime/background refreshes use `useCalmRefresh()` (`lib/useCalmRefresh.ts`), never raw bursts of `router.refresh()`.
 
 ---
 
 ## Product rules worth knowing
 
 - **Audience:** gigs carry `age_min/age_max/gender_pref`. RLS hides gigs whose audience doesn't include the viewer; `claim_slot` re-checks. Hosts must fit their own audience.
-- **Bringing friends:** `host_guests` (what the host declared) + `reserved_slots` (seats still held). `headcount = claimed_count + reserved_slots`. The host's `/join/<invite_code>` link lets friends join (skipping the audience filter, consuming a held seat). Feed/lobby warn "join at your own risk".
-- **Chat opens** when headcount ≥ `min_to_confirm` **and** ≥ 2 app members. Client warns before sending phone numbers/links and labels received ones.
+- **Bringing friends:** `host_guests` (declared) + `reserved_slots` (seats still held). `headcount = claimed_count + reserved_slots`. Each held seat has its own **single-use** link in `gig_invites` (`/join/<code>`); no guests → no links. Redeeming skips the audience filter, consumes the seat, and posts a `guest_joined` system message. The host can cancel unused links (seat goes public). Feed/lobby warn "join at your own risk".
+- **Chat AND photos unlock** only when every spot is filled by people who actually joined (`claimed_count >= capacity`), or when the gig locks 2h before start. Sticky via `gigs.chat_opened_at`. Photos are hidden structurally by `can_see_face()` inside `profiles_public` (self, admin, friends, or a shared unlocked gig). Lobbies listen to their `gigs` row over realtime to flip open instantly.
+- Client warns before sending phone numbers/links in chat and labels received ones.
 - **Crew vote:** `cast_kick_vote` — majority of other claimed members, min 2 votes, host can't be voted out. Removal files a `crew_vote_removal` report for admins.
 - **Photos:** uploaded as pending after on-device face check; shown only after admin approval (`avatar_path` is only ever set on approval).
 - **Age/gender** are write-once for users (`complete_profile`), editable by admins with an audit row.
@@ -59,7 +62,7 @@ npm run build
 npm run gen:types      # regenerate lib/database.types.ts from the linked project
 ```
 
-Migrations were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
+Migrations (`0001`–`0019`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
 
 ## Before you call any task done
 

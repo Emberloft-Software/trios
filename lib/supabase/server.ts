@@ -31,3 +31,17 @@ export async function createClient() {
     },
   );
 }
+
+/**
+ * The signed-in user, verified locally from the JWT (the project uses
+ * asymmetric signing keys, so this is a signature check — no network round
+ * trip to Supabase Auth). RLS still re-validates the token on every query.
+ */
+export async function currentUser(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<{ id: string; email: string | null } | null> {
+  const { data } = await supabase.auth.getClaims();
+  const sub = data?.claims?.sub;
+  if (!sub) return null;
+  return { id: sub, email: (data.claims.email as string | undefined) ?? null };
+}

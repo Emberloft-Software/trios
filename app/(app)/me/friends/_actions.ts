@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, currentUser } from "@/lib/supabase/server";
 import { errorCopy } from "@/lib/copy";
 
 const uuid = z.string().uuid();
@@ -42,9 +42,7 @@ export async function acceptFriendRequestAction(requestId: string): Promise<Frie
 export async function unfriendAction(otherId: string): Promise<FriendResult> {
   if (!uuid.safeParse(otherId).success) return { ok: false, error: errorCopy("generic") };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return { ok: false, error: errorCopy("not_authenticated") };
 
   const [a, b] = user.id < otherId ? [user.id, otherId] : [otherId, user.id];

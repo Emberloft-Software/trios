@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { Checkbox, FieldError, Hint, Input, Label, Segmented } from "@/components/ui/Field";
+import { FieldError } from "@/components/ui/Field";
+import { ProfileBasics, type Gender } from "@/components/app/ProfileBasics";
 import { copy } from "@/lib/copy";
 import { completeProfileAction } from "./_actions";
 
-type Gender = "woman" | "man" | "nonbinary";
 
 export function OnboardingForm({ next }: { next: string }) {
   const router = useRouter();
@@ -18,7 +17,6 @@ export function OnboardingForm({ next }: { next: string }) {
   const [terms, setTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
-  const max = new Date(Date.now() - 18 * 365.25 * 864e5).toISOString().slice(0, 10);
 
   return (
     <div className="animate-rise">
@@ -37,23 +35,7 @@ export function OnboardingForm({ next }: { next: string }) {
           });
         }}
       >
-        <div>
-          <Label htmlFor="dob">{c.birthDate}</Label>
-          <Input id="dob" type="date" max={max} min="1925-01-01" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} required />
-          <Hint>{c.birthDateHint}</Hint>
-        </div>
-        <div>
-          <Label>{c.gender}</Label>
-          <Segmented<Gender> name={c.gender} value={gender} onChange={setGender}
-            options={(["woman", "man", "nonbinary"] as const).map((g) => ({ value: g, label: c.genders[g] }))} />
-          <Hint>{c.genderHint}</Hint>
-        </div>
-        <Checkbox id="terms" checked={terms} onChange={setTerms}>
-          {c.terms}{" "}
-          <Link href="/terms" target="_blank" className="font-semibold text-coral-600 hover:underline">{c.termsLink}</Link>{" "}
-          {c.and}{" "}
-          <Link href="/privacy" target="_blank" className="font-semibold text-coral-600 hover:underline">{c.privacyLink}</Link>.
-        </Checkbox>
+        <ProfileBasics birthDate={birthDate} onBirthDate={setBirthDate} gender={gender} onGender={setGender} terms={terms} onTerms={setTerms} />
         <FieldError>{error}</FieldError>
         <Button type="submit" size="lg" block loading={pending}>{copy.onboarding.cta}</Button>
       </form>

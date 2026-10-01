@@ -8,7 +8,7 @@ The hosted project is `swvbgmoljmvkvihxtakp` (ap-south-1). The direct `db.<ref>.
 psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmoljmvkvihxtakp dbname=postgres sslmode=require" -v ON_ERROR_STOP=1 -f supabase/migrations/00XX_name.sql
 ```
 
-`0001`–`0007` + `seed.sql` are applied. The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
+`0001`–`0018` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
 
 ## First admin
 

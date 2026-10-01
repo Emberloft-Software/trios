@@ -1,0 +1,90 @@
+import { brand } from "@/lib/brand";
+
+const N = brand.name;
+
+export const appCopy = {
+  productLine: "Plans need people. Find your crew.",
+  nav: {
+    feed: "Discover",
+    myGigs: "My gigs",
+    newGig: "Post a gig",
+    me: "Profile",
+    friends: "Friends",
+    notifications: "Activity",
+    admin: "Admin",
+    signIn: "Sign in",
+    getStarted: "Get started",
+    signOut: "Sign out",
+  },
+  disclaimers: {
+    chat: "Keep it in the group. Don't share phone numbers, home addresses, or social handles in chat, and don't follow links to other sites — anything you take off Tremigos is at your own risk.",
+    chatShort: "Don't share phone numbers or follow outside links — that's at your own risk.",
+    phoneWarning: "Looks like you're sharing a phone number. We recommend keeping chat inside Tremigos — sharing contact details is at your own risk.",
+    linkWarning: "Looks like you're sharing a link. People can't tell where links really go — sharing or opening them is at your own risk.",
+    sendAnyway: "Send anyway",
+    editMessage: "Edit message",
+    receivedLink: "Outside link — open at your own risk",
+    receivedPhone: "Contains contact details — be careful",
+    meetPublic: "Meet in public, sort your own transport, and tell someone where you're going.",
+    footer: `${N} connects people for group activities. We don't run, supervise or attend gigs. Meeting people you don't know carries risk — use your judgement, meet in public, and leave if anything feels off.`,
+  },
+  install: {
+    title: "Install Tremigos",
+    body: "Add it to your home screen for the full-screen app — faster, works with your camera for verification, and opens straight to your gigs.",
+    cta: "Install app",
+    later: "Not now",
+    iosTitle: "Install on iPhone",
+    iosSteps: ["Tap the Share button in Safari", "Scroll and tap “Add to Home Screen”", "Tap “Add”"],
+    iosSafariOnly: "On iPhone, open this page in Safari to install.",
+    installed: "You're using the app.",
+  },
+  offline: "You're offline. Some things won't load until you're back online.",
+  notFound: {
+    title: "Nothing here",
+    body: "That page doesn't exist, or it isn't open to you.",
+    feed: "Back to Discover",
+    home: "Or the home page",
+  },
+  notifications: {
+    title: "Activity",
+    empty: "Nothing yet. Updates about your gigs will show up here.",
+    markRead: "Mark all read",
+    kinds: {
+      gig_confirmed: "Your gig is full — the group chat is open.",
+      gig_locked: "Your gig is locked in. Check the details.",
+      gig_cancelled: "A gig you were in was cancelled.",
+      removed: "You were removed from a gig by the host.",
+      removed_by_vote: "The crew voted to remove you from a gig. Our team will review it.",
+      verification_approved: "You're verified.",
+      verification_rejected: "Your verification didn't pass. You can try again.",
+      photo_approved: "Your profile photo was approved.",
+      photo_rejected: "Your profile photo wasn't approved. Try another one.",
+      friend_request: "Someone you met wants to add you as a friend.",
+      friend_accepted: "Your friend request was accepted.",
+      friend_invite: "A friend invited you to their gig.",
+      moderation_action: "There's an update about your account. Check your email.",
+      admin_priority_report: "Priority report waiting for review.",
+    } as Record<string, string>,
+  },
+  safetyReminder:
+    "Meet at the venue. Sort your own transport. Tell someone where you're going. If it feels off, leave — you'll never be penalised for it.",
+  platonicClause: {
+    heading: "Not a dating app. On purpose.",
+    body: "Every gig needs three people minimum, because three people isn't a date. Nobody hand-picks who joins — spots go first-come. And there are no private messages: every conversation happens in the group.",
+    checkbox:
+      "I get it — this is for doing things with people, not dating. Groups of three or more, public places, no hitting on the crew.",
+  },
+  spot: {
+    title: "Tremigos crew perk",
+    intro: "A Tremigos crew here? Enter their gig code to log the visit.",
+    codeLabel: "Gig code",
+    submit: "Log the visit",
+    done: "Logged. Thanks — that helps us show we're sending you people.",
+    errors: {
+      venue_not_found: "We couldn't find this venue.",
+      gig_not_found: "No crew found for that code here. Check it and try again.",
+      already_redeemed: "This one's already been logged.",
+      generic: "That didn't work. Try again.",
+    } as Record<string, string>,
+  },
+} as const;

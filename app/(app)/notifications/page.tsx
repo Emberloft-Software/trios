@@ -21,9 +21,8 @@ export default async function NotificationsPage() {
   const unread = rows.some((r) => !r.read_at);
   const n = copy.notifications;
 
-  function hrefFor(kind: string, gigId: string | null, payload: unknown) {
-    const code = (payload as { invite_code?: string } | null)?.invite_code;
-    if (kind === "friend_invite" && code) return `/join/${code}`;
+  function hrefFor(kind: string, gigId: string | null) {
+    if (kind === "friend_invite" && gigId) return `/gigs/${gigId}`;
     if (kind.startsWith("friend_")) return "/me/friends";
     if (kind.startsWith("verification_") || kind.startsWith("photo_")) return "/me";
     if (kind === "admin_priority_report") return "/admin/reports";
@@ -40,7 +39,7 @@ export default async function NotificationsPage() {
         <ul className="glass divide-y divide-line overflow-hidden rounded-[1.75rem]">
           {rows.map((r) => (
             <li key={r.id}>
-              <Link href={hrefFor(r.kind, r.gig_id, r.payload)} className={`flex items-center gap-3 px-4 py-3.5 transition hover:bg-white/60 ${r.read_at ? "" : "bg-coral-50/60"}`}>
+              <Link href={hrefFor(r.kind, r.gig_id)} className={`flex items-center gap-3 px-4 py-3.5 transition hover:bg-white/60 ${r.read_at ? "" : "bg-coral-50/60"}`}>
                 <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${r.read_at ? "bg-plum-50 text-plum" : "bg-coral text-white"}`}>
                   <Bell className="h-5 w-5" />
                 </span>

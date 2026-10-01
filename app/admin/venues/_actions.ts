@@ -2,14 +2,12 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, currentUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 async function requireAdmin(): Promise<string | null> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return null;
   const { data } = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
   return data?.is_admin ? user.id : null;

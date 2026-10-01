@@ -32,11 +32,10 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // IMPORTANT: getUser() revalidates the token against Supabase Auth.
-  // Do not trust getSession() in server code.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims verifies the JWT locally against the project's published
+  // signing keys (ES256) — no network round trip to Supabase Auth per request.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const user = claimsData?.claims?.sub ? { id: claimsData.claims.sub } : null;
 
   const path = request.nextUrl.pathname;
   const isProtected = ["/feed", "/gigs", "/me", "/admin", "/notifications", "/onboarding"].some(

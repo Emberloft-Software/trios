@@ -2,7 +2,6 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Camera, Clock } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -47,7 +46,6 @@ export function PhotoUploader({
   status: "none" | "pending" | "approved" | "rejected";
   rejectReason: string | null;
 }) {
-  const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<"idle" | "checking" | "uploading">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +77,6 @@ export function PhotoUploader({
       const res = await uploadAvatarAction(fd);
       setPhase("idle");
       if (!res.ok) return setError(res.error);
-      router.refresh();
     } catch {
       setPhase("idle");
       setError(copy.errors.generic);

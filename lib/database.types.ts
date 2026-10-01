@@ -516,6 +516,75 @@ export type Database = {
           },
         ]
       }
+      gig_invites: {
+        Row: {
+          code: string
+          created_at: string
+          gig_id: string
+          id: string
+          label: number
+          revoked_at: string | null
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          gig_id: string
+          id?: string
+          label: number
+          revoked_at?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          gig_id?: string
+          id?: string
+          label?: number
+          revoked_at?: string | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gig_invites_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "friend_hosted_gigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gig_invites_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gig_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gig_invites_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gig_invites_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gig_invites_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gig_messages: {
         Row: {
           body: string
@@ -586,6 +655,7 @@ export type Database = {
           age_min: number
           cancelled_reason: string | null
           capacity: number
+          chat_opened_at: string | null
           claimed_count: number
           code: string
           cost_note: string | null
@@ -614,6 +684,7 @@ export type Database = {
           age_min?: number
           cancelled_reason?: string | null
           capacity: number
+          chat_opened_at?: string | null
           claimed_count?: number
           code: string
           cost_note?: string | null
@@ -642,6 +713,7 @@ export type Database = {
           age_min?: number
           cancelled_reason?: string | null
           capacity?: number
+          chat_opened_at?: string | null
           claimed_count?: number
           code?: string
           cost_note?: string | null
@@ -1614,6 +1686,7 @@ export type Database = {
       }
       age_years: { Args: { p_birth: string }; Returns: number }
       block_user: { Args: { p_blocked: string }; Returns: undefined }
+      can_see_face: { Args: { p_target: string }; Returns: boolean }
       cancel_gig: {
         Args: { p_gig_id: string; p_reason?: string }
         Returns: undefined
@@ -1710,6 +1783,7 @@ export type Database = {
           age_min: number
           cancelled_reason: string | null
           capacity: number
+          chat_opened_at: string | null
           claimed_count: number
           code: string
           cost_note: string | null
@@ -1800,6 +1874,7 @@ export type Database = {
           age_min: number
           cancelled_reason: string | null
           capacity: number
+          chat_opened_at: string | null
           claimed_count: number
           code: string
           cost_note: string | null
@@ -1882,14 +1957,23 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      release_reserved_slot: {
-        Args: { p_gig_id: string }
+      remove_crew_member: {
+        Args: { p_gig_id: string; p_reason: string; p_target: string }
+        Returns: undefined
+      }
+      retract_kick_vote: {
+        Args: { p_gig_id: string; p_target: string }
+        Returns: undefined
+      }
+      revoke_guest_invite: {
+        Args: { p_invite_id: string }
         Returns: {
           activity_id: string
           age_max: number
           age_min: number
           cancelled_reason: string | null
           capacity: number
+          chat_opened_at: string | null
           claimed_count: number
           code: string
           cost_note: string | null
@@ -1918,14 +2002,6 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
-      }
-      remove_crew_member: {
-        Args: { p_gig_id: string; p_reason: string; p_target: string }
-        Returns: undefined
-      }
-      retract_kick_vote: {
-        Args: { p_gig_id: string; p_target: string }
-        Returns: undefined
       }
       send_friend_request: {
         Args: { p_gig_id: string; p_recipient: string }

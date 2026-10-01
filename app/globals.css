@@ -66,17 +66,18 @@
 }
 
 /* ── Glass surfaces ───────────────────────────────────────────────────────── */
+/* Cards: translucent but NO backdrop-filter — blurring many scrolling cards is
+   the main source of tap/scroll jank on phones. Real blur is reserved for the
+   fixed chrome (nav bars, sheets) via glass-strong. */
 @utility glass {
-  background: rgba(255, 255, 255, 0.62);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  backdrop-filter: blur(20px) saturate(170%);
+  background: rgba(255, 255, 255, 0.74);
   border: 1px solid rgba(255, 255, 255, 0.75);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, var(--shadow-soft);
 }
 @utility glass-strong {
   background: rgba(255, 255, 255, 0.82);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, var(--shadow-soft);
 }
@@ -114,6 +115,10 @@
 }
 
 @layer base {
+a, button, [role="button"], label, summary {
+  touch-action: manipulation;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
@@ -152,12 +157,14 @@ h1, h2, h3, h4 {
   pointer-events: none;
   background: var(--color-cream);
 }
-.ambient span {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(70px);
-  opacity: 0.5;
+.ambient {
+  background:
+    radial-gradient(40rem 40rem at 100% -10%, rgba(255, 52, 80, 0.16), transparent 60%),
+    radial-gradient(36rem 36rem at -10% 110%, rgba(255, 186, 48, 0.2), transparent 60%),
+    radial-gradient(30rem 30rem at 60% 50%, rgba(111, 63, 143, 0.07), transparent 60%),
+    var(--color-cream);
 }
+.ambient span { display: none; }
 
 /* ── Accessibility floor ──────────────────────────────────────────────────── */
 :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {

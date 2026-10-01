@@ -1,38 +1,23 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { SlotStrip } from "@/components/ui/SlotStrip";
 import { Button } from "@/components/ui/Button";
-import { Checkbox, FieldError, Hint, Input, Label, Segmented, Select, Textarea } from "@/components/ui/Field";
+import { Checkbox, Hint, Input, Label, Select, Textarea } from "@/components/ui/Field";
 import { Notice } from "@/components/ui/Notice";
 import { VenuePicker } from "@/components/gig/VenuePicker";
 import { copy } from "@/lib/copy";
 import { colomboLocalToUtcISO, toColomboLocalInput } from "@/lib/time";
 import { createGigAction } from "./_actions";
+import { Step, Stepper } from "./form-parts";
+import { ActivityPicker, type Activity } from "./ActivityPicker";
+import { AudienceFields, type GenderPref } from "./AudienceFields";
 import type { PickedVenue } from "./venue-actions";
 
-interface Activity {
-  id: string;
-  slug: string;
-  name: string;
-  emoji: string;
-  category: string;
-  default_capacity: number;
-}
 
-type GenderPref = "everyone" | "women" | "men";
 const DURATIONS = [60, 90, 120, 180, 240];
-const AGE_PRESETS: [number, number][] = [
-  [18, 99],
-  [18, 25],
-  [21, 30],
-  [25, 35],
-  [30, 45],
-  [40, 99],
-];
-const AGES = Array.from({ length: 82 }, (_, i) => i + 18);
 
 export function NewGigForm({
   activities,
@@ -66,17 +51,6 @@ export function NewGigForm({
   const maxLocal = toColomboLocalInput(new Date(Date.now() + 59 * 864e5));
   const hostOutside = hostAge < ageMin || hostAge > ageMax;
   const maxGuests = Math.max(0, capacity - 2);
-  const genderOptions: { value: GenderPref; label: string }[] = [
-    { value: "everyone", label: copy.audience.everyone },
-    ...(hostGender === "woman" ? [{ value: "women" as const, label: copy.audience.women }] : []),
-    ...(hostGender === "man" ? [{ value: "men" as const, label: copy.audience.men }] : []),
-  ];
-
-  const grouped = useMemo(() => {
-    const m = new Map<string, Activity[]>();
-    activities.forEach((a) => m.set(a.category, [...(m.get(a.category) ?? []), a]));
-    return [...m.entries()];
-  }, [activities]);
 
   function pickActivity(a: Activity) {
     setActivityId(a.id);
@@ -127,34 +101,7 @@ export function NewGigForm({
     <form onSubmit={submit} className="space-y-5">
       {/* 1. Activity */}
       <Step n={1} title={n.pickActivity}>
-        <div className="space-y-4">
-          {grouped.map(([cat, list]) => (
-            <div key={cat}>
-              <p className="mb-2 text-[0.75rem] font-bold uppercase tracking-wider text-muted">{cat}</p>
-              <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0">
-                {list.map((a) => {
-                  const active = a.id === activityId;
-                  return (
-                    <button
-                      key={a.id}
-                      type="button"
-                      onClick={() => pickActivity(a)}
-                      aria-pressed={active}
-                      className={`flex w-[5.75rem] shrink-0 flex-col items-center gap-1 rounded-2xl px-2 py-3 text-[0.8125rem] font-semibold transition sm:w-auto ${
-                        active
-                          ? "bg-plum text-white shadow-[0_8px_20px_rgba(54,2,83,0.25)]"
-                          : "bg-white/75 text-plum ring-1 ring-line hover:bg-white"
-                      }`}
-                    >
-                      <span className="text-2xl" aria-hidden>{a.emoji}</span>
-                      <span className="text-center leading-tight">{a.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+        <ActivityPicker activities={activities} value={activityId} onPick={pickActivity} />
       </Step>
 
       {/* 2. Details */}
@@ -200,46 +147,18 @@ export function NewGigForm({
 
       {/* 3. Audience */}
       <Step n={3} title={n.audience} sub={n.audienceHint}>
-        <div className="space-y-5">
-          {genderOptions.length > 1 && (
-            <div>
-              <Label>{n.gender}</Label>
-              <Segmented<GenderPref> name={n.gender} value={genderPref} onChange={setGenderPref} options={genderOptions} />
-            </div>
-          )}
-          <div>
-            <Label>{n.ageRange}</Label>
-            <div className="mb-3 flex flex-wrap gap-2">
-              {AGE_PRESETS.map(([a, b]) => {
-                const active = a === ageMin && b === ageMax;
-                const disabled = hostAge < a || hostAge > b;
-                return (
-                  <button
-                    key={`${a}-${b}`}
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => { setAgeMin(a); setAgeMax(b); }}
-                    className={`rounded-full px-3.5 py-1.5 text-[0.8125rem] font-semibold transition disabled:opacity-35 ${
-                      active ? "bg-plum text-white" : "bg-white/80 text-plum ring-1 ring-line hover:bg-white"
-                    }`}
-                  >
-                    {copy.audience.ages(a, b)}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex items-center gap-3">
-              <Select aria-label="Minimum age" value={ageMin} onChange={(e) => { const v = Number(e.target.value); setAgeMin(v); if (v > ageMax) setAgeMax(v); }}>
-                {AGES.map((a) => <option key={a} value={a}>{a}</option>)}
-              </Select>
-              <span className="text-muted">–</span>
-              <Select aria-label="Maximum age" value={ageMax} onChange={(e) => { const v = Number(e.target.value); setAgeMax(v); if (v < ageMin) setAgeMin(v); }}>
-                {AGES.map((a) => <option key={a} value={a}>{a === 99 ? "99+" : a}</option>)}
-              </Select>
-            </div>
-            {hostOutside ? <FieldError>{copy.errors.host_outside_age_range}</FieldError> : <Hint>{n.ageRangeHint}</Hint>}
-          </div>
-        </div>
+        <AudienceFields
+          hostAge={hostAge}
+          hostGender={hostGender}
+          genderPref={genderPref}
+          onGender={setGenderPref}
+          ageMin={ageMin}
+          ageMax={ageMax}
+          onAges={(lo, hi) => {
+            setAgeMin(lo);
+            setAgeMax(hi);
+          }}
+        />
       </Step>
 
       {/* 4. Size + guests */}
@@ -271,52 +190,5 @@ export function NewGigForm({
 
       <Button type="submit" size="lg" block loading={pending}>{n.submit}</Button>
     </form>
-  );
-}
-
-function Step({ n, title, sub, children }: { n: number; title: string; sub?: string; children: React.ReactNode }) {
-  return (
-    <section className="glass rounded-[1.75rem] p-5 sm:p-6">
-      <div className="mb-4 flex items-start gap-3">
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-coral text-[0.8125rem] font-bold text-white">{n}</span>
-        <div>
-          <h2 className="text-[1.0625rem] font-bold">{title}</h2>
-          {sub && <p className="text-[0.8125rem] text-muted">{sub}</p>}
-        </div>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function Stepper({
-  value,
-  min,
-  max,
-  onChange,
-  label,
-  zeroLabel,
-}: {
-  value: number;
-  min: number;
-  max: number;
-  onChange: (v: number) => void;
-  label: string;
-  zeroLabel?: string;
-}) {
-  return (
-    <div className="flex items-center gap-4" role="group" aria-label={label}>
-      <button type="button" aria-label="Fewer" disabled={value <= min} onClick={() => onChange(value - 1)}
-        className="grid h-11 w-11 place-items-center rounded-full bg-white text-plum ring-1 ring-line transition hover:bg-plum-50 disabled:opacity-40">
-        <Minus className="h-5 w-5" />
-      </button>
-      <span className="min-w-16 text-center text-[1.75rem] font-extrabold text-plum tabular" aria-live="polite">
-        {value === 0 && zeroLabel ? <span className="text-[1rem] font-bold">{zeroLabel}</span> : value}
-      </span>
-      <button type="button" aria-label="More" disabled={value >= max} onClick={() => onChange(value + 1)}
-        className="grid h-11 w-11 place-items-center rounded-full bg-white text-plum ring-1 ring-line transition hover:bg-plum-50 disabled:opacity-40">
-        <Plus className="h-5 w-5" />
-      </button>
-    </div>
   );
 }

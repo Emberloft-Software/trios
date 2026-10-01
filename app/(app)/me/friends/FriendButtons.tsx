@@ -1,13 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { copy } from "@/lib/copy";
 import { acceptFriendRequestAction, unfriendAction } from "./_actions";
 
 export function AcceptButton({ requestId }: { requestId: string }) {
-  const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   return (
@@ -16,7 +14,6 @@ export function AcceptButton({ requestId }: { requestId: string }) {
         onClick={() => start(async () => {
           const res = await acceptFriendRequestAction(requestId);
           if (!res.ok) setError(res.error);
-          else router.refresh();
         })}>
         {copy.friends.accept}
       </Button>
@@ -26,13 +23,11 @@ export function AcceptButton({ requestId }: { requestId: string }) {
 }
 
 export function UnfriendButton({ otherId }: { otherId: string }) {
-  const router = useRouter();
   const [pending, start] = useTransition();
   return (
     <Button size="sm" variant="ghost" className="text-muted" loading={pending}
       onClick={() => start(async () => {
-        const res = await unfriendAction(otherId);
-        if (res.ok) router.refresh();
+        await unfriendAction(otherId);
       })}>
       {copy.friends.unfriend}
     </Button>

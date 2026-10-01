@@ -34,7 +34,6 @@ export function SlotStrip({
   showLabel?: boolean;
 }) {
   const headcount = claimed + reserved;
-  const confirmed = headcount >= minToConfirm && claimed >= 2;
   const open = Math.max(0, capacity - headcount);
   const dim = size === "sm" ? 28 : 40;
   const overlap = size === "sm" ? "-ml-1.5" : "-ml-2";
@@ -96,24 +95,18 @@ export function SlotStrip({
         })}
       </div>
       {showLabel && (
-        <p className="mt-2.5 text-[0.8125rem] font-semibold tabular">
-          {locked ? (
-            <span className="text-plum">{copy.feed.locked}</span>
-          ) : confirmed ? (
-            <span className="text-mint">● {copy.slots.on}</span>
+        <p className="mt-2.5 flex justify-between gap-2 text-[0.8125rem] font-semibold tabular">
+          <span className="text-plum">
+            {locked ? copy.feed.locked : `${headcount}/${capacity}`}
+            {!locked && headcount < minToConfirm && (
+              <span className="font-medium text-muted"> · {copy.slots.needMore(minToConfirm - headcount)}</span>
+            )}
+          </span>
+          {!locked && (open > 0 ? (
+            <span className="font-medium text-muted">{copy.feed.spotsLeft(open)}</span>
           ) : (
-            <span className="text-plum">
-              {headcount}/{capacity}
-              <span className="font-medium text-muted">
-                {" · "}
-                {copy.slots.needMore(Math.max(1, minToConfirm - headcount, 2 - claimed))}
-              </span>
-            </span>
-          )}
-          {!locked && open > 0 && (
-            <span className="float-right font-medium text-muted">{copy.feed.spotsLeft(open)}</span>
-          )}
-          {!locked && open === 0 && <span className="float-right font-medium text-coral-600">{copy.feed.full}</span>}
+            <span className="font-medium text-coral-600">{copy.feed.full}</span>
+          ))}
         </p>
       )}
     </div>

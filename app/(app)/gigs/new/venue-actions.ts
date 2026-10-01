@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, currentUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { placeDetails, isResidential } from "@/lib/places";
 import { copy } from "@/lib/copy";
@@ -40,9 +40,7 @@ export async function upsertVenueFromPlaceAction(input: unknown): Promise<Upsert
 
   // must be signed in
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return { ok: false, error: copy.errors.not_authenticated };
 
   const admin = createAdminClient();

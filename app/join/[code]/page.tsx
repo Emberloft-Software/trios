@@ -28,6 +28,8 @@ type Preview = {
   locks_at: string;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function JoinPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   const { supabase, user, profile } = await getViewer();
@@ -40,6 +42,7 @@ export default async function JoinPage({ params }: { params: Promise<{ code: str
     if (!profile?.birth_date || !profile.gender) redirect(`/onboarding?next=/join/${code}`);
   }
 
+  const used = g?.status === "used";
   const open = g && g.status === "open" && new Date(g.locks_at).getTime() > Date.now();
 
   return (
@@ -71,7 +74,9 @@ export default async function JoinPage({ params }: { params: Promise<{ code: str
             <Notice tone="warn" className="mt-4">{copy.disclaimers.chatShort} {copy.disclaimers.meetPublic}</Notice>
 
             <div className="mt-5">
-              {!open ? (
+              {used ? (
+                <Notice tone="warn">{copy.invite.used}</Notice>
+              ) : !open ? (
                 <Notice tone="info">{copy.errors.gig_not_open}</Notice>
               ) : user ? (
                 <JoinInviteButton code={code} />

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Gift } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -23,7 +22,6 @@ export function PerkCard({
   isHost: boolean;
   alreadyRedeemed: boolean;
 }) {
-  const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(alreadyRedeemed);
@@ -44,7 +42,6 @@ export function PerkCard({
                 const r = await redeemPerkAction(gigId, venueId);
                 if (!r.ok) return setError(r.error);
                 setDone(true);
-                router.refresh();
               })
             }>
             {copy.gig.redeem}

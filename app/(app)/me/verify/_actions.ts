@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, currentUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { errorCopy } from "@/lib/copy";
 
@@ -50,9 +50,7 @@ export async function createVerificationUploadAction(
   const parsed = uploadSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: errorCopy("generic") };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return { ok: false, error: errorCopy("not_authenticated") };
 
   const { data: req } = await supabase
@@ -90,9 +88,7 @@ export async function submitVerificationAction(input: unknown): Promise<SubmitRe
   const parsed = submitSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: errorCopy("generic") };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return { ok: false, error: errorCopy("not_authenticated") };
 
   // the object must actually exist before we hand it to a reviewer

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, currentUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -7,9 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  */
 export async function GET() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const { data: me } = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
   if (!me?.is_admin) return NextResponse.json({ error: "not found" }, { status: 404 });

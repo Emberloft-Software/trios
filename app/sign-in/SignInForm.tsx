@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, MailCheck } from "lucide-react";
+import { MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Checkbox, FieldError, Hint, Input, Label, Segmented } from "@/components/ui/Field";
+import { FieldError, Hint, Input, Label } from "@/components/ui/Field";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { ProfileBasics, type Gender } from "@/components/app/ProfileBasics";
 import { Notice } from "@/components/ui/Notice";
 import { copy } from "@/lib/copy";
 import {
@@ -16,13 +17,7 @@ import {
 } from "./_actions";
 
 type Mode = "signin" | "signup" | "reset";
-type Gender = "woman" | "man" | "nonbinary";
 
-function maxBirthDate() {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() - 18);
-  return d.toISOString().slice(0, 10);
-}
 
 export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: string; initialMode?: Mode }) {
   const router = useRouter();
@@ -35,7 +30,6 @@ export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: 
   const [handleFree, setHandleFree] = useState<boolean | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPw, setShowPw] = useState(false);
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState<Gender | null>(null);
   const [terms, setTerms] = useState(false);
@@ -155,14 +149,8 @@ export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: 
         {mode !== "reset" && (
           <div>
             <Label htmlFor="password">{c.password}</Label>
-            <div className="relative">
-              <Input id="password" type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
-                autoComplete={isSignup ? "new-password" : "current-password"} className="pr-12" required minLength={isSignup ? 8 : undefined} />
-              <button type="button" onClick={() => setShowPw((s) => !s)} aria-label={showPw ? "Hide password" : "Show password"}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-2 text-muted hover:text-plum">
-                {showPw ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
-              </button>
-            </div>
+            <PasswordInput id="password" value={password} onChange={setPassword}
+              autoComplete={isSignup ? "new-password" : "current-password"} minLength={isSignup ? 8 : undefined} />
             {isSignup && !errFor("password") && <Hint>{c.passwordHint}</Hint>}
             <FieldError>{errFor("password")}</FieldError>
             {mode === "signin" && (
@@ -174,32 +162,15 @@ export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: 
         )}
 
         {isSignup && (
-          <>
-            <div>
-              <Label htmlFor="dob">{c.birthDate}</Label>
-              <Input id="dob" type="date" value={birthDate} max={maxBirthDate()} min="1925-01-01" onChange={(e) => setBirthDate(e.target.value)} required />
-              {errFor("birthDate") ? <FieldError>{errFor("birthDate")}</FieldError> : <Hint>{c.birthDateHint}</Hint>}
-            </div>
-            <div>
-              <Label>{c.gender}</Label>
-              <Segmented<Gender>
-                name={c.gender}
-                value={gender}
-                onChange={setGender}
-                options={(["woman", "man", "nonbinary"] as const).map((g) => ({ value: g, label: c.genders[g] }))}
-              />
-              {errFor("gender") ? <FieldError>{errFor("gender")}</FieldError> : <Hint>{c.genderHint}</Hint>}
-            </div>
-            <div>
-              <Checkbox id="terms" checked={terms} onChange={setTerms}>
-                {c.terms}{" "}
-                <Link href="/terms" target="_blank" className="font-semibold text-coral-600 underline-offset-2 hover:underline">{c.termsLink}</Link>{" "}
-                {c.and}{" "}
-                <Link href="/privacy" target="_blank" className="font-semibold text-coral-600 underline-offset-2 hover:underline">{c.privacyLink}</Link>.
-              </Checkbox>
-              <FieldError>{errFor("terms")}</FieldError>
-            </div>
-          </>
+          <ProfileBasics
+            birthDate={birthDate}
+            onBirthDate={setBirthDate}
+            gender={gender}
+            onGender={setGender}
+            terms={terms}
+            onTerms={setTerms}
+            errors={{ birthDate: errFor("birthDate"), gender: errFor("gender"), terms: errFor("terms") }}
+          />
         )}
 
         {error && !errorField && <Notice tone="danger" compact>{error}</Notice>}

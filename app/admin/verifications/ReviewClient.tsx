@@ -1,16 +1,15 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, ChevronLeft, ChevronRight, RotateCcw, ScanFace, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Select, Textarea } from "@/components/ui/Field";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { copy } from "@/lib/copy";
 import { reviewVerificationAction } from "./_actions";
+import { ReviewMedia } from "./ReviewMedia";
 import type { Challenge } from "@/app/(app)/me/verify/_actions";
 
 export interface ReviewItem {
@@ -52,7 +51,6 @@ export function ReviewClient({ items }: { items: ReviewItem[] }) {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState<null | "approve" | "reject" | "retake">(null);
   const [error, setError] = useState<string | null>(null);
-  const [rate, setRate] = useState(1);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const current = queue[idx] ?? null;
@@ -72,9 +70,6 @@ export function ReviewClient({ items }: { items: ReviewItem[] }) {
     };
   }, [current]);
 
-  useEffect(() => {
-    if (videoRef.current) videoRef.current.playbackRate = rate;
-  }, [rate, mediaUrl]);
 
   const act = useCallback(
     async (decision: "approve" | "reject" | "retake") => {
@@ -126,45 +121,7 @@ export function ReviewClient({ items }: { items: ReviewItem[] }) {
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
-        <div className="glass rounded-[1.75rem] p-4">
-          <div className="grid gap-3 sm:grid-cols-[1.7fr_1fr]">
-            <div>
-              <p className="mb-1.5 text-[0.6875rem] font-bold uppercase tracking-wider text-muted">Recording</p>
-              <div className="overflow-hidden rounded-2xl bg-plum-800">
-                {mediaUrl ? (
-                  current.isVideo ? (
-                    <video ref={videoRef} key={mediaUrl} src={mediaUrl} controls playsInline autoPlay className="aspect-[3/4] w-full bg-black object-contain sm:aspect-[4/3]" />
-                  ) : (
-                    <img src={mediaUrl} alt="Liveness stills" className="w-full" />
-                  )
-                ) : (
-                  <div className="grid aspect-[4/3] place-items-center text-[0.8125rem] text-white/70">
-                    {mediaErr ? "Couldn't load the recording (it may have been purged)." : "Loading…"}
-                  </div>
-                )}
-              </div>
-              {current.isVideo && (
-                <div className="mt-2 flex items-center gap-1.5">
-                  {[0.5, 1, 1.5].map((r) => (
-                    <button key={r} onClick={() => setRate(r)} className={`rounded-full px-2.5 py-1 text-[0.75rem] font-bold ${rate === r ? "bg-plum text-white" : "bg-white/70 text-plum ring-1 ring-line"}`}>{r}×</button>
-                  ))}
-                  <span className="ml-auto text-[0.6875rem] text-muted">{current.mime}{current.bytes ? ` · ${(current.bytes / 1048576).toFixed(1)} MB` : ""}</span>
-                </div>
-              )}
-            </div>
-            <div>
-              <p className="mb-1.5 text-[0.6875rem] font-bold uppercase tracking-wider text-muted">Profile photo {current.photoPending && <Badge tone="sun" className="ml-1">pending</Badge>}</p>
-              <div className="overflow-hidden rounded-2xl bg-plum-50">
-                {current.photoUrl ? (
-                  <img src={current.photoUrl} alt={current.name} className="aspect-square w-full object-cover" />
-                ) : (
-                  <div className="grid aspect-square place-items-center text-[0.75rem] text-muted">No photo</div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <ReviewMedia current={current} mediaUrl={mediaUrl} mediaErr={mediaErr} videoRef={videoRef} />
         <div className="space-y-4">
           <div className="glass rounded-[1.75rem] p-5">
             <p className="flex items-center gap-2 font-bold text-plum"><ScanFace className="h-5 w-5" /> The check</p>

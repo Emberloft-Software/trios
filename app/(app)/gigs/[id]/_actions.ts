@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, currentUser } from "@/lib/supabase/server";
 import { errorCopy } from "@/lib/copy";
 
 const id = z.string().uuid();
@@ -31,9 +31,7 @@ export async function sendMessageAction(input: unknown): Promise<{ ok: true; id:
   const parsed = sendSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: errorCopy("generic") };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return { ok: false, error: errorCopy("not_authenticated") };
   const { data, error } = await supabase
     .from("gig_messages")
@@ -142,10 +140,11 @@ export async function cancelGigAction(gigId: string): Promise<ActionResult> {
   return done(gigId);
 }
 
-export async function releaseSeatAction(gigId: string): Promise<ActionResult> {
-  if (!id.safeParse(gigId).success) return { ok: false, error: errorCopy("generic") };
+/** Host cancels one unused guest link; the held seat goes back to the public. */
+export async function revokeInviteAction(gigId: string, inviteId: string): Promise<ActionResult> {
+  if (!id.safeParse(gigId).success || !id.safeParse(inviteId).success) return { ok: false, error: errorCopy("generic") };
   const supabase = await createClient();
-  const { error } = await supabase.rpc("release_reserved_slot", { p_gig_id: gigId });
+  const { error } = await supabase.rpc("revoke_guest_invite", { p_invite_id: inviteId });
   if (error) return { ok: false, error: errorCopy(error.message) };
   return done(gigId);
 }

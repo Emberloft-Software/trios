@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, currentUser } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { errorCopy, copy } from "@/lib/copy";
 
@@ -18,9 +18,7 @@ export async function updateProfileAction(input: unknown): Promise<Result> {
   const parsed = profileSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: copy.auth.errors.name_required };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return { ok: false, error: errorCopy("not_authenticated") };
   const { error } = await supabase
     .from("profiles")
@@ -48,9 +46,7 @@ export async function uploadAvatarAction(form: FormData): Promise<Result> {
   if (!TYPES.includes(file.type)) return { ok: false, error: copy.photo.badType };
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return { ok: false, error: errorCopy("not_authenticated") };
 
   const admin = createAdminClient();
@@ -90,9 +86,7 @@ export async function signOutAction() {
 export async function deleteAccountAction(confirmText: string): Promise<Result> {
   if (confirmText.trim().toUpperCase() !== "DELETE") return { ok: false, error: copy.profile.deleteType };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return { ok: false, error: errorCopy("not_authenticated") };
 
   const admin = createAdminClient();

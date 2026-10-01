@@ -1,13 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Field";
 import { resolveReportAction } from "./_actions";
 
 export function ResolveForm({ reportId }: { reportId: string }) {
-  const router = useRouter();
   const [note, setNote] = useState("");
   const [pending, start] = useTransition();
   const [which, setWhich] = useState<"actioned" | "dismissed" | null>(null);
@@ -19,7 +17,6 @@ export function ResolveForm({ reportId }: { reportId: string }) {
     start(async () => {
       const res = await resolveReportAction({ reportId, resolution, note });
       if (!res.ok) return setError(res.error);
-      router.refresh();
     });
   }
 

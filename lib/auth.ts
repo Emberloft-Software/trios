@@ -8,10 +8,12 @@ import { createClient } from "@/lib/supabase/server";
  */
 export const getViewer = cache(async () => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { supabase, user: null, profile: null } as const;
+  // Local JWT verification (no Auth server round trip); RLS still validates
+  // the token on every database query.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const sub = claimsData?.claims?.sub;
+  if (!sub) return { supabase, user: null, profile: null } as const;
+  const user = { id: sub, email: (claimsData.claims.email as string | undefined) ?? null };
 
   const { data: profile } = await supabase
     .from("profiles")

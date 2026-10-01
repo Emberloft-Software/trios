@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, currentUser } from "@/lib/supabase/server";
 import { autocomplete } from "@/lib/places";
 
 /**
@@ -9,9 +9,7 @@ import { autocomplete } from "@/lib/places";
  */
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const q = req.nextUrl.searchParams.get("q") ?? "";

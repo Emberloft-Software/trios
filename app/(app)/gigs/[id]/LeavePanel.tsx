@@ -24,7 +24,6 @@ export function LeavePanel({ gigId }: { gigId: string }) {
       const res = await leaveGigAction(gigId, uncomfortable);
       if (!res.ok) return setError(res.error);
       router.push("/gigs");
-      router.refresh();
     });
   }
 
@@ -71,7 +70,6 @@ export function HostControls({ gigId }: { gigId: string }) {
                 const res = await cancelGigAction(gigId);
                 if (!res.ok) return setError(res.error);
                 setOpen(false);
-                router.refresh();
               })
             }
           >

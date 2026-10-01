@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { setVenuePartnerAction } from "./_actions";
 
@@ -15,7 +14,6 @@ export function PartnerForm({
   isPartner: boolean;
   perk: string | null;
 }) {
-  const router = useRouter();
   const [partner, setPartner] = useState(isPartner);
   const [text, setText] = useState(perk ?? "");
   const [pending, start] = useTransition();
@@ -27,7 +25,6 @@ export function PartnerForm({
       const res = await setVenuePartnerAction({ venueId, isPartner: partner, perk: text || null });
       if (res.ok) {
         setOk(true);
-        router.refresh();
       }
     });
   }

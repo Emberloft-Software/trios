@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 import { Textarea } from "@/components/ui/Field";
 import { adminCancelGigAction } from "./_actions";
 
 export function CancelGigButton({ gigId }: { gigId: string }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +22,6 @@ export function CancelGigButton({ gigId }: { gigId: string }) {
             const r = await adminCancelGigAction(gigId, reason);
             if (!r.ok) return setError(r.error);
             setOpen(false);
-            router.refresh();
           })}>
           Cancel gig
         </Button>

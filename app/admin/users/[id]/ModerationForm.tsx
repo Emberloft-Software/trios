@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input, Label, Select, Textarea } from "@/components/ui/Field";
 import { Notice } from "@/components/ui/Notice";
@@ -33,7 +32,6 @@ export function ModerationForm({
   birthDate: string | null;
   gender: "woman" | "man" | "nonbinary" | null;
 }) {
-  const router = useRouter();
   const [action, setAction] = useState<ModAction>("warn");
   const [reason, setReason] = useState("");
   const [days, setDays] = useState(30);
@@ -51,7 +49,6 @@ export function ModerationForm({
     start(async () => {
       const res = await fn();
       setMsg(res.ok ? { tone: "safe", text: okText } : { tone: "danger", text: res.error ?? "Failed." });
-      if (res.ok) router.refresh();
     });
   };
 

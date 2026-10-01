@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Checkbox } from "@/components/ui/Field";
@@ -21,7 +20,6 @@ export function JoinPanel({
   full: boolean;
   hasGuests: boolean;
 }) {
-  const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [ack, setAck] = useState(!hasGuests);
@@ -54,7 +52,6 @@ export function JoinPanel({
           start(async () => {
             const res = await joinGigAction(gigId);
             if (!res.ok) return setError(res.error);
-            router.refresh();
           });
         }}
       >
