@@ -4,7 +4,7 @@ import type { LegalSection } from "./index";
 const N = brand.name;
 
 export const privacy: { intro: string; sections: LegalSection[] } = {
-  intro: `This policy explains what personal data ${N} collects, why, who we share it with, how long we keep it, and the rights you have — including under Sri Lanka's Personal Data Protection Act, No. 9 of 2022 ("PDPA"). ${N} is the controller of your personal data.`,
+  intro: `This policy explains what personal data ${N} collects, why, who we share it with, how long we keep it, and the rights you have, including under Sri Lanka's Personal Data Protection Act, No. 9 of 2022 ("PDPA"). ${N} is the controller of your personal data.`,
   sections: [
     {
       id: "collect",
@@ -28,10 +28,10 @@ export const privacy: { intro: string; sections: LegalSection[] } = {
       title: "2. Why we use it (and our legal basis)",
       body: [
         [
-          "To provide the Service — create your account, show you gigs whose age range and audience include you, run group chats, handle invites (performance of our contract with you).",
-          "To keep people safe — review photos, verify liveness, investigate reports and crew votes, prevent fraud and abuse, enforce our Terms (our legitimate interests and your consent where required).",
-          "Verification videos and photo review — only with your consent, which you give by starting the process. You can withdraw it at any time.",
-          "To send service messages — gig updates and account notices (performance of contract).",
+          "To provide the Service: create your account, show you gigs whose age range and audience include you, run group chats, handle invites (performance of our contract with you).",
+          "To keep people safe: review photos, verify liveness, investigate reports and crew votes, prevent fraud and abuse, enforce our Terms (our legitimate interests and your consent where required).",
+          "Verification videos and photo review: only with your consent, which you give by starting the process. You can withdraw it at any time.",
+          "To send service messages: gig updates and account notices (performance of contract).",
           "To meet legal obligations and respond to lawful requests from authorities.",
         ],
         "We don't sell your personal data, and we don't use it for advertising.",
@@ -42,11 +42,11 @@ export const privacy: { intro: string; sections: LegalSection[] } = {
       title: "3. Who we share it with",
       body: [
         [
-          "Other users — only what the app shows: on the discover feed nobody's identity is shown; once you're in a gig, its members see your first name, age, gender, approved photo, badges and chat messages. Hosts' first names are shown on gig previews.",
-          "Service providers who process data for us under contract: Supabase (database, authentication, file storage and realtime chat — hosted in the Asia-Pacific (Mumbai) region), our web hosting provider, and Google Maps Platform (venue search and maps; we send it search text, not your identity).",
-          "The face-detection software is downloaded from a public code CDN (jsDelivr) but runs entirely on your device — your photos and video are not sent to it.",
-          "Authorities — when required by law, or where we believe disclosure is necessary to prevent serious harm.",
-          "A successor — if Tremigos is merged or sold, subject to this policy.",
+          "Other users: only what the app shows: on the discover feed nobody's identity is shown; once you're in a gig, its members see your first name, age, gender, approved photo, badges and chat messages. Hosts' first names are shown on gig previews.",
+          "Service providers who process data for us under contract: Supabase (database, authentication, file storage and realtime chat, hosted in the Asia-Pacific (Mumbai) region), our web hosting provider, and Google Maps Platform (venue search and maps; we send it search text, not your identity).",
+          "The face-detection software is downloaded from a public code CDN (jsDelivr) but runs entirely on your device; your photos and video are not sent to it.",
+          "Authorities: when required by law, or where we believe disclosure is necessary to prevent serious harm.",
+          "A successor: if Tremigos is merged or sold, subject to this policy.",
         ],
       ],
     },
@@ -79,7 +79,7 @@ export const privacy: { intro: string; sections: LegalSection[] } = {
         [
           "give you access to and a copy of your personal data;",
           "correct inaccurate data (you can edit most of your profile yourself; contact us to change your date of birth or gender);",
-          "delete your data — use “Delete account” on your profile, or email us;",
+          "delete your data: use “Delete account” on your profile, or email us;",
           "withdraw consent (for example to verification processing) at any time;",
           "object to or restrict certain processing; and",
           "review a decision made about you.",

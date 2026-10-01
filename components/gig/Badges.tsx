@@ -6,7 +6,7 @@ import type { ReliabilityBand } from "@/lib/database.types";
 export function VerifiedBadge({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
-      <span title="Verified — live video matched their photo" className="inline-flex text-mint">
+      <span title="Verified: live video matched their photo" className="inline-flex text-mint">
         <BadgeCheck className="h-4.5 w-4.5" />
       </span>
     );

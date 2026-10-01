@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ageFrom } from "@/lib/time";
 
@@ -11,7 +12,7 @@ const schema = z.object({
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "terms_required" }) }),
 });
 
-export async function completeProfileAction(input: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
+export async function completeProfileAction(input: unknown, next?: string): Promise<{ ok: false; error: string } | undefined> {
   const parsed = schema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "generic" };
   if (ageFrom(parsed.data.birthDate) < 18) return { ok: false, error: "underage" };
@@ -23,5 +24,5 @@ export async function completeProfileAction(input: unknown): Promise<{ ok: true 
   });
   if (error) return { ok: false, error: error.message === "underage" ? "underage" : "generic" };
   revalidatePath("/", "layout");
-  return { ok: true };
+  redirect(typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : "/feed");
 }

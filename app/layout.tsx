@@ -14,7 +14,7 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteURL()),
-  title: { default: `${brand.name} — ${brand.tagline}`, template: `%s · ${brand.name}` },
+  title: { default: `${brand.name} | ${brand.tagline}`, template: `%s · ${brand.name}` },
   description: brand.description,
   applicationName: brand.name,
   manifest: "/manifest.webmanifest",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: brand.name,
-    title: `${brand.name} — ${brand.tagline}`,
+    title: `${brand.name} | ${brand.tagline}`,
     description: brand.description,
     images: [{ url: "/brand/og.png", width: 1200, height: 630 }],
   },

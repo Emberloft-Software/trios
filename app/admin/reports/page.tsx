@@ -8,7 +8,7 @@ import { copy } from "@/lib/copy";
 import { timeAgo } from "@/lib/time";
 import { ids } from "../_lib";
 
-export const metadata = { title: "Reports — Admin" };
+export const metadata = { title: "Reports · Admin" };
 
 const PRIORITY = new Set(["threat_or_violence", "underage", "sexual_advance"]);
 const LABELS: Record<string, string> = { ...copy.trust.report.categories, crew_vote_removal: "Removed by crew vote" };

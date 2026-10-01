@@ -3,7 +3,7 @@ export const chatCopy = {
     heading: "Group chat",
     lockedTitle: "Chat unlocks when the gig is on",
     beforeConfirm: (n: number) =>
-      `Chat and everyone's photos unlock once every spot is filled — ${n === 1 ? "1 more person" : `${n} more people`} to go. If it doesn't fill, they unlock 2 hours before the start.`,
+      `Chat and everyone's photos unlock once every spot is filled: ${n === 1 ? "1 more person" : `${n} more people`} to go. If it doesn't fill, they unlock 2 hours before the start.`,
     opens: "You're on. Sort out the details here.",
     readOnly: "This gig's finished. Chat is read-only and will be deleted after 30 days.",
     placeholder: "Message the crew",
@@ -11,8 +11,8 @@ export const chatCopy = {
     you: "You",
     someone: "Someone",
     system: {
-      confirmed: "Every spot is filled — chat and photos are unlocked.",
-      locked: "Crew's locked in — chat and photos are unlocked. See you there.",
+      confirmed: "Every spot is filled. Chat and photos are unlocked.",
+      locked: "Crew's locked in. Chat and photos are unlocked. See you there.",
       left: "Someone left the gig.",
       removed: "The host removed someone from the gig.",
       vote_removed: "The crew voted someone out of the gig.",
@@ -23,7 +23,7 @@ export const chatCopy = {
   vote: {
     action: "Vote to remove",
     title: (name: string) => `Vote to remove ${name}?`,
-    body: "Use this for bad behaviour in chat or at the gig — harassment, pushiness, spam, sharing others' details. Votes are anonymous to the crew. If a majority of the other members agree, they're removed and our team reviews it.",
+    body: "Use this for bad behaviour in chat or at the gig: harassment, pushiness, spam, sharing others' details. Votes are anonymous to the crew. If a majority of the other members agree, they're removed and our team reviews it.",
     reason: "What happened?",
     reasonPlaceholder: "A few words about the behaviour",
     submit: "Cast my vote",
@@ -33,12 +33,12 @@ export const chatCopy = {
     removed: "They've been removed. Thanks for keeping the group safe.",
     recorded: "Vote recorded. Nothing happens unless enough of the crew agree.",
     retracted: "Vote withdrawn.",
-    hostNote: "Hosts can't be voted out — if the host is the problem, leave and report them.",
+    hostNote: "Hosts can't be voted out. If the host is the problem, leave and report them.",
   },
   trust: {
     report: {
       title: "Report",
-      intro: "Goes to our team only — never shown to the person or the rest of the crew.",
+      intro: "Goes to our team only. It's never shown to the person or the rest of the crew.",
       category: "What happened?",
       details: "Tell us a bit more",
       detailsPlaceholder: "What happened, and when.",
@@ -70,7 +70,7 @@ export const chatCopy = {
       title: "Remove from your gig",
       intro: "Removals are logged and reviewed. Use this for a real problem, not because you'd prefer someone else.",
       category: "Why?",
-      reasonPlaceholder: "Add a short reason — at least ten characters.",
+      reasonPlaceholder: "Add a short reason (at least ten characters).",
       submit: "Remove",
       categories: {
         abusive_in_chat: "Abusive in chat",

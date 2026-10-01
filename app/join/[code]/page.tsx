@@ -8,6 +8,7 @@ import { SlotStrip } from "@/components/ui/SlotStrip";
 import { formatGigTime } from "@/lib/time";
 import { copy } from "@/lib/copy";
 import { JoinInviteButton } from "./JoinInviteButton";
+import { ActivityIcon } from "@/components/ui/ActivityIcon";
 
 export const metadata = { title: "You're invited" };
 
@@ -23,7 +24,7 @@ type Preview = {
   reserved_slots: number;
   host_guests: number;
   activity_name: string;
-  activity_emoji: string;
+  activity_slug: string;
   host_name: string;
   locks_at: string;
 };
@@ -64,7 +65,7 @@ export default async function JoinPage({ params }: { params: Promise<{ code: str
 
             <div className="glass mt-6 space-y-4 rounded-[1.75rem] p-5">
               <p className="flex items-center gap-2 font-semibold text-plum">
-                <span className="text-xl" aria-hidden>{g.activity_emoji}</span> {g.activity_name}
+                <ActivityIcon slug={g.activity_slug} className="h-5 w-5 text-coral" /> {g.activity_name}
               </p>
               <p className="flex items-center gap-2 text-[0.9375rem]"><CalendarClock className="h-4 w-4 text-muted" /> <span className="tabular">{formatGigTime(g.starts_at)}</span></p>
               <p className="flex items-center gap-2 text-[0.9375rem]"><MapPin className="h-4 w-4 text-muted" /> {g.place_label}</p>

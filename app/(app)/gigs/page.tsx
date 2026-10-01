@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { dateTile, formatClock } from "@/lib/time";
 import { copy } from "@/lib/copy";
+import { ActivityIcon } from "@/components/ui/ActivityIcon";
 
 export const metadata = { title: "My gigs" };
 
@@ -24,7 +25,7 @@ type Row = {
     reserved_slots: number;
     min_to_confirm: number;
     host_id: string;
-    activities: { name: string; emoji: string } | null;
+    activities: { name: string; slug: string } | null;
   } | null;
 };
 
@@ -33,7 +34,7 @@ export default async function MyGigsPage() {
   const { data } = await supabase
     .from("gig_crew")
     .select(
-      "state, joined_via, gigs(id, title, status, starts_at, place_label, capacity, claimed_count, reserved_slots, min_to_confirm, host_id, activities(name, emoji))",
+      "state, joined_via, gigs(id, title, status, starts_at, place_label, capacity, claimed_count, reserved_slots, min_to_confirm, host_id, activities(name, slug))",
     )
     .eq("user_id", user!.id)
     .in("state", ["claimed", "attended", "no_show"]);
@@ -96,7 +97,7 @@ function GigRow({ row, isHost }: { row: Row; isHost: boolean }) {
         </div>
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 text-[0.75rem] font-semibold text-muted">
-            <span aria-hidden>{g.activities?.emoji}</span> {g.activities?.name} · <span className="tabular">{formatClock(g.starts_at)}</span>
+            <ActivityIcon slug={g.activities?.slug} className="h-3.5 w-3.5" /> {g.activities?.name} · <span className="tabular">{formatClock(g.starts_at)}</span>
           </p>
           <p className="truncate text-[1rem] font-bold text-plum">{g.title}</p>
           <div className="mt-1 flex flex-wrap gap-1.5">

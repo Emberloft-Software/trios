@@ -4,7 +4,7 @@ export const gigsCopy = {
     greeting: (name: string) => `Hey ${name}`,
     sub: "Gigs near you that are open to you.",
     all: "All",
-    empty: "Nothing on yet. Someone has to go first — might as well be you.",
+    empty: "Nothing on yet. Someone has to go first, so it might as well be you.",
     emptyFiltered: "No gigs in this category right now. Post one and see who bites.",
     emptyCta: "Post a gig",
     fromFriends: "Hosted by your friends",
@@ -17,7 +17,7 @@ export const gigsCopy = {
   venue: {
     openInMaps: "Open in Google Maps",
     searchPlaceholder: "Search a café, court, park or venue",
-    searchHint: "Public places only — home addresses aren't allowed.",
+    searchHint: "Public places only. Home addresses aren't allowed.",
     searching: "Searching…",
     change: "Change venue",
     searchLabel: "Search venues",
@@ -45,7 +45,7 @@ export const gigsCopy = {
   },
   guests: {
     badge: (n: number) => `Host +${n}`,
-    feedNote: (n: number) => `The host is bringing ${n} ${n === 1 ? "friend" : "friends"} — join at your own risk.`,
+    feedNote: (n: number) => `The host is bringing ${n} ${n === 1 ? "friend" : "friends"}. Join at your own risk.`,
     lobbyNote: (n: number) =>
       `The host is bringing ${n} ${n === 1 ? "person they know" : "people they know"}. They may already know each other, so the group dynamic might not be all strangers. Join at your own risk.`,
     joinedSoFar: (n: number) => `${n} of them ${n === 1 ? "has" : "have"} joined using the host's private link.`,
@@ -116,7 +116,7 @@ export const gigsCopy = {
   },
   invite: {
     title: "Links for your guests",
-    sub: "One private link per person you're bringing. Each link works once — when your friend joins with it, it's used up. Send each person their own link; don't post them in groups.",
+    sub: "One private link per person you're bringing. Each link works once: when your friend joins with it, it's used up. Send each person their own link; don't post them in groups.",
     guest: (n: number) => `Guest ${n}`,
     unused: "Not used yet",
     joined: (name: string) => `Joined · ${name}`,
@@ -132,9 +132,9 @@ export const gigsCopy = {
     joinCta: "Join with this invite",
     signInToJoin: "Sign up or sign in to join",
     notFound: "This invite link doesn't work any more. Ask the host for a new one.",
-    used: "This invite has already been used. Each link only works once — ask the host for your own.",
+    used: "This invite has already been used. Each link only works once. Ask the host for your own.",
     friendsFeature: "Nudge Tremigos friends",
-    friendsHint: "Sends them a heads-up about this gig. It doesn't hold a seat — they join like anyone else.",
+    friendsHint: "Sends them a heads-up about this gig. It doesn't hold a seat; they join like anyone else.",
   },
   lobby: {
     whenWhere: "When & where",
@@ -152,7 +152,7 @@ export const gigsCopy = {
     previewBlind: "Join to see who's in. Photos and the group chat unlock once every spot is filled.",
     unlockHint: "Photos and the group chat unlock when every spot is filled (or 2 hours before the start).",
     checkinTitle: "Who showed up?",
-    checkinHint: "Tap everyone you actually met. It keeps reliability honest — and unlocks adding friends afterwards.",
+    checkinHint: "Tap everyone you actually met. It keeps reliability honest and unlocks adding friends afterwards.",
     checkedIn: "Confirmed",
     confirm: "Confirm",
     notOpenToYou: "This gig isn't open to you.",

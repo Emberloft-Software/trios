@@ -17,20 +17,20 @@ export const appCopy = {
     signOut: "Sign out",
   },
   disclaimers: {
-    chat: "Keep it in the group. Don't share phone numbers, home addresses, or social handles in chat, and don't follow links to other sites — anything you take off Tremigos is at your own risk.",
-    chatShort: "Don't share phone numbers or follow outside links — that's at your own risk.",
-    phoneWarning: "Looks like you're sharing a phone number. We recommend keeping chat inside Tremigos — sharing contact details is at your own risk.",
-    linkWarning: "Looks like you're sharing a link. People can't tell where links really go — sharing or opening them is at your own risk.",
+    chat: "Keep it in the group. Don't share phone numbers, home addresses, or social handles in chat, and don't follow links to other sites. Anything you take off Tremigos is at your own risk.",
+    chatShort: "Don't share phone numbers or follow outside links. That's at your own risk.",
+    phoneWarning: "Looks like you're sharing a phone number. We recommend keeping chat inside Tremigos. Sharing contact details is at your own risk.",
+    linkWarning: "Looks like you're sharing a link. People can't tell where links really go, so sharing or opening them is at your own risk.",
     sendAnyway: "Send anyway",
     editMessage: "Edit message",
-    receivedLink: "Outside link — open at your own risk",
-    receivedPhone: "Contains contact details — be careful",
+    receivedLink: "Outside link: open at your own risk",
+    receivedPhone: "Contains contact details: be careful",
     meetPublic: "Meet in public, sort your own transport, and tell someone where you're going.",
-    footer: `${N} connects people for group activities. We don't run, supervise or attend gigs. Meeting people you don't know carries risk — use your judgement, meet in public, and leave if anything feels off.`,
+    footer: `${N} connects people for group activities. We don't run, supervise or attend gigs. Meeting people you don't know carries risk. Use your judgement, meet in public, and leave if anything feels off.`,
   },
   install: {
     title: "Install Tremigos",
-    body: "Add it to your home screen for the full-screen app — faster, works with your camera for verification, and opens straight to your gigs.",
+    body: "Add it to your home screen for the full-screen app. It's faster, works with your camera for verification, and opens straight to your gigs.",
     cta: "Install app",
     later: "Not now",
     iosTitle: "Install on iPhone",
@@ -39,6 +39,11 @@ export const appCopy = {
     installed: "You're using the app.",
   },
   offline: "You're offline. Some things won't load until you're back online.",
+  errorPage: {
+    title: "Something went wrong",
+    body: "That didn't load. Check your connection and try again.",
+    retry: "Try again",
+  },
   notFound: {
     title: "Nothing here",
     body: "That page doesn't exist, or it isn't open to you.",
@@ -50,7 +55,7 @@ export const appCopy = {
     empty: "Nothing yet. Updates about your gigs will show up here.",
     markRead: "Mark all read",
     kinds: {
-      gig_confirmed: "Your gig is full — the group chat is open.",
+      gig_confirmed: "Your gig is full and the group chat is open.",
       gig_locked: "Your gig is locked in. Check the details.",
       gig_cancelled: "A gig you were in was cancelled.",
       removed: "You were removed from a gig by the host.",
@@ -67,19 +72,19 @@ export const appCopy = {
     } as Record<string, string>,
   },
   safetyReminder:
-    "Meet at the venue. Sort your own transport. Tell someone where you're going. If it feels off, leave — you'll never be penalised for it.",
+    "Meet at the venue. Sort your own transport. Tell someone where you're going. If it feels off, leave. You'll never be penalised for it.",
   platonicClause: {
     heading: "Not a dating app. On purpose.",
-    body: "Every gig needs three people minimum, because three people isn't a date. Nobody hand-picks who joins — spots go first-come. And there are no private messages: every conversation happens in the group.",
+    body: "Every gig needs three people minimum, because three people isn't a date. Nobody hand-picks who joins: spots go first-come. And there are no private messages: every conversation happens in the group.",
     checkbox:
-      "I get it — this is for doing things with people, not dating. Groups of three or more, public places, no hitting on the crew.",
+      "I get it: this is for doing things with people, not dating. Groups of three or more, public places, no hitting on the crew.",
   },
   spot: {
     title: "Tremigos crew perk",
     intro: "A Tremigos crew here? Enter their gig code to log the visit.",
     codeLabel: "Gig code",
     submit: "Log the visit",
-    done: "Logged. Thanks — that helps us show we're sending you people.",
+    done: "Logged. Thanks, that helps us show we're sending you people.",
     errors: {
       venue_not_found: "We couldn't find this venue.",
       gig_not_found: "No crew found for that code here. Check it and try again.",

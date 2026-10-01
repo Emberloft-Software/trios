@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
-import { Download, Share, SquarePlus, X } from "lucide-react";
+import { Check, Download, Share, SquarePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
 import { copy } from "@/lib/copy";
@@ -99,7 +99,7 @@ export function InstallPrompt({ variant = "banner" }: { variant?: "banner" | "ca
         {copy.install.iosSteps.map((s, i) => (
           <li key={s} className="flex items-center gap-3 rounded-2xl bg-white/70 p-3 ring-1 ring-line">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-plum-50 text-plum">
-              {i === 0 ? <Share className="h-5 w-5" /> : i === 1 ? <SquarePlus className="h-5 w-5" /> : <span className="font-bold">✓</span>}
+              {i === 0 ? <Share className="h-5 w-5" /> : i === 1 ? <SquarePlus className="h-5 w-5" /> : <Check className="h-5 w-5" />}
             </span>
             <span className="text-[0.9375rem] font-medium">{s}</span>
           </li>

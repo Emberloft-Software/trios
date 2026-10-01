@@ -7,15 +7,16 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/Card";
 import { firstName } from "@/lib/avatar";
 import { copy } from "@/lib/copy";
+import { CATEGORY_ICON } from "@/components/ui/ActivityIcon";
 
 export const metadata = { title: "Discover" };
 
 const CATEGORIES = [
-  { key: "", label: copy.feed.all, emoji: "✨" },
-  { key: "Sports", label: "Sports", emoji: "⚽" },
-  { key: "Chill", label: "Food & chill", emoji: "☕" },
-  { key: "Outdoors", label: "Outdoors", emoji: "🥾" },
-  { key: "Making", label: "Learn & make", emoji: "🎨" },
+  { key: "", label: copy.feed.all },
+  { key: "Sports", label: "Sports" },
+  { key: "Chill", label: "Food & chill" },
+  { key: "Outdoors", label: "Outdoors" },
+  { key: "Making", label: "Learn & make" },
 ];
 
 /**
@@ -42,7 +43,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
   return (
     <div>
       <PageHeader
-        title={<>{copy.feed.greeting(firstName(profile?.display_name))} <span aria-hidden>👋</span></>}
+        title={copy.feed.greeting(firstName(profile?.display_name))}
         sub={copy.feed.sub}
         action={
           <div className="hidden sm:block">
@@ -66,7 +67,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
                 active ? "bg-plum text-white shadow-[0_6px_16px_rgba(54,2,83,0.25)]" : "glass text-plum hover:bg-white"
               }`}
             >
-              <span aria-hidden>{c.emoji}</span> {c.label}
+              <CatIcon k={c.key} /> {c.label}
             </Link>
           );
         })}
@@ -103,4 +104,9 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
       <p className="mt-8 text-center text-[0.8125rem] text-muted">{copy.feed.audienceNote}</p>
     </div>
   );
+}
+
+function CatIcon({ k }: { k: string }) {
+  const Icon = CATEGORY_ICON[k];
+  return Icon ? <Icon aria-hidden className="h-4 w-4" /> : null;
 }

@@ -34,7 +34,7 @@ export function VenueMedia({
       href={href}
       target="_blank"
       rel="noreferrer noopener"
-      aria-label={`${name} — ${copy.venue.openInMaps}`}
+      aria-label={`${name}: ${copy.venue.openInMaps}`}
       className="group flex items-center gap-3 rounded-2xl bg-white/70 p-2 ring-1 ring-line transition hover:bg-white"
     >
       <div className="flex shrink-0 -space-x-3">

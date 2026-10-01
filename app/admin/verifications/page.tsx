@@ -9,7 +9,7 @@ import { copy } from "@/lib/copy";
 import { ids } from "../_lib";
 import type { Challenge } from "@/app/(app)/me/verify/_actions";
 
-export const metadata = { title: "Face verification — Admin" };
+export const metadata = { title: "Face verification · Admin" };
 
 export default async function VerificationsPage() {
   const db = createAdminClient();
@@ -95,7 +95,7 @@ export default async function VerificationsPage() {
                 <span className="text-muted">{copy.verification.rejectReasons[h.review_note.replace("retake:", "").trim()] ?? h.review_note}</span>
               )}
               <span className="ml-auto text-[0.75rem] text-muted">
-                {byId.get(h.reviewer_id ?? "")?.display_name ?? "—"} · {h.reviewed_at ? timeAgo(h.reviewed_at) : ""}
+                {byId.get(h.reviewer_id ?? "")?.display_name ?? "n/a"} · {h.reviewed_at ? timeAgo(h.reviewed_at) : ""}
               </span>
             </li>
           ))}

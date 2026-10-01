@@ -5,7 +5,7 @@ import { ageFrom, timeAgo } from "@/lib/time";
 import { copy } from "@/lib/copy";
 import { PhotoQueue, type PhotoItem } from "./PhotoQueue";
 
-export const metadata = { title: "Profile photos — Admin" };
+export const metadata = { title: "Profile photos · Admin" };
 
 export default async function PhotosPage() {
   const db = createAdminClient();

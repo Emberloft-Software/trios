@@ -24,7 +24,7 @@ export async function loadGig(supabase: Supa, id: string) {
     supabase
       .from("gigs")
       .select(
-        "*, activities(name, emoji, category), venues(name, photo_refs, photo_attribution, maps_url, rating, user_rating_count, is_partner, partner_perk)",
+        "*, activities(name, slug, category), venues(name, photo_refs, photo_attribution, maps_url, rating, user_rating_count, is_partner, partner_perk)",
       )
       .eq("id", id)
       .maybeSingle(),
@@ -34,7 +34,7 @@ export async function loadGig(supabase: Supa, id: string) {
   return {
     gig,
     venue: gig.venues as unknown as VenueJoin,
-    activity: gig.activities as unknown as { name: string; emoji: string; category: string } | null,
+    activity: gig.activities as unknown as { name: string; slug: string; category: string } | null,
     // every row the viewer can see (only crew can see any); active = still in
     allCrew: crewRows ?? [],
     crew: (crewRows ?? []).filter((r) => ["claimed", "attended", "no_show"].includes(r.state)),

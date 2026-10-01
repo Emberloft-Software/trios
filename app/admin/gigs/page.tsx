@@ -7,8 +7,9 @@ import { formatGigTime } from "@/lib/time";
 import { copy } from "@/lib/copy";
 import { ids } from "../_lib";
 import { CancelGigButton } from "./CancelGigButton";
+import { ActivityIcon } from "@/components/ui/ActivityIcon";
 
-export const metadata = { title: "Gigs — Admin" };
+export const metadata = { title: "Gigs · Admin" };
 
 const TABS = [
   ["upcoming", "Upcoming"],
@@ -22,7 +23,7 @@ export default async function AdminGigsPage({ searchParams }: { searchParams: Pr
   const now = new Date().toISOString();
   let q = db
     .from("gigs")
-    .select("id, title, code, status, starts_at, capacity, claimed_count, reserved_slots, host_guests, age_min, age_max, gender_pref, host_id, place_label, activities(name, emoji)")
+    .select("id, title, code, status, starts_at, capacity, claimed_count, reserved_slots, host_guests, age_min, age_max, gender_pref, host_id, place_label, activities(name, slug)")
     .limit(100);
   if (tab === "upcoming") q = q.in("status", ["open", "locked"]).gte("starts_at", now).order("starts_at");
   else if (tab === "past") q = q.in("status", ["completed", "expired"]).order("starts_at", { ascending: false });
@@ -34,7 +35,7 @@ export default async function AdminGigsPage({ searchParams }: { searchParams: Pr
 
   return (
     <div>
-      <PageHeader title="Gigs" sub="Everything posted. Cancel anything that breaks the rules — the crew is told and nobody's reliability is affected." />
+      <PageHeader title="Gigs" sub="Everything posted. Cancel anything that breaks the rules. The crew is told and nobody's reliability is affected." />
       <div className="mb-5 flex gap-2">
         {TABS.map(([k, l]) => (
           <Link key={k} href={`/admin/gigs?tab=${k}`} className={`rounded-full px-4 py-2 text-[0.875rem] font-semibold ${tab === k ? "bg-plum text-white" : "glass text-plum"}`}>{l}</Link>
@@ -45,10 +46,10 @@ export default async function AdminGigsPage({ searchParams }: { searchParams: Pr
       ) : (
         <ul className="space-y-2">
           {rows.map((g) => {
-            const act = g.activities as unknown as { name: string; emoji: string } | null;
+            const act = g.activities as unknown as { name: string; slug: string } | null;
             return (
               <li key={g.id} className="glass flex flex-wrap items-center gap-3 rounded-2xl p-4">
-                <span className="text-2xl" aria-hidden>{act?.emoji}</span>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-plum-50 text-plum"><ActivityIcon slug={act?.slug} className="h-5 w-5" /></span>
                 <div className="min-w-0 flex-1">
                   <Link href={`/gigs/${g.id}`} className="block truncate font-bold text-plum hover:underline">{g.title}</Link>
                   <p className="text-[0.75rem] text-muted tabular">

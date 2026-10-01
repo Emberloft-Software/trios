@@ -4,7 +4,7 @@ import type { LegalSection } from "./index";
 const N = brand.name;
 
 export const terms: { intro: string; sections: LegalSection[] } = {
-  intro: `These Terms are an agreement between you and ${N} ("we", "us"). They cover your use of the ${N} website and installable app (the "Service"). By creating an account you agree to them. Please also read our Privacy Policy and Safety page — they're part of how the Service works.`,
+  intro: `These Terms are an agreement between you and ${N} ("we", "us"). They cover your use of the ${N} website and installable app (the "Service"). By creating an account you agree to them. Please also read our Privacy Policy and Safety page They're part of how the Service works.`,
   sections: [
     {
       id: "eligibility",
@@ -12,7 +12,7 @@ export const terms: { intro: string; sections: LegalSection[] } = {
       body: [
         [
           "You must be at least 18 years old. We refuse sign-ups under 18 and remove accounts we believe belong to minors.",
-          "One account per person. Your account is personal — don't share it or sell it.",
+          "One account per person. Your account is personal, so don't share it or sell it.",
           "The name, date of birth and gender you give us must be true. Hosts rely on them to set who can join their gigs.",
           "Your profile photo must be a recent, clear photo of you and only you.",
           "You can't use the Service if we've previously banned you, or if you're legally barred from doing so.",
@@ -29,7 +29,7 @@ export const terms: { intro: string; sections: LegalSection[] } = {
     },
     {
       id: "safety",
-      title: "3. Meeting people — your responsibility",
+      title: "3. Meeting people: your responsibility",
       body: [
         "Meeting people you don't know carries real risk. You're responsible for your own safety and your own decisions. In particular:",
         [

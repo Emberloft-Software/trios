@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient, currentUser } from "@/lib/supabase/server";
 import { errorCopy } from "@/lib/copy";
 
@@ -124,12 +125,19 @@ export async function retractVoteAction(gigId: string, targetId: string): Promis
   return { ok: true };
 }
 
-export async function leaveGigAction(gigId: string, uncomfortable: boolean): Promise<ActionResult> {
+/**
+ * Leaving ends with a SERVER redirect to My gigs. A client-side push could be
+ * cancelled by the leaver's own lobby reacting to the "left" message, which is
+ * what left the spinner stuck even though the leave had saved.
+ */
+export async function leaveGigAction(gigId: string, uncomfortable: boolean): Promise<ActionResult | undefined> {
   if (!id.safeParse(gigId).success) return { ok: false, error: errorCopy("generic") };
   const supabase = await createClient();
   const { error } = await supabase.rpc("leave_gig", { p_gig_id: gigId, p_uncomfortable: uncomfortable });
   if (error) return { ok: false, error: errorCopy(error.message) };
-  return done(gigId);
+  revalidatePath("/feed");
+  revalidatePath("/gigs");
+  redirect("/gigs");
 }
 
 export async function cancelGigAction(gigId: string): Promise<ActionResult> {

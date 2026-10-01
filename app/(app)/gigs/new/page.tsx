@@ -10,7 +10,7 @@ export default async function NewGigPage() {
   const { supabase, profile } = await getViewer();
   const { data: activities } = await supabase
     .from("activities")
-    .select("id, slug, name, emoji, category, default_capacity")
+    .select("id, slug, name, category, default_capacity")
     .eq("active", true)
     .order("sort_order", { ascending: true });
 

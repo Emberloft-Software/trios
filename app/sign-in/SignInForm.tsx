@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FieldError, Hint, Input, Label } from "@/components/ui/Field";
@@ -20,7 +19,6 @@ type Mode = "signin" | "signup" | "reset";
 
 
 export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: string; initialMode?: Mode }) {
-  const router = useRouter();
   const c = copy.auth;
   const [mode, setMode] = useState<Mode>(initialMode);
   const [pending, start] = useTransition();
@@ -66,10 +64,8 @@ export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: 
 
     start(async () => {
       if (mode === "signin") {
-        const res = await signInAction({ email, password });
-        if (!res.ok) return fail(res.error);
-        router.replace(next);
-        router.refresh();
+        const res = await signInAction({ email, password }, next);
+        if (res && !res.ok) fail(res.error);
         return;
       }
       if (mode === "reset") {
@@ -80,14 +76,10 @@ export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: 
       }
       if (!gender) return fail("gender_required", "gender");
       if (!terms) return fail("terms_required", "terms");
-      const res = await signUpAction({ name, handle, email, password, birthDate, gender, acceptTerms: terms });
+      const res = await signUpAction({ name, handle, email, password, birthDate, gender, acceptTerms: terms }, next);
+      if (!res) return;
       if (!res.ok) return fail(res.error, res.field);
-      if (res.needsConfirmation) {
-        setNotice(c.confirmEmail);
-        return;
-      }
-      router.replace(next);
-      router.refresh();
+      if (res.needsConfirmation) setNotice(c.confirmEmail);
     });
   }
 

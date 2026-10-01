@@ -8,12 +8,12 @@ export const marketingCopy = {
     heroTitle: "Plans need people.",
     heroAccent: "Find your crew.",
     heroSub:
-      "Short a few players for futsal? Want company for a hike, a quiz night or coffee? Post it, people nearby claim the spots, and you meet up — in groups of three or more, always somewhere public.",
-    ctaPrimary: "Get started — it's free",
+      "Short a few players for futsal? Want company for a hike, a quiz night or coffee? Post it, people nearby claim the spots, and you meet up in groups of three or more, always somewhere public.",
+    ctaPrimary: "Get started for free",
     ctaSecondary: "How it works",
     howTitle: "How it works",
     howItWorks: [
-      { title: "Post a plan", body: "Pick the activity, time and a public spot. Choose who it's for — an age range, women-only, men-only, or everyone." },
+      { title: "Post a plan", body: "Pick the activity, time and a public spot. Choose who it's for: an age range, women-only, men-only, or everyone." },
       { title: "Spots fill up", body: "People nearby claim the open spots, first-come. Bringing friends? Hold seats for them and share an invite link." },
       { title: "Meet your crew", body: "Once enough people are in, it's on. Faces reveal, the group chat opens, and you sort out the rest." },
     ],
@@ -22,14 +22,14 @@ export const marketingCopy = {
       { title: "Groups only", body: "Three-person minimum and no private DMs. It's for crews, not dates." },
       { title: "Real faces", body: "Profile photos are reviewed by our team, and optional live video verification puts a badge on real people." },
       { title: "Your audience", body: "Hosts set the age range and audience. Gigs outside yours never show up." },
-      { title: "Crew has a say", body: "If someone's out of line, the group can vote them out — and our team follows up." },
+      { title: "Crew has a say", body: "If someone's out of line, the group can vote them out, and our team follows up." },
       { title: "Bring your friends", body: "Hold seats for people you know and share a private invite link to the group chat." },
       { title: "Install it", body: "Add Tremigos to your home screen and it runs like a native app." },
     ],
     activitiesTitle: "Whatever you're into",
     safetyTitle: "Safety, without the theatre",
     safetyBody:
-      "We verify faces, not backgrounds — and we say so. Meet in public, keep chat on Tremigos, and leave whenever you want. The “I didn't feel comfortable” exit never counts against you.",
+      "We verify faces, not backgrounds, and we say so. Meet in public, keep chat on Tremigos, and leave whenever you want. The “I didn't feel comfortable” exit never counts against you.",
     safetyCta: "Read our safety approach",
     finalTitle: "Your next plan is three people away.",
     finalSub: "Free to join. 18+. Colombo first, the rest of Sri Lanka soon.",
@@ -37,7 +37,7 @@ export const marketingCopy = {
   about: {
     title: `About ${N}`,
     body: [
-      `${N} is for doing things with people. Post a plan — futsal, a film, board games, a hike, coffee — and others claim the open spots. Three minimum. You meet in real life.`,
+      `${N} is for doing things with people. Post a plan (futsal, a film, board games, a hike, coffee) and others claim the open spots. Three minimum. You meet in real life.`,
       "The activity comes first, not friendship in the abstract. You want to play on Saturday and you need a few more people. Friendship is the side effect.",
       "It's deliberately not a dating app, and it's built that way: groups of three or more, no hand-picking who joins, and no private messages.",
     ],
@@ -62,9 +62,9 @@ export const marketingCopy = {
     meetingTips: [
       "Meet at the venue and sort your own transport.",
       "Tell someone where you're going and who with.",
-      "Keep chat on Tremigos — don't hand out your number or follow outside links.",
+      "Keep chat on Tremigos. Don't hand out your number or follow outside links.",
       "If a host is bringing friends, the group may know each other. Factor that in.",
-      "If it feels off, leave. Use “I didn't feel comfortable” — it never counts against you.",
+      "If it feels off, leave. Use “I didn't feel comfortable”. It never counts against you.",
     ],
     rulesTitle: "Community rules",
     rules: [

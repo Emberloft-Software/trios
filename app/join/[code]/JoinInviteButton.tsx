@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Notice } from "@/components/ui/Notice";
 import { copy } from "@/lib/copy";
 import { joinByInviteAction } from "./_actions";
 
 export function JoinInviteButton({ code }: { code: string }) {
-  const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   return (
@@ -21,8 +19,7 @@ export function JoinInviteButton({ code }: { code: string }) {
           start(async () => {
             setError(null);
             const res = await joinByInviteAction(code);
-            if (!res.ok) return setError(res.error);
-            router.push(`/gigs/${res.gigId}`);
+            if (res && !res.ok) setError(res.error);
           })
         }
       >

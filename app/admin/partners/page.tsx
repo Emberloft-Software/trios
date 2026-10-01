@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 
-export const metadata = { title: "Partners — Admin" };
+export const metadata = { title: "Partners · Admin" };
 
 interface PartnerRow {
   id: string;

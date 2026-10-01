@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { FieldError } from "@/components/ui/Field";
 import { ProfileBasics, type Gender } from "@/components/app/ProfileBasics";
@@ -10,7 +9,6 @@ import { completeProfileAction } from "./_actions";
 
 
 export function OnboardingForm({ next }: { next: string }) {
-  const router = useRouter();
   const c = copy.auth;
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState<Gender | null>(null);
@@ -28,10 +26,8 @@ export function OnboardingForm({ next }: { next: string }) {
           e.preventDefault();
           setError(null);
           start(async () => {
-            const res = await completeProfileAction({ birthDate, gender, acceptTerms: terms });
-            if (!res.ok) return setError(c.errors[res.error] ?? c.errors.generic);
-            router.replace(next);
-            router.refresh();
+            const res = await completeProfileAction({ birthDate, gender, acceptTerms: terms }, next);
+            if (res && !res.ok) setError(c.errors[res.error] ?? c.errors.generic);
           });
         }}
       >

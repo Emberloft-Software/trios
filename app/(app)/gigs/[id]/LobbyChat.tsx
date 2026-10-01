@@ -71,9 +71,9 @@ export function LobbyChat({
       .from("gig_messages")
       .select("id, user_id, body, system_kind, created_at")
       .eq("gig_id", gigId)
-      .order("created_at", { ascending: true })
-      .limit(300)
-      .then(({ data }) => live && data && setMessages(data));
+      .order("created_at", { ascending: false })
+      .limit(300) // newest 300, shown oldest-first
+      .then(({ data }) => live && data && setMessages([...data].reverse()));
 
     const channel = supabase
       .channel(`gig:${gigId}`)
@@ -101,6 +101,7 @@ export function LobbyChat({
     if (!res.ok) {
       setMessages((m) => m.filter((x) => x.id !== tmp.id));
       setError(res.error);
+      refresh(); // e.g. we were removed or the gig ended: show the real state
       return false;
     }
     setMessages((m) =>

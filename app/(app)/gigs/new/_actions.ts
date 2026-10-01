@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { errorCopy } from "@/lib/copy";
 
@@ -26,7 +27,7 @@ const schema = z
   .refine((v) => v.ageMin <= v.ageMax, { message: "bad_age_range" })
   .refine((v) => v.hostGuests <= v.capacity - 2, { message: "too_many_guests" });
 
-export type CreateGigResult = { ok: true; gigId: string } | { ok: false; error: string };
+export type CreateGigResult = { ok: false; error: string } | undefined;
 
 export async function createGigAction(input: unknown): Promise<CreateGigResult> {
   const parsed = schema.safeParse(input);
@@ -61,5 +62,5 @@ export async function createGigAction(input: unknown): Promise<CreateGigResult> 
   }
   revalidatePath("/feed");
   revalidatePath("/gigs");
-  return { ok: true, gigId: data.id };
+  redirect(`/gigs/${data.id}?created=1`);
 }

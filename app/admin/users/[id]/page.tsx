@@ -11,7 +11,7 @@ import { ageFrom, formatDay, timeAgo } from "@/lib/time";
 import { copy } from "@/lib/copy";
 import { ids } from "../../_lib";
 
-export const metadata = { title: "User — Admin" };
+export const metadata = { title: "User · Admin" };
 
 export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -63,7 +63,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
         <div className="min-w-0 flex-1">
           <h1 className="text-[1.75rem] font-extrabold">{p.display_name}</h1>
           <p className="text-[0.875rem] text-muted">
-            @{p.handle} · {authUser?.user?.email ?? "—"} · {age ?? "?"} · {p.gender ? copy.auth.genders[p.gender] : "—"} · joined {formatDay(p.created_at)}
+            @{p.handle} · {authUser?.user?.email ?? "n/a"} · {age ?? "?"} · {p.gender ? copy.auth.genders[p.gender] : "n/a"} · joined {formatDay(p.created_at)}
             {authUser?.user?.last_sign_in_at ? ` · last seen ${timeAgo(authUser.user.last_sign_in_at)}` : ""}
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -116,7 +116,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             {(removedFrom.data ?? []).length === 0 ? <Empty /> : (
               <ul className="space-y-1.5 text-[0.875rem]">
                 {(removedFrom.data ?? []).map((r) => (
-                  <li key={r.id}><Badge tone={r.kind === "vote" ? "sun" : "white"}>{r.kind === "vote" ? "crew vote" : "by host"}</Badge> <span className="text-muted">{formatDay(r.created_at)}</span> — {r.reason}</li>
+                  <li key={r.id}><Badge tone={r.kind === "vote" ? "sun" : "white"}>{r.kind === "vote" ? "crew vote" : "by host"}</Badge> <span className="text-muted">{formatDay(r.created_at)}</span>: {r.reason}</li>
                 ))}
               </ul>
             )}
@@ -137,14 +137,14 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
           </Panel>
 
           <Panel title="Friend requests">
-            <p className="text-[0.875rem]">Sent <b>{sent}</b>, accepted <b>{accepted}</b>{sent >= 5 && accepted / sent < 0.3 && <span className="text-coral-600"> — low acceptance</span>}</p>
+            <p className="text-[0.875rem]">Sent <b>{sent}</b>, accepted <b>{accepted}</b>{sent >= 5 && accepted / sent < 0.3 && <span className="text-coral-600">, low acceptance</span>}</p>
           </Panel>
 
           <Panel title="Verification history">
             {(verifs.data ?? []).length === 0 ? <Empty /> : (
               <ul className="space-y-1 text-[0.875rem]">
                 {(verifs.data ?? []).map((v) => (
-                  <li key={v.id}><Badge tone={v.status === "verified" ? "mint" : v.status === "pending" ? "sun" : "coral"}>{v.status}</Badge> <span className="text-muted">{formatDay(v.created_at)}</span> {v.review_note ? `— ${v.review_note}` : ""}{v.media_purged_at ? " · media purged" : ""}</li>
+                  <li key={v.id}><Badge tone={v.status === "verified" ? "mint" : v.status === "pending" ? "sun" : "coral"}>{v.status}</Badge> <span className="text-muted">{formatDay(v.created_at)}</span> {v.review_note ? `: ${v.review_note}` : ""}{v.media_purged_at ? " · media purged" : ""}</li>
                 ))}
               </ul>
             )}
@@ -154,7 +154,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
             {(mod.data ?? []).length === 0 ? <Empty text="Clean." /> : (
               <ul className="space-y-1.5 text-[0.875rem]">
                 {(mod.data ?? []).map((m, i) => (
-                  <li key={i}><Badge tone="coral">{m.action}</Badge> <span className="text-muted">{formatDay(m.created_at)}{m.expires_at ? ` → ${formatDay(m.expires_at)}` : ""}</span> — {m.reason}</li>
+                  <li key={i}><Badge tone="coral">{m.action}</Badge> <span className="text-muted">{formatDay(m.created_at)}{m.expires_at ? ` → ${formatDay(m.expires_at)}` : ""}</span>: {m.reason}</li>
                 ))}
               </ul>
             )}

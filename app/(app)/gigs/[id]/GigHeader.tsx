@@ -8,6 +8,7 @@ import { AudienceBadges } from "@/components/gig/GigCard";
 import { formatGigTime, timeUntil } from "@/lib/time";
 import { copy } from "@/lib/copy";
 import type { LoadedGig } from "./_data";
+import { ActivityIcon } from "@/components/ui/ActivityIcon";
 
 /** Photo banner with activity, status, title and time. */
 export function GigHeader({ g }: { g: LoadedGig }) {
@@ -20,11 +21,11 @@ export function GigHeader({ g }: { g: LoadedGig }) {
       <div className="bg-hero relative h-48 sm:h-56">
         {photo && <img src={photo} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55" />}
         <div className="absolute inset-0 bg-gradient-to-t from-plum-800/90 via-plum-800/30 to-transparent" />
-        {!photo && <span aria-hidden className="absolute -right-4 -top-6 text-[9rem] opacity-30">{activity?.emoji}</span>}
+        {!photo && <ActivityIcon slug={activity?.slug} className="absolute -right-6 -top-6 h-48 w-48 text-white/15" />}
         <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="glass-dark inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.75rem] font-semibold text-white">
-              <span aria-hidden>{activity?.emoji}</span> {activity?.name}
+              <ActivityIcon slug={activity?.slug} className="h-3.5 w-3.5" /> {activity?.name}
             </span>
             <Badge tone={gig.status === "cancelled" ? "coral" : "white"}>
               {gig.status === "open" && full ? copy.feed.full : copy.gig.status[gig.status]}

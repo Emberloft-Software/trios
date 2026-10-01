@@ -85,7 +85,7 @@ export default async function MePage() {
         <SectionTitle>{copy.profile.edit}</SectionTitle>
         <ProfileEditor displayName={profile.display_name} bio={profile.bio ?? ""} />
         <p className="mt-3 flex items-center gap-1.5 text-[0.75rem] text-muted">
-          <Lock className="h-3.5 w-3.5" /> {copy.auth.birthDate} · {copy.auth.gender} — {copy.profile.lockedField}
+          <Lock className="h-3.5 w-3.5" /> {copy.auth.birthDate} · {copy.auth.gender}: {copy.profile.lockedField}
         </p>
       </Card>
 

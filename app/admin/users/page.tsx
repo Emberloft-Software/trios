@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Field";
 import { publicAvatarUrl } from "@/lib/avatar";
 import { ageFrom, timeAgo } from "@/lib/time";
 
-export const metadata = { title: "Users — Admin" };
+export const metadata = { title: "Users · Admin" };
 
 export default async function UsersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
@@ -40,7 +40,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-bold text-plum">{u.display_name} <span className="font-medium text-muted">@{u.handle}</span></span>
                   <span className="text-[0.75rem] text-muted">
-                    {u.birth_date ? `${ageFrom(u.birth_date)} · ` : ""}{u.gender ?? "—"} · joined {timeAgo(u.created_at)}
+                    {u.birth_date ? `${ageFrom(u.birth_date)} · ` : ""}{u.gender ?? "n/a"} · joined {timeAgo(u.created_at)}
                   </span>
                 </span>
                 <span className="hidden flex-wrap justify-end gap-1.5 sm:flex">

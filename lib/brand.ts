@@ -6,7 +6,7 @@ export const brand = {
   shortName: "Tremigos",
   tagline: "Plans need people. Find your crew.",
   description:
-    "Post a plan — futsal, coffee, a hike — and meet people in Sri Lanka who are up for the same thing. Groups of three or more, always in public.",
+    "Post a plan (futsal, coffee, a hike) and meet people in Sri Lanka who are up for the same thing. Groups of three or more, always in public.",
   city: "Colombo",
   country: "Sri Lanka",
   timezone: "Asia/Colombo",

@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteURL } from "@/lib/site-url";
 import { ageFrom } from "@/lib/time";
@@ -10,6 +11,12 @@ export type AuthResult =
   | { ok: false; error: string; field?: string };
 
 const HANDLE_RE = /^[a-z0-9_]{3,20}$/;
+
+/** Only same-site paths, never protocol-relative ones. */
+function safeNext(next: unknown): string {
+  return typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : "/feed";
+}
+
 
 function mapAuthError(message: string): string {
   const m = message.toLowerCase();
@@ -27,13 +34,13 @@ const signInSchema = z.object({
   password: z.string().min(1),
 });
 
-export async function signInAction(input: unknown): Promise<AuthResult> {
+export async function signInAction(input: unknown, next?: string): Promise<AuthResult> {
   const parsed = signInSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "bad_credentials" };
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ok: false, error: mapAuthError(error.message) };
-  return { ok: true };
+  redirect(safeNext(next)); // server-side, so a stray client refresh can't cancel it
 }
 
 const signUpSchema = z.object({
@@ -50,7 +57,7 @@ const signUpSchema = z.object({
  * Sign-up is a server action so age/gender/terms are validated here AND in the
  * database trigger (which refuses under-18s outright).
  */
-export async function signUpAction(input: unknown): Promise<AuthResult> {
+export async function signUpAction(input: unknown, next?: string): Promise<AuthResult> {
   const parsed = signUpSchema.safeParse(input);
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
@@ -83,7 +90,8 @@ export async function signUpAction(input: unknown): Promise<AuthResult> {
   // Supabase returns a user with no identities when the email already exists
   // (to avoid leaking accounts) — treat it as "email in use".
   if (data.user && (data.user.identities?.length ?? 0) === 0) return { ok: false, error: "email_in_use", field: "email" };
-  return { ok: true, needsConfirmation: !data.session };
+  if (!data.session) return { ok: true, needsConfirmation: true };
+  redirect(safeNext(next));
 }
 
 export async function checkHandleAction(handle: string): Promise<boolean | null> {
@@ -110,5 +118,5 @@ export async function updatePasswordAction(password: string): Promise<AuthResult
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { ok: false, error: mapAuthError(error.message) };
-  return { ok: true };
+  redirect("/feed");
 }

@@ -40,6 +40,8 @@ Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + 
 9. **User-facing strings live in `lib/copy/`** (one file per area, merged in `lib/copy/index.ts`; legal text in `lib/legal/`). Admin-only screens may inline strings.
 10. **No source file over 200 lines** (TS/TSX/CSS/SQL). Split by responsibility. Exempt: the generated `lib/database.types.ts`.
 11. **Never call `router.refresh()` after a server action that already `revalidatePath`s the current page** — it doubles the round trip. For realtime/background refreshes use `useCalmRefresh()` (`lib/useCalmRefresh.ts`), never raw bursts of `router.refresh()`.
+12. **Navigate after a mutation with a server-side `redirect()` inside the action**, never `router.push()` after awaiting it: a realtime-triggered refresh can cancel the client navigation and leave the button spinning.
+13. **No emojis and no em dashes in the UI.** Activities use `components/ui/ActivityIcon.tsx` (lucide icons by slug).
 
 ---
 

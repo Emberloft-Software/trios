@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/Card";
 import { PartnerForm } from "./PartnerForm";
 
-export const metadata = { title: "Venues — Admin" };
+export const metadata = { title: "Venues · Admin" };
 
 /**
  * Venue list + partner flags (docs/07). Venues are created automatically from

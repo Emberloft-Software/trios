@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { timeAgo } from "@/lib/time";
 import { ids } from "../_lib";
 
-export const metadata = { title: "Red flags — Admin" };
+export const metadata = { title: "Red flags · Admin" };
 
 const KIND: Record<string, string> = {
   host_removals: "Removing lots of people",
@@ -25,7 +25,7 @@ export default async function FlagsPage() {
 
   return (
     <div>
-      <PageHeader title="Red flags" sub="Cross-gig patterns worth a look. Nothing here is a punishment — a person decides." />
+      <PageHeader title="Red flags" sub="Cross-gig patterns worth a look. Nothing here is a punishment; a person decides." />
       {rows.length === 0 ? (
         <EmptyState title="No patterns flagged." />
       ) : (

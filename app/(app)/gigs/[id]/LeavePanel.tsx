@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { LogOut, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Sheet } from "@/components/ui/Sheet";
@@ -11,7 +10,6 @@ import { cancelGigAction, leaveGigAction } from "./_actions";
 
 /** Two doors out. "I didn't feel comfortable" never costs anything. */
 export function LeavePanel({ gigId }: { gigId: string }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
   const [which, setWhich] = useState<"cameUp" | "uncomfortable" | null>(null);
@@ -22,8 +20,7 @@ export function LeavePanel({ gigId }: { gigId: string }) {
     setWhich(uncomfortable ? "uncomfortable" : "cameUp");
     start(async () => {
       const res = await leaveGigAction(gigId, uncomfortable);
-      if (!res.ok) return setError(res.error);
-      router.push("/gigs");
+      if (res && !res.ok) setError(res.error);
     });
   }
 
@@ -49,7 +46,6 @@ export function LeavePanel({ gigId }: { gigId: string }) {
 }
 
 export function HostControls({ gigId }: { gigId: string }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);

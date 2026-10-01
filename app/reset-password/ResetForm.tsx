@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { FieldError, Hint, Input, Label } from "@/components/ui/Field";
 import { copy } from "@/lib/copy";
 import { updatePasswordAction } from "@/app/sign-in/_actions";
 
 export function ResetForm() {
-  const router = useRouter();
   const c = copy.auth;
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +22,7 @@ export function ResetForm() {
           setError(null);
           start(async () => {
             const res = await updatePasswordAction(password);
-            if (!res.ok) return setError(c.errors[res.error] ?? c.errors.generic);
-            router.replace("/feed");
+            if (res && !res.ok) setError(c.errors[res.error] ?? c.errors.generic);
           });
         }}
       >

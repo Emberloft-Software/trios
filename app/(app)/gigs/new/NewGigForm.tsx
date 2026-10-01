@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { SlotStrip } from "@/components/ui/SlotStrip";
 import { Button } from "@/components/ui/Button";
@@ -28,7 +27,6 @@ export function NewGigForm({
   hostAge: number;
   hostGender: "woman" | "man" | "nonbinary";
 }) {
-  const router = useRouter();
   const n = copy.newGig;
   const [pending, start] = useTransition();
 
@@ -92,8 +90,7 @@ export function NewGigForm({
         genderPref,
         hostGuests: guests,
       });
-      if (!res.ok) return setError(res.error);
-      router.push(`/gigs/${res.gigId}?created=1`);
+      if (res && !res.ok) setError(res.error);
     });
   }
 

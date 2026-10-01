@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Bell, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { getViewer } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { timeAgo } from "@/lib/time";
 import { copy } from "@/lib/copy";
-import { MarkRead } from "./MarkRead";
+import { MarkReadOnView } from "./MarkReadOnView";
+import { iconForKind } from "./kind-icons";
 
 export const metadata = { title: "Activity" };
 
@@ -32,16 +33,19 @@ export default async function NotificationsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <PageHeader title={n.title} action={unread ? <MarkRead /> : null} />
+      <PageHeader title={n.title} />
+      <MarkReadOnView hasUnread={unread} />
       {rows.length === 0 ? (
         <EmptyState title={n.empty} />
       ) : (
         <ul className="glass divide-y divide-line overflow-hidden rounded-[1.75rem]">
-          {rows.map((r) => (
+          {rows.map((r) => {
+            const Icon = iconForKind(r.kind);
+            return (
             <li key={r.id}>
               <Link href={hrefFor(r.kind, r.gig_id)} className={`flex items-center gap-3 px-4 py-3.5 transition hover:bg-white/60 ${r.read_at ? "" : "bg-coral-50/60"}`}>
                 <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${r.read_at ? "bg-plum-50 text-plum" : "bg-coral text-white"}`}>
-                  <Bell className="h-5 w-5" />
+                  <Icon className="h-5 w-5" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className={`block text-[0.9375rem] ${r.read_at ? "text-ink/80" : "font-semibold text-plum"}`}>{n.kinds[r.kind] ?? r.kind}</span>
@@ -50,7 +54,8 @@ export default async function NotificationsPage() {
                 <ChevronRight className="h-4.5 w-4.5 shrink-0 text-muted" />
               </Link>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>

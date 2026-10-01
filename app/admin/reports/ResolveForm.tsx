@@ -22,7 +22,7 @@ export function ResolveForm({ reportId }: { reportId: string }) {
 
   return (
     <div className="mt-4 space-y-2 border-t border-line pt-4">
-      <Textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Resolution note (required) — what you did and why" className="text-[0.875rem]" />
+      <Textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Resolution note (required): what you did and why" className="text-[0.875rem]" />
       {error && <p className="text-[0.8125rem] font-semibold text-coral-600">{error}</p>}
       <div className="flex flex-wrap gap-2">
         <Button size="sm" variant="dark" onClick={() => resolve("actioned")} disabled={pending || !note.trim()} loading={pending && which === "actioned"}>Mark actioned</Button>

@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BadgeCheck,
   Download,
+  HeartOff,
   Link2,
   MapPin,
   ShieldCheck,
@@ -16,16 +17,22 @@ import { SlotStrip } from "@/components/ui/SlotStrip";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { getViewer } from "@/lib/auth";
 import { copy } from "@/lib/copy";
+import { ActivityIcon } from "@/components/ui/ActivityIcon";
 
 const FEATURE_ICONS = [Users, BadgeCheck, SlidersHorizontal, Vote, Link2, Download];
 
 const DEMO = [
-  { emoji: "⚽", activity: "Futsal", title: "Friday night futsal, all levels", place: "Sports complex, Colombo 7", time: "FRI · 7:30 PM", cap: 10, claimed: 5, reserved: 2, badge: "Host +2" },
-  { emoji: "☕", activity: "Coffee", title: "Slow Sunday coffee & chat", place: "Café, Colombo 3", time: "SUN · 10:00 AM", cap: 4, claimed: 2, reserved: 0, badge: "Women only" },
-  { emoji: "🥾", activity: "Hike", title: "Sunrise hike, easy pace", place: "Trailhead meet-up", time: "SAT · 5:30 AM", cap: 6, claimed: 3, reserved: 0, badge: "25–35" },
+  { slug: "futsal", activity: "Futsal", title: "Friday night futsal, all levels", place: "Sports complex, Colombo 7", time: "FRI · 7:30 PM", cap: 10, claimed: 5, reserved: 2, badge: "Host +2" },
+  { slug: "coffee", activity: "Coffee", title: "Slow Sunday coffee & chat", place: "Café, Colombo 3", time: "SUN · 10:00 AM", cap: 4, claimed: 2, reserved: 0, badge: "Women only" },
+  { slug: "hike", activity: "Hike", title: "Sunrise hike, easy pace", place: "Trailhead meet-up", time: "SAT · 5:30 AM", cap: 6, claimed: 3, reserved: 0, badge: "25–35" },
 ];
 
-const ACTIVITIES = ["⚽ Futsal", "🏸 Badminton", "🏏 Cricket", "🎾 Padel", "☕ Coffee", "🎲 Board games", "🥾 Hikes", "🏄 Surfing", "🎤 Karaoke", "🧠 Quiz night", "📚 Study group", "🍛 Dinner", "🧘 Yoga", "🎬 Movies", "🏃 Running", "🎨 Art & craft"];
+const ACTIVITIES: [string, string][] = [
+  ["futsal", "Futsal"], ["badminton", "Badminton"], ["cricket", "Cricket"], ["padel", "Padel"],
+  ["coffee", "Coffee"], ["board-games", "Board games"], ["hike", "Hikes"], ["surfing", "Surfing"],
+  ["karaoke", "Karaoke"], ["quiz-night", "Quiz night"], ["study-group", "Study group"], ["dinner", "Dinner"],
+  ["yoga", "Yoga"], ["movie", "Movies"], ["running", "Running"], ["art-class", "Art & craft"],
+];
 
 export default async function LandingPage() {
   const { user } = await getViewer();
@@ -78,7 +85,7 @@ export default async function LandingPage() {
                     <span className="rounded-full bg-sun-100 px-2 py-0.5 text-[0.6875rem] font-bold text-[#6b4400]">{d.badge}</span>
                   </div>
                   <p className="mt-1 flex items-center gap-2 font-bold text-plum">
-                    <span aria-hidden className="text-lg">{d.emoji}</span> {d.title}
+                    <ActivityIcon slug={d.slug} className="h-4.5 w-4.5 text-coral" /> {d.title}
                   </p>
                   <p className="mb-3 text-[0.75rem] text-muted">{d.place}</p>
                   <SlotStrip size="sm" capacity={d.cap} claimed={d.claimed} reserved={d.reserved} minToConfirm={3} />
@@ -107,8 +114,10 @@ export default async function LandingPage() {
       <section className="overflow-hidden py-6">
         <h2 className="mb-6 text-center text-[1.25rem] font-bold">{l.activitiesTitle}</h2>
         <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-2.5 px-5">
-          {ACTIVITIES.map((a) => (
-            <span key={a} className="glass rounded-full px-4 py-2 text-[0.9375rem] font-semibold text-plum">{a}</span>
+          {ACTIVITIES.map(([slug, label]) => (
+            <span key={slug} className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-[0.9375rem] font-semibold text-plum">
+              <ActivityIcon slug={slug} className="h-4 w-4 text-coral" /> {label}
+            </span>
           ))}
         </div>
       </section>
@@ -141,7 +150,7 @@ export default async function LandingPage() {
           <ButtonLink href="/safety" variant="secondary" className="mt-6">{l.safetyCta}</ButtonLink>
         </div>
         <div className="glass rounded-[2rem] p-8">
-          <span className="text-4xl" aria-hidden>🙅‍♀️💘</span>
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-coral-50 text-coral"><HeartOff className="h-6 w-6" /></span>
           <h2 className="mt-4 text-[1.75rem] font-extrabold">{copy.platonicClause.heading}</h2>
           <p className="mt-3 text-muted">{copy.platonicClause.body}</p>
         </div>

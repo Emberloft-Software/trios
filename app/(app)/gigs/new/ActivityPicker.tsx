@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
+import { ActivityIcon } from "@/components/ui/ActivityIcon";
 
 export interface Activity {
   id: string;
   slug: string;
   name: string;
-  emoji: string;
   category: string;
   default_capacity: number;
 }
@@ -45,7 +45,7 @@ export function ActivityPicker({
                     active ? "bg-plum text-white shadow-[0_8px_20px_rgba(54,2,83,0.25)]" : "bg-white/75 text-plum ring-1 ring-line hover:bg-white"
                   }`}
                 >
-                  <span className="text-2xl" aria-hidden>{a.emoji}</span>
+                  <ActivityIcon slug={a.slug} className="h-6 w-6" />
                   <span className="text-center leading-tight">{a.name}</span>
                 </button>
               );
