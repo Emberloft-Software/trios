@@ -1,244 +1,58 @@
-# Trio
+# Tremigos
 
-Group-meetup web app for Colombo. Post a **gig** (badminton, movie, board games, coffee), other people claim **slots**, you meet in real life. Minimum three humans, always. Deliberately **not** a dating app.
+**Plans need people. Find your crew.** A group-meetup web app and installable PWA for Sri Lanka: post a gig (futsal, coffee, a hike, quiz night), people nearby claim the spots, you meet up — in groups of three or more, always somewhere public. Deliberately **not** a dating app.
 
-> **Trio** is a working codename. Rename before launch — it only appears in `lib/brand.ts` and `lib/copy.ts`.
-
-- **Stack:** Next.js 15 (App Router, TS strict) · Tailwind v4 (CSS-first `@theme`) · Supabase (Postgres, Auth, Storage, Realtime, Edge Functions) · `react-hook-form` + `zod` · `motion` · `date-fns-tz` (app tz `Asia/Colombo`).
-- **Specs:** everything is in [`docs/`](docs/00-start-here.md). Read `docs/00-start-here.md` first.
+Stack: Next.js 15 (App Router, TS strict) · Tailwind v4 · Supabase (Postgres, Auth, Storage, Realtime) · on-device MediaPipe face detection · PWA (manifest + service worker).
 
 ---
 
-## What's built so far
+## Features
 
-This repo is a working **M0 foundation + the complete database layer + the start of M1**. Concretely:
+**For members**
+- Email + password sign-up with **name, username, date of birth (18+ only), gender** and Terms/Privacy acceptance.
+- **Discover** feed filtered by category, showing only gigs whose **age range and audience** (everyone / women only / men only) include you. Gigs outside your audience are invisible (enforced by row-level security, not just the UI).
+- **Post a gig** in four steps: activity, details + Google Places venue, audience (age range + gender), group size and **"bringing people you know?"** (held seats).
+- **Invite link** (`/join/<code>`) for the friends you're bringing — they join the gig and its chat even if they're outside the audience filter. Everyone sees "Host +2 — join at your own risk".
+- **Group chat** (realtime) that opens once the gig is on, with a permanent "don't share numbers / don't follow links" disclaimer, a warning before you send a phone number or link, and labels on received ones.
+- **Vote to remove** someone from the chat for bad behaviour — anonymous to the crew, needs a majority of the other members (min 2 votes), and auto-files a report for admins.
+- Report, block, two-door leave ("something came up" / "I didn't feel comfortable"), check-ins, reliability bands, friends, in-app **Activity** notifications.
+- **Profile photo** upload with an on-device face check (no face / several faces is refused immediately); photos only appear after an admin approves them.
+- **Live video verification** rebuilt for phones and the installed app (see below).
+- Delete-my-account, Terms of Service, Privacy Policy (PDPA-aware), Safety page.
 
-| Area | Status |
-|---|---|
-| Project scaffold, TS strict, Tailwind v4 `@theme` design tokens | ✅ |
-| Fonts (Gabarito / Instrument Sans / DM Mono) | ✅ |
-| `SlotStrip` signature component (blind + crew, springs on fill, wraps at 375px) | ✅ |
-| `Button`, `Card` primitives | ✅ |
-| Supabase client/server/admin/middleware wiring | ✅ |
-| Email-OTP auth + `/auth/callback` + route guards | ✅ |
-| Landing page (live pinned board hero), about, safety, terms | ✅ |
-| Feed (blind), create-gig flow, gig lobby (preview + crew), realtime chat, leave doors | ✅ (M1 + parts of M2) |
-| Admin shell + dashboard (gigs-at-risk list) with the two access gates | ✅ |
-| **Full SQL: tables, RLS, functions, triggers, views, storage, cron, seed** | ✅ |
-| Edge Function stubs: `purge-verification-media`, `send-emails` | ✅ |
-| **M3 — Verification:** `/me/verify` liveness capture (feature-detected mime + 3-still fallback, 12s challenge, 20MB cap), server-side challenge + rate limit, admin review queue with 60s signed URLs and A/R/J/K shortcuts, approve/reject/retake with audit + email | ✅ |
-| **M4 — Trust & safety:** reports with priority routing + admin email, blocking with block-aware feed, host removals (rate-limited, logged), moderation ladder (`restrict_posting`/`restrict_joining`/`suspend`/`ban`/`clear` enforced in `claim_slot`/`create_gig`), admin `/reports` `/flags` `/users/[id]` (co-occurrence, blocks-received, friend-request ratio) | ✅ |
-| **M5 — Friends:** post-gig `Add` (only entry point, R9-gated), `/me/friends` (accept-only, no decline, vague outgoing, why-no-DMs), friend-hosted gigs in the feed, host `Invite` (no slot held) | ✅ |
-| **M6 — Venues & partners:** Places (New) autocomplete + details via session-token proxy, server-side photo proxy w/ attribution, residential rejection, venue picker in create-gig, partner perk in lobby + host redeem, `/spot/[slug]` no-login redemption, `/admin/partners` report + CSV, `/admin/venues` partner toggle | ✅ (needs a Google key — see §6) |
-| **M7 — Polish:** banned-patterns audit (clean — no gradients/glassmorphism/soft-shadows/fake social proof), feed page-load stagger, product copy extracted to `lib/copy.ts`, verified landing at 375px, global focus-visible + `prefers-reduced-motion` | ✅ |
+**For admins (`/admin`)**
+- Dashboard with queue counts, gigs at risk, recent audit log.
+- **Face verification** console: recording beside the profile photo, the exact challenge (code + actions), device + face-in-frame ratio, playback speed, approve / reject / retake with keyboard shortcuts, decision history.
+- **Profile photos** queue with the face-check score; approve or reject (rejected files are deleted).
+- Reports (priority pinned, crew-vote removals tagged), red flags, users (moderation ladder, force-verify, correct age/gender, take down photo, grant admin), gigs (cancel), venues, partners.
 
-**All seven milestones (M0–M7) are built.** Remaining work is post-v1 (self-serve venue billing/PayHere, sponsored gigs, staked deposits) and the seeding *operations*, not build milestones.
+### Why verification works on phones now
+- Camera starts with progressively simpler constraints (handles iOS/Android quirks and missing mics), the preview element is always mounted with `muted` + `playsInline`, and backgrounding the app mid-recording is detected.
+- Records **mp4 first** (iOS Safari + plays everywhere), falls back to webm, then to photo stills.
+- Uploads go **straight to storage through a one-shot signed upload URL** with a progress bar — no storage-RLS policy for the browser session to trip over (that was the old failure). Falls back to the Supabase client if the first attempt fails.
+- Live "face in frame" guidance via on-device MediaPipe.
+- Must be served over **HTTPS** (Vercel, or a tunnel when testing on a phone) — browsers block the camera on plain http except `localhost`.
 
-`pnpm typecheck` (or `npx tsc --noEmit`) is clean and `next build` succeeds.
+### Install as an app
+`/manifest.webmanifest` + `/sw.js` (network-first pages with an offline page, cache-first static assets; never caches API/auth). Android/desktop get a native install prompt; iPhone users get Share → Add to Home Screen instructions. The service worker only registers in production builds.
 
 ---
 
-## Prerequisites
-
-- Node 20.19+ / 22.13+ (repo built on Node 22).
-- npm (or pnpm — `CLAUDE.md` uses `pnpm`; both work, scripts are the same).
-- A Supabase project (cloud) **or** the Supabase CLI + Docker for local.
-
-## 1. Install & env
+## Getting started
 
 ```bash
 npm install
-cp .env.example .env.local
+npm run dev        # http://localhost:3000
 ```
 
-Fill `.env.local` from **Supabase → Project Settings → API**:
+`.env.local` needs (see `.env.example`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only), `GOOGLE_MAPS_SERVER_KEY` (Places API New, server-only), `NEXT_PUBLIC_SITE_URL`.
 
-- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` — safe for the browser.
-- `SUPABASE_SERVICE_ROLE_KEY` — **server-only**. Never prefix with `NEXT_PUBLIC_`. It's only ever imported by `lib/supabase/admin.ts` (guarded by `server-only`), route handlers, and Edge Functions.
+Database: migrations in `supabase/migrations/0001–0007` + `supabase/seed.sql` are already applied to the hosted project. See [`supabase/README-ops.md`](supabase/README-ops.md) for applying new ones, the admin allowlist, auth/SMTP settings and scheduled jobs.
 
-Then:
+Before shipping changes: `npm run typecheck` and `npm run build`.
 
-```bash
-npm run dev
-```
+## Deploying (Vercel)
 
----
-
-## 2. Create the database
-
-Two paths. **Local CLI** is the intended dev loop; **Dashboard SQL** is the copy-paste path for a cloud project.
-
-### Path A — Local, with the Supabase CLI (recommended)
-
-```bash
-supabase start                 # boots Postgres, Auth, Storage, Studio in Docker
-supabase db reset              # runs every migration in supabase/migrations, then seed.sql
-```
-
-`db reset` applies the numbered migrations in order and then `supabase/seed.sql` (the activity taxonomy). That single command builds the whole schema. Regenerate the DB types afterwards:
-
-```bash
-npm run gen:types              # supabase gen types typescript --local > lib/database.types.ts
-```
-
-> `lib/database.types.ts` is currently **hand-authored** so the app typechecks before the stack is up. Once `supabase start` works, regenerate it — the generated output is authoritative.
-
-Local Studio: <http://localhost:54323>. Local API: <http://localhost:54321>.
-
-### Path B — Cloud project, Dashboard SQL editor
-
-If you're not using the CLI, run the migrations **in order** in **Supabase → SQL Editor**. Paste and run each file's contents, one at a time, top to bottom:
-
-```
-supabase/migrations/0001_init_extensions_enums.sql
-supabase/migrations/0002_core_tables.sql
-supabase/migrations/0003_trust_tables.sql
-supabase/migrations/0004_social_tables.sql
-supabase/migrations/0005_functions.sql
-supabase/migrations/0006_rls.sql
-supabase/migrations/0007_views.sql
-supabase/migrations/0008_storage.sql
-supabase/migrations/0009_jobs_and_cron.sql
-supabase/seed.sql
-```
-
-Order matters — later files reference tables, enums, and functions created by earlier ones.
-
-**Before `0009`**, enable the scheduler extensions in **Database → Extensions**: turn on **`pg_cron`** and **`pg_net`**. `0009` is written to no-op its scheduling block if `pg_cron` isn't present, so it won't error either way — but the cron jobs only get registered once `pg_cron` is on.
-
-### What each migration does
-
-| File | Creates |
-|---|---|
-| `0001` | `citext` + `pgcrypto` extensions; the 7 enums |
-| `0002` | `profiles`, `activities`, `venues`, `gigs`, `gig_crew`, `gig_messages`, `checkins` (+ RLS enabled) |
-| `0003` | `crew_removals`, `reports`, `moderation_actions`, `reliability_events`, `verification_requests`, `admin_audit` |
-| `0004` | `friend_requests`, `friendships`, `blocks`, `perk_redemptions` |
-| `0005` | signup trigger, gig-code gen, `claimed_count` trigger, `gig_is_confirmed`, and the write-path functions: `create_gig`, `claim_slot`, `leave_gig`, `remove_crew_member`, `send_friend_request`, `accept_friend_request`, `block_user`, `redeem_perk`, `recompute_reliability_band` |
-| `0006` | every RLS policy (default-deny, grant-narrow) — this is where the **blind feed**, **first-come slots**, and **chat-at-confirmation** rules become structural |
-| `0007` | client-facing views: `profiles_public`, `verification_requests_public`, `gig_feed`, `friend_hosted_gigs` (all `security_invoker`) |
-| `0008` | storage buckets `avatars` (public), `verification` (**private**), `venues` (public) + policies |
-| `0009` | `notification_outbox`, the job functions (`lock_gigs_job`, `complete_gigs_job`, `recompute_bands_job`, expiry jobs), `cancel_gig`, and `pg_cron` scheduling |
-| `seed.sql` | the 24 seeded activities |
-
----
-
-## 3. Make yourself an admin
-
-There is **no UI to grant admin** (by design — `docs/07`). Set it in SQL after you've signed in once (which creates your `profiles` row via the signup trigger):
-
-```sql
-update profiles set is_admin = true
-where id = (select id from auth.users where email = 'admin@trio.com');
-```
-
-Then `/admin` resolves for you and 404s for everyone else.
-
----
-
-## 4. Storage
-
-`0008` creates the buckets and policies. Nothing else to click. Key rule: the **`verification`** bucket is private — no client read policy at all. Admins read recordings only through **60-second signed URLs** minted server-side, and the `purge-verification-media` job deletes the media 7 days after review.
-
----
-
-## 5. Edge Functions & scheduled jobs
-
-The state-machine transitions run as SQL job functions scheduled by `pg_cron` (see `0009`). Two side-effecting jobs are Edge Functions:
-
-```bash
-supabase functions deploy purge-verification-media
-supabase functions deploy send-emails
-```
-
-Set their secrets (server-side):
-
-```bash
-supabase secrets set CRON_SECRET=<random-string> RESEND_API_KEY=<optional>
-```
-
-Then schedule them to be hit by `pg_cron` via `pg_net` (run in SQL editor, once, replacing the URL/secret):
-
-```sql
-select cron.schedule('purge-verification-media', '0 3 * * *', $$
-  select net.http_post(
-    url := 'https://YOUR-REF.functions.supabase.co/purge-verification-media',
-    headers := jsonb_build_object('Authorization', 'Bearer YOUR_CRON_SECRET')
-  );
-$$);
-
-select cron.schedule('send-emails', '*/2 * * * *', $$
-  select net.http_post(
-    url := 'https://YOUR-REF.functions.supabase.co/send-emails',
-    headers := jsonb_build_object('Authorization', 'Bearer YOUR_CRON_SECRET')
-  );
-$$);
-```
-
-The purely-SQL jobs (`lock-gigs`, `complete-gigs`, `recompute-bands`, the expiry jobs) are already registered by `0009` when `pg_cron` is enabled — verify with `select * from cron.job;`.
-
----
-
-## 6. Google Places (M6 — venue picking)
-
-The venue picker uses **Places API (New)**, fully proxied server-side so the key never reaches the browser.
-
-1. In [Google Cloud Console](https://console.cloud.google.com/): create a project, enable **Places API (New)**, and create an API key.
-2. Restrict the key to **Places API (New)** (API restriction). It's a server key — no HTTP-referrer restriction needed.
-3. Put it in `.env.local` as `GOOGLE_MAPS_SERVER_KEY`. That single key powers autocomplete, place details, and the photo proxy.
-4. Billing must be enabled on the project (Places has a free tier but requires a billing account).
-
-How the cost controls work (all already implemented):
-- **Session tokens** span the autocomplete keystrokes and are terminated by the Details call, so a whole search bills as **one session** (verify in the billing console: a 10-keystroke search = one session, not ten requests).
-- **Field masks** on Details request only `id, displayName, formattedAddress, location, types, photos, googleMapsUri, regularOpeningHours`.
-- Photos are served through `/api/place-photo` (key server-side); we store only photo **references** + attribution, never image bytes, and Google's attribution renders alongside every photo.
-- A venue already in `venues` with fresh `photos_refreshed_at` (< 30 days) is reused **without** a new Details call.
-
-Residential addresses are rejected at creation (R7). Without the key, the picker's search returns nothing — the rest of the app still runs.
-
-## 7. Deploying to Vercel — auth gotchas
-
-Two things bite everyone on the first deploy. Neither is controlled by your Vercel env vars — both live in the **Supabase dashboard**.
-
-### Magic links redirect to localhost
-
-If a magic link sends you to `localhost:3000` from production, it's because Supabase **ignores a `redirect_to` that isn't allow-listed and falls back to the Site URL**. Fix in **Supabase → Authentication → URL Configuration**:
-
-- **Site URL** → `https://your-app.vercel.app`
-- **Redirect URLs** → add `https://your-app.vercel.app/**` and `http://localhost:3000/**`
-
-Then set **`NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app`** in Vercel (Production, no trailing slash) and redeploy. `lib/site-url.ts` uses it to build the redirect. **Request a fresh link afterwards** — old emails have the old redirect baked in.
-
-### "Email rate limit exceeded"
-
-Supabase's **built-in email sender is throttled** (a few per hour) and is for testing only. Don't raise the limit while on it — it won't send more.
-
-- **Local testing:** `supabase start` runs **Inbucket** at `http://localhost:54324` — it catches every auth email with no rate limit.
-- **Production:** configure **custom SMTP** in **Project Settings → Authentication → SMTP Settings**, then raise the cap in **Authentication → Rate Limits**. With Resend (already scaffolded via `RESEND_API_KEY`): verify a domain, then host `smtp.resend.com`, port `465`/`587`, user `resend`, password = your `re_...` key, sender = an address on the verified domain. No domain? Brevo allows single-sender verification with ~300/day free.
-
-## Commands
-
-```bash
-npm run dev            # local dev
-npm run typecheck      # tsc --noEmit — must pass before a task is "done"
-npm run lint
-npm run build          # production build
-npm run gen:types      # regenerate lib/database.types.ts from the local DB
-```
-
-## The hard rules (from `CLAUDE.md`, enforced here)
-
-1. **RLS on every table.** No exceptions — see `0006`.
-2. **Service role key never reaches the browser.** `lib/supabase/admin.ts` is `server-only`.
-3. **Every admin action re-checks `is_admin` server-side.** The layout guard is not authorisation.
-4. **Capacity is enforced in the DB, not the UI.** `claim_slot()` row-locks the gig.
-5. **Verification media is never publicly readable.** Private bucket, 60s signed URLs, auto-purged.
-6. **No `any`.** DB types are generated (or the hand-authored stand-in) and used everywhere.
-7. **Mutations are server actions / route handlers**, going through the security-definer functions.
-8. **Every user-facing string lives in `lib/copy.ts`.**
-
-## Open questions for the human (from `docs/00`)
-
-- Final product name and domain (rename `lib/brand.ts`).
-- Which city to seed first (Colombo assumed).
-- Whether to require phone auth in addition to email.
+1. Import the repo, add the env vars above (set `NEXT_PUBLIC_SITE_URL` to your domain).
+2. In Supabase → Authentication → URL Configuration, set the Site URL and add `https://<domain>/auth/callback`.
+3. Sign up with an allow-listed admin email, then open `/admin`.

@@ -1,8 +1,4 @@
-/** Three bouncing dots, colour-matched to whatever text colour it's dropped
- * into via `currentColor`. Used inside Button/ButtonLink while an action or
- * navigation is pending, so a click always gets visible feedback. Reduced
- * motion is handled globally in globals.css (animation-duration collapses to
- * ~0), so the dots just sit static rather than looping. */
+/** Three bouncing dots in currentColor. Reduced motion is handled globally. */
 export function Spinner({ className = "" }: { className?: string }) {
   return (
     <span role="status" aria-label="Loading" className={`inline-flex items-center gap-1 ${className}`}>
@@ -10,8 +6,8 @@ export function Spinner({ className = "" }: { className?: string }) {
         <span
           key={i}
           aria-hidden
-          className="h-[5px] w-[5px] rounded-full bg-current"
-          style={{ animation: `trio-bounce 0.9s ease-in-out ${i * 0.15}s infinite` }}
+          className="h-1.5 w-1.5 rounded-full bg-current"
+          style={{ animation: `tm-bounce 0.9s ease-in-out ${i * 0.15}s infinite` }}
         />
       ))}
     </span>

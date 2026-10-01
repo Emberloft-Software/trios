@@ -1,82 +1,77 @@
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { Card } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { ResolveForm } from "./ResolveForm";
 import { copy } from "@/lib/copy";
-import { formatGigTime } from "@/lib/time";
+import { timeAgo } from "@/lib/time";
+import { ids } from "../_lib";
 
-export const metadata = { title: "Reports — Trio admin" };
+export const metadata = { title: "Reports — Admin" };
 
 const PRIORITY = new Set(["threat_or_violence", "underage", "sexual_advance"]);
+const LABELS: Record<string, string> = { ...copy.trust.report.categories, crew_vote_removal: "Removed by crew vote" };
 
-/**
- * Report queue (docs/07). Priority categories pinned to the top with a
- * --color-tape marker; everything else FIFO. Reports are never attributed to
- * the reporter in any user-facing surface — this is admin-only.
- */
-export default async function ReportsPage() {
-  const admin = createAdminClient();
-  const { data: reports } = await admin
-    .from("reports")
-    .select("id, reporter_id, target_id, gig_id, category, details, created_at")
-    .eq("status", "open")
-    .order("created_at", { ascending: true })
-    .limit(100);
+export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { tab = "open" } = await searchParams;
+  const db = createAdminClient();
+  let q = db.from("reports").select("id, reporter_id, target_id, gig_id, category, details, status, resolution, created_at").order("created_at", { ascending: tab === "open" }).limit(100);
+  q = tab === "open" ? q.eq("status", "open") : q.neq("status", "open");
+  const { data } = await q;
+  const rows = data ?? [];
 
-  const rows = reports ?? [];
-  const userIds = [...new Set(rows.flatMap((r) => [r.reporter_id, r.target_id]))];
-  const { data: profiles } = await admin
-    .from("profiles")
-    .select("id, display_name, handle")
-    .in("id", userIds.length ? userIds : ["00000000-0000-0000-0000-000000000000"]);
-  const nameById = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
+  const [{ data: profiles }, { data: gigs }] = await Promise.all([
+    db.from("profiles").select("id, display_name, handle").in("id", ids(rows.flatMap((r) => [r.reporter_id, r.target_id]))),
+    db.from("gigs").select("id, title, code").in("id", ids(rows.map((r) => r.gig_id))),
+  ]);
+  const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
+  const gigById = new Map((gigs ?? []).map((g) => [g.id, g]));
 
-  // priority first, then FIFO
-  const sorted = [...rows].sort((a, b) => {
-    const pa = PRIORITY.has(a.category) ? 0 : 1;
-    const pb = PRIORITY.has(b.category) ? 0 : 1;
-    if (pa !== pb) return pa - pb;
-    return a.created_at.localeCompare(b.created_at);
-  });
+  const sorted = tab === "open"
+    ? [...rows].sort((a, b) => (PRIORITY.has(a.category) ? 0 : 1) - (PRIORITY.has(b.category) ? 0 : 1) || a.created_at.localeCompare(b.created_at))
+    : rows;
 
   return (
     <div>
-      <h1 className="mb-2 font-display text-[2rem] font-700">Reports</h1>
-      <p className="mb-6 text-[0.875rem] text-[var(--color-dust)]">
-        Priority categories are pinned to the top. {sorted.length} open.
-      </p>
+      <PageHeader title="Reports" sub="Priority categories are pinned to the top. Reporters are never revealed to the person reported." />
+      <div className="mb-5 flex gap-2">
+        {[["open", "Open"], ["closed", "Resolved"]].map(([k, l]) => (
+          <Link key={k} href={`/admin/reports?tab=${k}`} className={`rounded-full px-4 py-2 text-[0.875rem] font-semibold ${tab === k ? "bg-plum text-white" : "glass text-plum"}`}>{l}</Link>
+        ))}
+      </div>
 
       {sorted.length === 0 ? (
-        <Card className="p-6 text-[0.9375rem] text-[var(--color-dust)]">Queue is clear.</Card>
+        <EmptyState title={tab === "open" ? "Queue is clear." : "Nothing resolved yet."} />
       ) : (
         <div className="space-y-4">
           {sorted.map((r) => {
             const priority = PRIORITY.has(r.category);
+            const target = r.target_id ? byId.get(r.target_id) : null;
+            const reporter = r.reporter_id ? byId.get(r.reporter_id) : null;
+            const gig = r.gig_id ? gigById.get(r.gig_id) : null;
             return (
-              <Card key={r.id} className="p-5">
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  {priority && (
-                    <span className="font-data rounded-[var(--radius-tile)] border-2 border-[var(--color-ink)] bg-[var(--color-tape)] px-2 py-0.5 text-[0.6875rem] uppercase text-[var(--color-chalk)]">
-                      Priority
-                    </span>
-                  )}
-                  <span className="font-500">
-                    {copy.trust.report.categories[r.category] ?? r.category}
-                  </span>
-                  <span className="font-data ml-auto text-[0.75rem] text-[var(--color-dust)]">
-                    {formatGigTime(r.created_at)}
-                  </span>
+              <article key={r.id} className={`glass rounded-[1.5rem] p-5 ${priority && r.status === "open" ? "ring-2 ring-coral" : ""}`}>
+                <div className="flex flex-wrap items-center gap-2">
+                  {priority && <Badge tone="coral">Priority</Badge>}
+                  {r.category === "crew_vote_removal" && <Badge tone="sun">Crew vote</Badge>}
+                  <span className="font-bold text-plum">{LABELS[r.category] ?? r.category}</span>
+                  <span className="ml-auto text-[0.75rem] text-muted">{timeAgo(r.created_at)}</span>
                 </div>
-                <p className="text-[0.9375rem]">
-                  <span className="text-[var(--color-dust)]">About</span>{" "}
-                  <span className="font-500">{nameById.get(r.target_id) ?? "Unknown"}</span>
-                  <span className="text-[var(--color-dust)]"> · reported by </span>
-                  <span>{nameById.get(r.reporter_id) ?? "Unknown"}</span>
+                <p className="mt-2 text-[0.875rem]">
+                  <span className="text-muted">About </span>
+                  {target ? <Link href={`/admin/users/${r.target_id}`} className="font-semibold text-coral-600 hover:underline">{target.display_name} (@{target.handle})</Link> : <span>Deleted user</span>}
+                  <span className="text-muted"> · from </span>
+                  {reporter ? <Link href={`/admin/users/${r.reporter_id}`} className="font-semibold text-plum hover:underline">{reporter.display_name}</Link> : <span>Deleted user</span>}
+                  {gig && <><span className="text-muted"> · gig </span><Link href={`/gigs/${r.gig_id}`} className="font-semibold text-plum hover:underline">{gig.title} ({gig.code})</Link></>}
                 </p>
-                <p className="mt-2 rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-court)] p-3 text-[0.9375rem]">
-                  {r.details}
-                </p>
-                <ResolveForm reportId={r.id} targetId={r.target_id} />
-              </Card>
+                <p className="mt-3 whitespace-pre-line rounded-2xl bg-white/70 p-3 text-[0.9375rem] ring-1 ring-line">{r.details}</p>
+                {r.status === "open" ? (
+                  <ResolveForm reportId={r.id} />
+                ) : (
+                  <p className="mt-3 text-[0.8125rem] text-muted"><Badge tone={r.status === "actioned" ? "mint" : "muted"}>{r.status}</Badge> {r.resolution}</p>
+                )}
+              </article>
             );
           })}
         </div>

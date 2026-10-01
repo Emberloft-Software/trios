@@ -1,52 +1,29 @@
+import { BadgeCheck, Sparkles, ThumbsUp } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 import type { ReliabilityBand } from "@/lib/database.types";
 
-/**
- * Verified badge — docs/05: means "same face as photo", nothing more.
- * A small --color-net tick.
- */
-export function VerifiedBadge() {
+/** Verified = a live recording matched their approved photo. Nothing more. */
+export function VerifiedBadge({ compact = false }: { compact?: boolean }) {
+  if (compact) {
+    return (
+      <span title="Verified — live video matched their photo" className="inline-flex text-mint">
+        <BadgeCheck className="h-4.5 w-4.5" />
+      </span>
+    );
+  }
   return (
-    <span
-      title="Verified — a real person recorded live, checked by a human"
-      className="inline-flex items-center gap-1 text-[var(--color-net)]"
-    >
-      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden fill="none">
-        <path d="M2 7.5 5.5 11 12 3.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className="font-data text-[0.6875rem] uppercase tracking-[0.06em]">Verified</span>
-    </span>
+    <Badge tone="mint" icon={<BadgeCheck className="h-3.5 w-3.5" />} title="Live video matched their photo, checked by our team">
+      Verified
+    </Badge>
   );
 }
 
-/**
- * Reliability band (docs/06). Never a number. `reliable` is a --color-net tick;
- * `new` is neutral (most users are new at launch — not a warning). `mixed`
- * shows only to host/admin; `restricted` never renders (they can't join).
- */
+/** Reliability band — never a number. `restricted` never renders. */
 export function ReliabilityMark({ band }: { band: ReliabilityBand }) {
-  if (band === "reliable") {
-    return (
-      <span className="inline-flex items-center gap-1 text-[var(--color-net)]" title="Shows up">
-        <svg width="12" height="12" viewBox="0 0 14 14" aria-hidden fill="none">
-          <path d="M2 7.5 5.5 11 12 3.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <span className="font-data text-[0.6875rem] uppercase tracking-[0.06em]">Reliable</span>
-      </span>
-    );
-  }
-  if (band === "new") {
-    return (
-      <span className="font-data text-[0.6875rem] uppercase tracking-[0.06em] text-[var(--color-dust)]" title="Hasn't finished enough gigs to say">
-        New
-      </span>
-    );
-  }
-  if (band === "mixed") {
-    return (
-      <span className="font-data text-[0.6875rem] uppercase tracking-[0.06em] text-[var(--color-dust)]" title="Has flaked recently">
-        Mixed
-      </span>
-    );
-  }
+  if (band === "reliable")
+    return <Badge tone="mint" icon={<ThumbsUp className="h-3 w-3" />} title="Shows up">Reliable</Badge>;
+  if (band === "new")
+    return <Badge tone="muted" icon={<Sparkles className="h-3 w-3" />} title="Hasn't done enough gigs to say">New</Badge>;
+  if (band === "mixed") return <Badge tone="sun" title="Has flaked recently">Mixed</Badge>;
   return null;
 }

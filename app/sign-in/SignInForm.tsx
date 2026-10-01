@@ -1,177 +1,223 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { Eye, EyeOff, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Checkbox, FieldError, Hint, Input, Label, Segmented } from "@/components/ui/Field";
+import { Notice } from "@/components/ui/Notice";
 import { copy } from "@/lib/copy";
+import {
+  checkHandleAction,
+  requestPasswordResetAction,
+  signInAction,
+  signUpAction,
+} from "./_actions";
 
-const FIELD =
-  "w-full rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] px-3 py-2.5 text-[1rem] outline-none";
+type Mode = "signin" | "signup" | "reset";
+type Gender = "woman" | "man" | "nonbinary";
 
-const HANDLE_RE = /^[a-z0-9_]{3,20}$/;
+function maxBirthDate() {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 18);
+  return d.toISOString().slice(0, 10);
+}
 
-/**
- * Email + password auth (sign in / sign up in one card). Signup collects a name
- * and a username, passed as auth metadata — the profiles trigger (0015) turns
- * those into display_name + handle. With email confirmation off in Supabase,
- * signup returns a session and drops the user straight into the app.
- */
-export function SignInForm({ next = "/feed" }: { next?: string }) {
+export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: string; initialMode?: Mode }) {
   const router = useRouter();
-  const supabase = createClient();
   const c = copy.auth;
+  const [mode, setMode] = useState<Mode>(initialMode);
+  const [pending, start] = useTransition();
 
-  const [mode, setMode] = useState<"signin" | "signup">("signup");
   const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
+  const [handle, setHandle] = useState("");
+  const [handleFree, setHandleFree] = useState<boolean | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [birthDate, setBirthDate] = useState("");
+  const [gender, setGender] = useState<Gender | null>(null);
+  const [terms, setTerms] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  function mapAuthError(message: string): string {
-    const m = message.toLowerCase();
-    if (m.includes("already registered") || m.includes("already been registered")) return c.errors.email_in_use;
-    if (m.includes("invalid login")) return c.errors.bad_credentials;
-    if (m.includes("password")) return c.errors.weak_password;
-    return c.errors.generic;
+  // live username availability
+  useEffect(() => {
+    if (mode !== "signup") return;
+    setHandleFree(null);
+    if (!/^[a-z0-9_]{3,20}$/.test(handle)) return;
+    const t = setTimeout(async () => setHandleFree(await checkHandleAction(handle)), 400);
+    return () => clearTimeout(t);
+  }, [handle, mode]);
+
+  function switchMode(m: Mode) {
+    setMode(m);
+    setError(null);
+    setErrorField(null);
+    setNotice(null);
   }
 
-  async function submit(e: React.FormEvent) {
+  function fail(code: string, field?: string) {
+    setError(c.errors[code] ?? c.errors.generic);
+    setErrorField(field ?? null);
+  }
+
+  function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setNotice(null);
+    setErrorField(null);
 
-    if (mode === "signin") {
-      setBusy(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      setBusy(false);
-      if (error) return setError(mapAuthError(error.message));
-      router.push(next);
+    start(async () => {
+      if (mode === "signin") {
+        const res = await signInAction({ email, password });
+        if (!res.ok) return fail(res.error);
+        router.replace(next);
+        router.refresh();
+        return;
+      }
+      if (mode === "reset") {
+        const res = await requestPasswordResetAction(email);
+        if (!res.ok) return fail(res.error);
+        setNotice(c.resetSent);
+        return;
+      }
+      if (!gender) return fail("gender_required", "gender");
+      if (!terms) return fail("terms_required", "terms");
+      const res = await signUpAction({ name, handle, email, password, birthDate, gender, acceptTerms: terms });
+      if (!res.ok) return fail(res.error, res.field);
+      if (res.needsConfirmation) {
+        setNotice(c.confirmEmail);
+        return;
+      }
+      router.replace(next);
       router.refresh();
-      return;
-    }
-
-    // ── sign up ────────────────────────────────────────────────────────────
-    const handle = username.trim().toLowerCase();
-    if (!HANDLE_RE.test(handle)) return setError(c.errors.username_format);
-    if (password.length < 8) return setError(c.errors.weak_password);
-    if (name.trim().length < 1) return setError(c.errors.generic);
-
-    setBusy(true);
-    // Pre-check the username so we can say "taken" before creating the account.
-    const { data: available } = await supabase.rpc("check_handle", { p_handle: handle });
-    if (available === false) {
-      setBusy(false);
-      return setError(c.errors.username_taken);
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: { data: { display_name: name.trim(), handle } },
     });
-    setBusy(false);
-    if (error) return setError(mapAuthError(error.message));
-
-    if (data.session) {
-      // email confirmation is off → straight in
-      router.push(next);
-      router.refresh();
-    } else {
-      // confirmation is on → they must confirm first
-      setNotice(c.confirmEmail);
-    }
   }
 
   if (notice) {
     return (
-      <Card className="p-6">
+      <div className="glass rounded-[1.75rem] p-7 text-center animate-rise">
+        <span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-mint-50 text-mint">
+          <MailCheck className="h-7 w-7" />
+        </span>
         <p className="text-[0.9375rem]">{notice}</p>
-      </Card>
+        <Button variant="secondary" className="mt-5" onClick={() => switchMode("signin")}>
+          {c.backToSignIn}
+        </Button>
+      </div>
     );
   }
 
   const isSignup = mode === "signup";
+  const errFor = (f: string) => (errorField === f ? error : null);
 
   return (
-    <Card className="p-6">
-      <h1 className="mb-4 font-display text-[1.375rem] font-700">
-        {isSignup ? c.signUpTitle : c.signInTitle}
+    <div className="animate-rise">
+      <h1 className="text-[1.875rem] font-extrabold">
+        {mode === "signin" ? c.signInTitle : mode === "reset" ? c.resetTitle : c.signUpTitle}
       </h1>
-      <form onSubmit={submit} noValidate className="space-y-3">
+      <p className="mt-1 text-[0.9375rem] text-muted">
+        {mode === "signin" ? c.signInSub : mode === "reset" ? c.resetSub : c.signUpSub}
+      </p>
+
+      <form onSubmit={submit} noValidate className="glass mt-6 space-y-4 rounded-[1.75rem] p-5 sm:p-6">
         {isSignup && (
           <>
-            <Field id="name" label={c.name} value={name} onChange={setName}
-              placeholder={c.namePlaceholder} autoComplete="given-name" />
-            <div>
-              <Field id="username" label={c.username} value={username}
-                onChange={(v) => setUsername(v.toLowerCase())} placeholder={c.usernamePlaceholder}
-                autoComplete="username" />
-              <p className="mt-1 text-[0.8125rem] text-[var(--color-dust)]">{c.usernameHint}</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="name">{c.name}</Label>
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder={c.namePlaceholder} autoComplete="given-name" maxLength={40} required />
+                <FieldError>{errFor("name")}</FieldError>
+              </div>
+              <div>
+                <Label htmlFor="handle">{c.username}</Label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">@</span>
+                  <Input id="handle" value={handle} onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                    placeholder={c.usernamePlaceholder} autoComplete="username" maxLength={20} className="pl-8" autoCapitalize="none" required />
+                </div>
+                {handleFree === false ? <FieldError>{c.errors.username_taken}</FieldError> : <FieldError>{errFor("handle")}</FieldError>}
+              </div>
             </div>
           </>
         )}
-        <Field id="email" label={c.email} type="email" value={email} onChange={setEmail}
-          placeholder="you@example.com" autoComplete="email" />
+
         <div>
-          <Field id="password" label={c.password} type="password" value={password}
-            onChange={setPassword} autoComplete={isSignup ? "new-password" : "current-password"} />
-          {isSignup && <p className="mt-1 text-[0.8125rem] text-[var(--color-dust)]">{c.passwordHint}</p>}
+          <Label htmlFor="email">{c.email}</Label>
+          <Input id="email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com" autoComplete="email" autoCapitalize="none" required />
+          <FieldError>{errFor("email")}</FieldError>
         </div>
 
-        {error && <p className="text-[0.875rem] text-[var(--color-tape)]">{error}</p>}
+        {mode !== "reset" && (
+          <div>
+            <Label htmlFor="password">{c.password}</Label>
+            <div className="relative">
+              <Input id="password" type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                autoComplete={isSignup ? "new-password" : "current-password"} className="pr-12" required minLength={isSignup ? 8 : undefined} />
+              <button type="button" onClick={() => setShowPw((s) => !s)} aria-label={showPw ? "Hide password" : "Show password"}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-2 text-muted hover:text-plum">
+                {showPw ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+              </button>
+            </div>
+            {isSignup && !errFor("password") && <Hint>{c.passwordHint}</Hint>}
+            <FieldError>{errFor("password")}</FieldError>
+            {mode === "signin" && (
+              <button type="button" onClick={() => switchMode("reset")} className="mt-2 text-[0.8125rem] font-semibold text-coral-600 hover:underline">
+                {c.forgot}
+              </button>
+            )}
+          </div>
+        )}
 
-        <Button type="submit" disabled={busy} className="w-full">
-          {busy ? c.working : isSignup ? c.signUpCta : c.signInCta}
+        {isSignup && (
+          <>
+            <div>
+              <Label htmlFor="dob">{c.birthDate}</Label>
+              <Input id="dob" type="date" value={birthDate} max={maxBirthDate()} min="1925-01-01" onChange={(e) => setBirthDate(e.target.value)} required />
+              {errFor("birthDate") ? <FieldError>{errFor("birthDate")}</FieldError> : <Hint>{c.birthDateHint}</Hint>}
+            </div>
+            <div>
+              <Label>{c.gender}</Label>
+              <Segmented<Gender>
+                name={c.gender}
+                value={gender}
+                onChange={setGender}
+                options={(["woman", "man", "nonbinary"] as const).map((g) => ({ value: g, label: c.genders[g] }))}
+              />
+              {errFor("gender") ? <FieldError>{errFor("gender")}</FieldError> : <Hint>{c.genderHint}</Hint>}
+            </div>
+            <div>
+              <Checkbox id="terms" checked={terms} onChange={setTerms}>
+                {c.terms}{" "}
+                <Link href="/terms" target="_blank" className="font-semibold text-coral-600 underline-offset-2 hover:underline">{c.termsLink}</Link>{" "}
+                {c.and}{" "}
+                <Link href="/privacy" target="_blank" className="font-semibold text-coral-600 underline-offset-2 hover:underline">{c.privacyLink}</Link>.
+              </Checkbox>
+              <FieldError>{errFor("terms")}</FieldError>
+            </div>
+          </>
+        )}
+
+        {error && !errorField && <Notice tone="danger" compact>{error}</Notice>}
+
+        <Button type="submit" size="lg" block loading={pending}>
+          {mode === "signin" ? c.signInCta : mode === "reset" ? c.resetCta : c.signUpCta}
         </Button>
       </form>
 
-      <button
-        onClick={() => {
-          setMode(isSignup ? "signin" : "signup");
-          setError(null);
-        }}
-        className="mt-4 block w-full text-center text-[0.875rem] text-[var(--color-net)] hover:underline"
-      >
-        {isSignup ? c.toggleToSignIn : c.toggleToSignUp}
-      </button>
-    </Card>
-  );
-}
-
-function Field({
-  id,
-  label,
-  value,
-  onChange,
-  type = "text",
-  placeholder,
-  autoComplete,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  placeholder?: string;
-  autoComplete?: string;
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-1 block text-[0.875rem] font-500">{label}</label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        className={FIELD}
-      />
+      <div className="mt-5 text-center text-[0.9375rem]">
+        {mode === "reset" ? (
+          <button onClick={() => switchMode("signin")} className="font-semibold text-plum hover:underline">{c.backToSignIn}</button>
+        ) : (
+          <button onClick={() => switchMode(isSignup ? "signin" : "signup")} className="font-semibold text-plum hover:underline">
+            {isSignup ? c.toggleToSignIn : c.toggleToSignUp}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

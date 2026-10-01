@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ff3450" />
+<title>Offline · Tremigos</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #24113a;
+    background:
+      radial-gradient(40% 40% at 90% 0%, rgba(255,52,80,.22), transparent 70%),
+      radial-gradient(40% 40% at 0% 100%, rgba(255,186,48,.3), transparent 70%),
+      #fbf8f3;
+  }
+  .card {
+    max-width: 360px; width: 100%; text-align: center; padding: 32px 24px; border-radius: 28px;
+    background: rgba(255,255,255,.65); border: 1px solid rgba(255,255,255,.8);
+    -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+    box-shadow: 0 8px 24px rgba(54,2,83,.08);
+  }
+  img.mark { width: 84px; height: 84px; border-radius: 28%; }
+  img.word { height: 26px; margin: 16px auto 0; display: block; }
+  h1 { font-size: 20px; color: #360253; margin: 20px 0 6px; }
+  p { color: #6e6280; margin: 0 0 20px; line-height: 1.5; font-size: 15px; }
+  button {
+    border: 0; border-radius: 999px; background: #ff3450; color: #fff; font-weight: 700;
+    font-size: 15px; height: 44px; padding: 0 22px; cursor: pointer;
+    box-shadow: 0 8px 22px rgba(255,52,80,.32);
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img class="mark" src="/brand/mark-256.png" alt="" />
+    <img class="word" src="/brand/wordmark-plum.png" alt="Tremigos" />
+    <h1>You're offline</h1>
+    <p>Check your connection and try again. Your gigs will be right where you left them.</p>
+    <button onclick="location.reload()">Try again</button>
+  </div>
+</body>
+</html>

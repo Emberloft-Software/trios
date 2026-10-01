@@ -1,12 +1,14 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ExternalLink, MapPin, Search, Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { brand } from "@/lib/brand";
-import {
-  upsertVenueFromPlaceAction,
-  type PickedVenue,
-} from "@/app/(app)/gigs/new/venue-actions";
+import { Input } from "@/components/ui/Field";
+import { Notice } from "@/components/ui/Notice";
+import { Spinner } from "@/components/ui/Spinner";
+import { copy } from "@/lib/copy";
+import { upsertVenueFromPlaceAction, type PickedVenue } from "@/app/(app)/gigs/new/venue-actions";
 
 interface Suggestion {
   placeId: string;
@@ -14,34 +16,25 @@ interface Suggestion {
   secondary: string;
 }
 
-const FIELD =
-  "w-full rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] px-3 py-2.5 text-[1rem] outline-none";
+function newToken() {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+}
 
 /**
- * Real place search (docs/03). A session token spans the keystrokes and is
- * terminated by the Details call inside the upsert action, so a whole search
- * bills as ONE session. Debounced at 300ms. The Maps key stays server-side —
- * both autocomplete and photos go through our proxy routes.
+ * Google Places search, proxied through our API so the key stays server-side.
+ * One session token spans the keystrokes and the final Details call.
  */
-export function VenuePicker({
-  value,
-  onPick,
-}: {
-  value: PickedVenue | null;
-  onPick: (v: PickedVenue | null) => void;
-}) {
+export function VenuePicker({ value, onPick }: { value: PickedVenue | null; onPick: (v: PickedVenue | null) => void }) {
   const [q, setQ] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const tokenRef = useRef<string>(newToken());
+  const tokenRef = useRef<string>("");
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function newToken() {
-    return typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2);
-  }
+  useEffect(() => {
+    tokenRef.current = newToken();
+  }, []);
 
   const search = useCallback(async (input: string) => {
     if (input.trim().length < 2) {
@@ -49,13 +42,17 @@ export function VenuePicker({
       return;
     }
     setLoading(true);
-    const res = await fetch(
-      `/api/places/autocomplete?q=${encodeURIComponent(input)}&token=${tokenRef.current}`,
-    );
-    setLoading(false);
-    if (!res.ok) return;
-    const data = (await res.json()) as { suggestions: Suggestion[] };
-    setSuggestions(data.suggestions ?? []);
+    try {
+      const res = await fetch(`/api/places/autocomplete?q=${encodeURIComponent(input)}&token=${tokenRef.current}`);
+      if (!res.ok) throw new Error(String(res.status));
+      const data = (await res.json()) as { suggestions: Suggestion[] };
+      setSuggestions(data.suggestions ?? []);
+      setError(null);
+    } catch {
+      setError(copy.errors.generic);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -69,96 +66,66 @@ export function VenuePicker({
   async function select(s: Suggestion) {
     setError(null);
     setLoading(true);
-    const res = await upsertVenueFromPlaceAction({
-      placeId: s.placeId,
-      sessionToken: tokenRef.current,
-    });
+    const res = await upsertVenueFromPlaceAction({ placeId: s.placeId, sessionToken: tokenRef.current });
     setLoading(false);
-    // Details terminated the session; start a fresh token for the next search.
     tokenRef.current = newToken();
-    if (!res.ok) {
-      setError(res.error);
-      return;
-    }
+    if (!res.ok) return setError(res.error);
     setSuggestions([]);
     setQ("");
     onPick(res.venue);
   }
 
-  function clear() {
-    onPick(null);
-    setError(null);
-  }
-
-  // ── Confirm card ────────────────────────────────────────────────────────────
   if (value) {
     return (
-      <div className="rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] p-3">
+      <div className="rounded-2xl bg-white/80 p-3 ring-1 ring-line">
         <div className="flex gap-3">
-          {value.photoRef && (
-            <div className="shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/api/place-photo?ref=${encodeURIComponent(value.photoRef)}&w=200`}
-                alt={value.name}
-                className="h-20 w-20 rounded-[var(--radius-tile)] border-2 border-[var(--color-ink)] object-cover"
-              />
-              {value.photoAttribution && (
-                <p className="mt-0.5 text-[0.5625rem] text-[var(--color-dust)]">
-                  © {value.photoAttribution}
-                </p>
-              )}
-            </div>
+          {value.photoRef ? (
+            <img src={`/api/place-photo?ref=${encodeURIComponent(value.photoRef)}&w=200`} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
+          ) : (
+            <span className="grid h-20 w-20 shrink-0 place-items-center rounded-xl bg-plum-50 text-plum"><MapPin className="h-6 w-6" /></span>
           )}
           <div className="min-w-0 flex-1">
-            <p className="font-display text-[1.0625rem] font-600">{value.name}</p>
-            <p className="text-[0.875rem] text-[var(--color-dust)]">{value.address}</p>
-            {value.isPartner && value.partnerPerk && (
-              <p className="mt-1 inline-block rounded-[var(--radius-tile)] border-2 border-[var(--color-ink)] bg-[var(--color-line)] px-2 py-0.5 text-[0.8125rem]">
-                {value.partnerPerk}
+            <p className="font-bold text-plum">{value.name}</p>
+            <p className="text-[0.8125rem] text-muted">{value.address}</p>
+            {typeof value.rating === "number" && (
+              <p className="mt-0.5 flex items-center gap-1 text-[0.8125rem] text-muted tabular">
+                <Star className="h-3.5 w-3.5 fill-sun text-sun" /> {value.rating.toFixed(1)}
               </p>
             )}
+            {value.isPartner && value.partnerPerk && (
+              <p className="mt-1 inline-block rounded-full bg-sun-100 px-2.5 py-0.5 text-[0.75rem] font-semibold text-[#6b4400]">{value.partnerPerk}</p>
+            )}
             {value.mapsUrl && (
-              <a href={value.mapsUrl} target="_blank" rel="noreferrer"
-                className="mt-1 block text-[0.8125rem] text-[var(--color-net)] hover:underline">
-                View on Google Maps
+              <a href={value.mapsUrl} target="_blank" rel="noreferrer noopener" className="mt-1 flex items-center gap-1 text-[0.8125rem] font-semibold text-coral-600 hover:underline">
+                {copy.venue.openInMaps} <ExternalLink className="h-3 w-3" />
               </a>
             )}
           </div>
         </div>
-        <Button variant="ghost" onClick={clear} className="mt-2 text-[var(--color-net)]">
-          Change venue
-        </Button>
+        <Button variant="ghost" size="sm" onClick={() => onPick(null)} className="mt-2">{copy.venue.change}</Button>
       </div>
     );
   }
 
-  // ── Search ──────────────────────────────────────────────────────────────────
   return (
     <div>
-      <input
-        className={FIELD}
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search a cafe, court, park, or venue"
-        aria-label="Search venues"
-      />
-      <p className="mt-1 text-[0.8125rem] text-[var(--color-dust)]">
-        A public place in and around {brand.city}. Home addresses aren&apos;t allowed.
-      </p>
-      {loading && <p className="mt-2 text-[0.8125rem] text-[var(--color-dust)]">Searching…</p>}
-      {error && <p className="mt-2 text-[0.875rem] text-[var(--color-tape)]">{error}</p>}
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted" />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={copy.venue.searchPlaceholder} aria-label={copy.venue.searchLabel} className="pl-11" />
+        {loading && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted"><Spinner /></span>}
+      </div>
+      <p className="mt-1.5 text-[0.8125rem] text-muted">{copy.venue.searchHint}</p>
+      {error && <Notice tone="danger" compact className="mt-2">{error}</Notice>}
       {suggestions.length > 0 && (
-        <ul className="mt-2 space-y-1 rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] p-1">
+        <ul className="mt-2 overflow-hidden rounded-2xl bg-white ring-1 ring-line shadow-[var(--shadow-soft)]">
           {suggestions.map((s) => (
-            <li key={s.placeId}>
-              <button
-                type="button"
-                onClick={() => select(s)}
-                className="w-full rounded-[var(--radius-tile)] px-3 py-2 text-left hover:bg-[var(--color-line)]"
-              >
-                <span className="block font-500">{s.primary}</span>
-                <span className="block text-[0.8125rem] text-[var(--color-dust)]">{s.secondary}</span>
+            <li key={s.placeId} className="border-b border-line last:border-0">
+              <button type="button" onClick={() => select(s)} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-plum-50">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-coral" />
+                <span className="min-w-0">
+                  <span className="block truncate font-semibold text-plum">{s.primary}</span>
+                  <span className="block truncate text-[0.8125rem] text-muted">{s.secondary}</span>
+                </span>
               </button>
             </li>
           ))}

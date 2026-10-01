@@ -4,38 +4,50 @@ import { forwardRef } from "react";
 import Link, { useLinkStatus } from "next/link";
 import { Spinner } from "./Spinner";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "secondary" | "dark" | "ghost" | "danger" | "glass";
+type Size = "sm" | "md" | "lg";
 
 const base =
-  "relative inline-flex items-center justify-center gap-2 rounded-[var(--radius-btn)] border-2 border-[var(--color-ink)] px-5 py-2.5 font-body font-600 transition-transform disabled:cursor-not-allowed disabled:opacity-60";
+  "relative inline-flex select-none items-center justify-center gap-2 rounded-full font-semibold whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50";
 
-// Exactly one --color-tape (primary) element per screen region — see docs/04.
+const sizes: Record<Size, string> = {
+  sm: "h-9 px-4 text-[0.8125rem]",
+  md: "h-11 px-5 text-[0.9375rem]",
+  lg: "h-13 px-7 text-base",
+};
+
 const variants: Record<Variant, string> = {
   primary:
-    "bg-[var(--color-tape)] text-[var(--color-chalk)] shadow-[var(--shadow-hard)] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[var(--shadow-lift)]",
+    "bg-coral text-white shadow-[var(--shadow-coral)] hover:bg-coral-600 hover:-translate-y-px",
   secondary:
-    "bg-[var(--color-chalk)] text-[var(--color-ink)] shadow-[var(--shadow-hard)] hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[var(--shadow-lift)]",
-  ghost: "border-transparent bg-transparent text-[var(--color-ink)] hover:underline",
+    "bg-white text-plum ring-1 ring-line shadow-[var(--shadow-soft)] hover:-translate-y-px hover:shadow-[var(--shadow-lift)]",
+  dark: "bg-plum text-white shadow-[0_8px_22px_rgba(54,2,83,0.28)] hover:bg-plum-700 hover:-translate-y-px",
+  ghost: "text-plum hover:bg-plum/5",
+  danger: "bg-white text-coral-600 ring-1 ring-coral/30 hover:bg-coral-50",
+  glass: "glass text-plum hover:bg-white/80",
 };
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
-  /** Shows a spinner over the label and disables the button — pass the same
-   * `pending` flag you already track for the click handler (docs: every
-   * action needs visible click feedback). */
+  size?: Size;
   loading?: boolean;
+  block?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "primary", className = "", loading = false, disabled, children, ...props }, ref) => (
+  (
+    { variant = "primary", size = "md", className = "", loading = false, block, disabled, children, type = "button", ...props },
+    ref,
+  ) => (
     <button
       ref={ref}
+      type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={`${base} ${variants[variant]} ${className}`}
+      className={`${base} ${sizes[size]} ${variants[variant]} ${block ? "w-full" : ""} ${className}`}
       {...props}
     >
-      <span className={loading ? "invisible" : "contents"}>{children}</span>
+      <span className={`inline-flex items-center gap-2 ${loading ? "invisible" : ""}`}>{children}</span>
       {loading && (
         <span className="absolute inset-0 grid place-items-center">
           <Spinner />
@@ -48,23 +60,23 @@ Button.displayName = "Button";
 
 interface ButtonLinkProps extends React.ComponentProps<typeof Link> {
   variant?: Variant;
+  size?: Size;
+  block?: boolean;
 }
 
-export function ButtonLink({ variant = "primary", className = "", children, ...props }: ButtonLinkProps) {
+export function ButtonLink({ variant = "primary", size = "md", block, className = "", children, ...props }: ButtonLinkProps) {
   return (
-    <Link className={`${base} ${variants[variant]} ${className}`} {...props}>
+    <Link className={`${base} ${sizes[size]} ${variants[variant]} ${block ? "w-full" : ""} ${className}`} {...props}>
       <LinkLabel>{children}</LinkLabel>
     </Link>
   );
 }
 
-// Split out so useLinkStatus (only valid inside a Link's subtree) doesn't
-// force the whole ButtonLink call site to think about pending state.
 function LinkLabel({ children }: { children: React.ReactNode }) {
   const { pending } = useLinkStatus();
   return (
     <>
-      <span className={pending ? "invisible" : "contents"}>{children}</span>
+      <span className={`inline-flex items-center gap-2 ${pending ? "invisible" : ""}`}>{children}</span>
       {pending && (
         <span className="absolute inset-0 grid place-items-center">
           <Spinner />

@@ -33,10 +33,10 @@ export function PartnerForm({
   }
 
   return (
-    <div className="mt-3 border-t-2 border-[var(--color-ink)] pt-3">
+    <div className="mt-3 border-t border-line pt-3">
       <label className="flex items-center gap-2 text-[0.9375rem]">
         <input type="checkbox" checked={partner} onChange={(e) => setPartner(e.target.checked)}
-          className="h-5 w-5 accent-[var(--color-tape)]" />
+          className="h-5 w-5 accent-[var(--color-coral)]" />
         Partner venue
       </label>
       {partner && (
@@ -44,13 +44,13 @@ export function PartnerForm({
           value={text}
           onChange={(e) => setText(e.target.value)}
           maxLength={200}
-          placeholder="15% off for Trio crews of 3+"
-          className="mt-2 w-full rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] px-3 py-2 text-[0.875rem] outline-none"
+          placeholder="15% off for Tremigos crews of 3+"
+          className="mt-2 w-full rounded-2xl ring-1 ring-line bg-white px-3 py-2 text-[0.875rem] outline-none"
         />
       )}
       <div className="mt-2 flex items-center gap-3">
         <Button variant="secondary" onClick={save} disabled={pending} loading={pending}>Save</Button>
-        {ok && <span className="text-[0.8125rem] text-[var(--color-net)]">Saved</span>}
+        {ok && <span className="text-[0.8125rem] text-coral-600">Saved</span>}
       </div>
     </div>
   );

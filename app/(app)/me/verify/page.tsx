@@ -1,51 +1,39 @@
-import { createClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/Card";
+import { getViewer } from "@/lib/auth";
+import { PageHeader } from "@/components/ui/Card";
+import { ButtonLink } from "@/components/ui/Button";
+import { Notice } from "@/components/ui/Notice";
 import { VerifiedBadge } from "@/components/gig/Badges";
 import { VerifyFlow } from "./VerifyFlow";
 import { copy } from "@/lib/copy";
 
-export const metadata = { title: "Get verified — Trio" };
+export const metadata = { title: "Get verified" };
 
 export default async function VerifyPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: me } = await supabase
-    .from("profiles")
-    .select("verification_status")
-    .eq("id", user!.id)
-    .maybeSingle();
-
+  const { profile } = await getViewer();
   const v = copy.verification;
-  const status = me?.verification_status ?? "unverified";
+  const status = profile?.verification_status ?? "unverified";
+  const hasPhoto = profile?.avatar_status === "approved" || profile?.avatar_status === "pending";
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="mb-2 font-display text-[clamp(1.75rem,4vw,2.5rem)] font-700">{v.title}</h1>
-      <p className="mb-6 text-[0.9375rem] text-[var(--color-dust)]">{v.meaning}</p>
-
+      <PageHeader title={v.title} sub={v.meaning} />
       {status === "verified" ? (
-        <Card className="p-6">
-          <div className="mb-2">
-            <VerifiedBadge />
-          </div>
-          <p className="text-[0.9375rem]">{v.approved}</p>
-        </Card>
+        <div className="glass rounded-[1.75rem] p-6">
+          <VerifiedBadge />
+          <p className="mt-3 text-[0.9375rem]">{v.approved}</p>
+        </div>
       ) : status === "pending" ? (
-        <Card className="p-6">
-          <p className="text-[0.9375rem]">{v.pendingStatus}</p>
-        </Card>
+        <Notice tone="info" title={v.pendingStatus} />
+      ) : !hasPhoto ? (
+        <div className="glass rounded-[1.75rem] p-6">
+          <Notice tone="warn">{v.needPhoto}</Notice>
+          <ButtonLink href="/me" className="mt-4">{v.needPhotoCta}</ButtonLink>
+        </div>
       ) : (
-        <>
-          {status === "rejected" && (
-            <Card className="mb-4 p-4">
-              <p className="text-[0.9375rem]">{v.rejectedStatus}</p>
-            </Card>
-          )}
-          <VerifyFlow userId={user!.id} />
-        </>
+        <div className="space-y-4">
+          {status === "rejected" && <Notice tone="danger">{v.rejectedStatus}</Notice>}
+          <VerifyFlow />
+        </div>
       )}
     </div>
   );

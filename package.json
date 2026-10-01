@@ -1,6 +1,6 @@
 {
-  "name": "trio",
-  "version": "0.1.0",
+  "name": "tremigos",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,13 +8,15 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "gen:types": "supabase gen types typescript --local > lib/database.types.ts"
+    "gen:types": "node scripts/gen-types.mjs"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "^1.0.1",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.9",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
+    "lucide-react": "^1.49.0",
     "motion": "^11.11.9",
     "next": "^15.5.22",
     "react": "^19.0.0",

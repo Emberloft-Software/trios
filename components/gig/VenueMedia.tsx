@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+import { ExternalLink, Star } from "lucide-react";
 import { copy } from "@/lib/copy";
 
 export interface VenueMediaInfo {
@@ -12,12 +14,7 @@ export interface VenueMediaInfo {
   mapsUrl?: string | null;
 }
 
-/**
- * The venue at a glance: place photo, a map thumbnail, name, Google rating —
- * all one click away from opening the spot in Google Maps. Used on feed
- * cards, friend-hosted cards, and the lobby "when & where" panel so a bare
- * `place_label` string is never the only thing shown for where a gig is.
- */
+/** Venue at a glance — photo, map thumbnail, name, rating — opening Google Maps. */
 export function VenueMedia({
   placeLabel,
   lat,
@@ -36,42 +33,40 @@ export function VenueMedia({
     <a
       href={href}
       target="_blank"
-      rel="noreferrer"
+      rel="noreferrer noopener"
       aria-label={`${name} — ${copy.venue.openInMaps}`}
-      className="block overflow-hidden rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[var(--shadow-hard)]"
+      className="group flex items-center gap-3 rounded-2xl bg-white/70 p-2 ring-1 ring-line transition hover:bg-white"
     >
-      <div className="flex">
+      <div className="flex shrink-0 -space-x-3">
         {photoRef && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`/api/place-photo?ref=${encodeURIComponent(photoRef)}&w=160`}
-            alt={name}
-            className="h-16 w-16 shrink-0 border-r-2 border-[var(--color-ink)] object-cover"
+            alt=""
+            className="h-14 w-14 rounded-xl object-cover ring-2 ring-white"
+            loading="lazy"
           />
         )}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`/api/static-map?lat=${lat}&lng=${lng}&w=64&h=64&z=15`}
+          src={`/api/static-map?lat=${lat}&lng=${lng}&w=112&h=112&z=15`}
           alt=""
           aria-hidden
-          className="h-16 w-16 shrink-0 border-r-2 border-[var(--color-ink)] object-cover"
+          className="h-14 w-14 rounded-xl bg-plum-50 object-cover ring-2 ring-white"
+          loading="lazy"
         />
-        <div className="min-w-0 flex-1 px-2.5 py-2">
-          <p className="truncate text-[0.9375rem] font-500">{name}</p>
-          {typeof rating === "number" && (
-            <p className="font-data text-[0.8125rem] text-[var(--color-dust)]">
-              ★ {rating.toFixed(1)}
-              {ratingCount ? ` (${ratingCount})` : ""}
-            </p>
-          )}
-          <p className="mt-0.5 text-[0.75rem] text-[var(--color-net)]">{copy.venue.openInMaps} →</p>
-        </div>
       </div>
-      {photoAttribution && (
-        <p className="border-t-2 border-[var(--color-ink)] px-2.5 py-1 text-[0.5625rem] text-[var(--color-dust)]">
-          © {photoAttribution}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[0.9375rem] font-semibold text-plum">{name}</p>
+        {typeof rating === "number" && (
+          <p className="flex items-center gap-1 text-[0.8125rem] text-muted tabular">
+            <Star className="h-3.5 w-3.5 fill-sun text-sun" /> {rating.toFixed(1)}
+            {ratingCount ? <span>({ratingCount})</span> : null}
+          </p>
+        )}
+        <p className="mt-0.5 inline-flex items-center gap-1 text-[0.75rem] font-semibold text-coral-600">
+          {copy.venue.openInMaps} <ExternalLink className="h-3 w-3" />
         </p>
-      )}
+        {photoAttribution && <p className="truncate text-[0.625rem] text-muted/70">© {photoAttribution}</p>}
+      </div>
     </a>
   );
 }

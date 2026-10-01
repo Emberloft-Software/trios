@@ -9,7 +9,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const SUBJECTS: Record<string, string> = {
-  gig_confirmed: "That's three. It's happening.",
+  gig_confirmed: "Your gig is on",
   gig_locked: "Crew's final — here's the address",
   gig_cancelled: "A gig you were in is off",
   removed: "You were removed from a gig",
@@ -51,10 +51,10 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Trio <hello@trio.lk>",
+          from: Deno.env.get("EMAIL_FROM") ?? "Tremigos <hello@tremigos.app>",
           to: email,
-          subject: SUBJECTS[n.kind] ?? "Trio",
-          text: `Open Trio to see the details.`,
+          subject: SUBJECTS[n.kind] ?? "Tremigos",
+          text: `Open Tremigos to see the details.`,
         }),
       });
     }

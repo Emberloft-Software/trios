@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 
-export const metadata = { title: "Partners — Trio admin" };
+export const metadata = { title: "Partners — Admin" };
 
 interface PartnerRow {
   id: string;
@@ -48,7 +48,7 @@ export default async function PartnersPage() {
     rows.push({
       id: v.id,
       name: v.name,
-      slug: v.slug,
+      slug: v.slug ?? "",
       crewsSent,
       peopleSent,
       perksRedeemed: (redemptions ?? []).length,
@@ -61,21 +61,21 @@ export default async function PartnersPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-display text-[2rem] font-700">Partners</h1>
+        <h1 className="font-display text-[2rem] font-bold">Partners</h1>
         <ButtonLink href="/api/admin/partners/export" variant="secondary">
           Export CSV
         </ButtonLink>
       </div>
 
       {rows.length === 0 ? (
-        <Card className="p-6 text-[0.9375rem] text-[var(--color-dust)]">No partner venues yet.</Card>
+        <Card className="p-6 text-[0.9375rem] text-muted">No partner venues yet.</Card>
       ) : (
         <div className="space-y-4">
           {rows.map((r) => (
             <Card key={r.id} className="p-5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="font-display text-[1.25rem] font-600">{r.name}</h2>
-                <a href={`/spot/${r.slug}`} className="font-data text-[0.8125rem] text-[var(--color-net)] hover:underline">
+                <h2 className="font-display text-[1.25rem] font-semibold">{r.name}</h2>
+                <a href={`/spot/${r.slug}`} className="tabular text-[0.8125rem] text-coral-600 hover:underline">
                   /spot/{r.slug}
                 </a>
               </div>
@@ -86,7 +86,7 @@ export default async function PartnersPage() {
               </div>
               {/* 8-week trend — flat bars, no gradient */}
               <div className="mt-4">
-                <p className="mb-1 text-[0.75rem] uppercase tracking-[0.06em] text-[var(--color-dust)]">
+                <p className="mb-1 text-[0.75rem] uppercase tracking-[0.06em] text-muted">
                   Last 8 weeks
                 </p>
                 <div className="flex items-end gap-1 h-16">
@@ -94,7 +94,7 @@ export default async function PartnersPage() {
                     <div
                       key={i}
                       title={`${n} redemptions`}
-                      className="flex-1 border-2 border-[var(--color-ink)] bg-[var(--color-line)]"
+                      className="flex-1 ring-1 ring-line bg-sun-100"
                       style={{ height: `${Math.max(6, (n / maxTrend) * 100)}%` }}
                     />
                   ))}
@@ -110,9 +110,9 @@ export default async function PartnersPage() {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-[var(--radius-tile)] border-2 border-[var(--color-ink)] p-3 text-center">
-      <p className="font-data text-2xl">{value}</p>
-      <p className="text-[0.6875rem] text-[var(--color-dust)]">{label}</p>
+    <div className="rounded-lg ring-1 ring-line p-3 text-center">
+      <p className="tabular text-2xl">{value}</p>
+      <p className="text-[0.6875rem] text-muted">{label}</p>
     </div>
   );
 }

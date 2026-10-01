@@ -11,21 +11,16 @@ export function AcceptButton({ requestId }: { requestId: string }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   return (
-    <span>
-      <Button
-        onClick={() =>
-          start(async () => {
-            const res = await acceptFriendRequestAction(requestId);
-            if (!res.ok) setError(res.error);
-            else router.refresh();
-          })
-        }
-        disabled={pending}
-        loading={pending}
-      >
+    <span className="flex items-center gap-2">
+      <Button size="sm" loading={pending}
+        onClick={() => start(async () => {
+          const res = await acceptFriendRequestAction(requestId);
+          if (!res.ok) setError(res.error);
+          else router.refresh();
+        })}>
         {copy.friends.accept}
       </Button>
-      {error && <span className="ml-2 text-[0.8125rem] text-[var(--color-tape)]">{error}</span>}
+      {error && <span className="text-[0.8125rem] text-coral-600">{error}</span>}
     </span>
   );
 }
@@ -34,18 +29,11 @@ export function UnfriendButton({ otherId }: { otherId: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   return (
-    <Button
-      variant="ghost"
-      className="text-[var(--color-net)]"
-      onClick={() =>
-        start(async () => {
-          const res = await unfriendAction(otherId);
-          if (res.ok) router.refresh();
-        })
-      }
-      disabled={pending}
-      loading={pending}
-    >
+    <Button size="sm" variant="ghost" className="text-muted" loading={pending}
+      onClick={() => start(async () => {
+        const res = await unfriendAction(otherId);
+        if (res.ok) router.refresh();
+      })}>
       {copy.friends.unfriend}
     </Button>
   );

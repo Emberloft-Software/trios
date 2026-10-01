@@ -1,67 +1,59 @@
 import Link from "next/link";
+import { ChevronRight, Search } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { Card } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/Card";
+import { Avatar } from "@/components/ui/Avatar";
+import { Badge } from "@/components/ui/Badge";
+import { Input } from "@/components/ui/Field";
+import { publicAvatarUrl } from "@/lib/avatar";
+import { ageFrom, timeAgo } from "@/lib/time";
 
-export const metadata = { title: "Users — Trio admin" };
+export const metadata = { title: "Users — Admin" };
 
-/**
- * User search (docs/07). Handle or display-name lookup via the service role.
- * GET form so the query is shareable/bookmarkable.
- */
-export default async function UsersPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
+export default async function UsersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
-  const admin = createAdminClient();
-
-  let results: { id: string; display_name: string; handle: string; reliability_band: string; verification_status: string }[] = [];
-  if (q && q.trim().length >= 2) {
-    const term = `%${q.trim()}%`;
-    const { data } = await admin
-      .from("profiles")
-      .select("id, display_name, handle, reliability_band, verification_status")
-      .or(`display_name.ilike.${term},handle.ilike.${term}`)
-      .limit(30);
-    results = data ?? [];
-  }
+  const db = createAdminClient();
+  let query = db
+    .from("profiles")
+    .select("id, display_name, handle, birth_date, gender, avatar_path, verification_status, reliability_band, is_admin, suspended_until, created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  const term = q?.trim().replace(/[%,()]/g, "");
+  if (term && term.length >= 2) query = query.or(`display_name.ilike.%${term}%,handle.ilike.%${term}%`);
+  const { data: users } = await query;
 
   return (
     <div>
-      <h1 className="mb-4 font-display text-[2rem] font-700">Users</h1>
-      <form method="get" className="mb-6 flex gap-2">
-        <input
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Search by name or @handle"
-          className="flex-1 rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] px-3 py-2 text-[0.9375rem] outline-none"
-        />
-        <button className="rounded-[var(--radius-btn)] border-2 border-[var(--color-ink)] bg-[var(--color-tape)] px-5 text-[var(--color-chalk)]">
-          Search
-        </button>
+      <PageHeader title="Users" sub={term ? `Results for “${term}”` : "Newest first. Search by name or @handle."} />
+      <form method="get" className="relative mb-5 max-w-xl">
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted" />
+        <Input name="q" defaultValue={q ?? ""} placeholder="Search by name or @handle" className="pl-11" />
       </form>
-
-      {q && results.length === 0 && (
-        <Card className="p-5 text-[0.9375rem] text-[var(--color-dust)]">No matches.</Card>
-      )}
-
-      <ul className="space-y-2">
-        {results.map((u) => (
-          <li key={u.id}>
-            <Link href={`/admin/users/${u.id}`}>
-              <Card hover className="flex items-center justify-between p-4">
-                <span>
-                  <span className="font-500">{u.display_name}</span>
-                  <span className="font-data ml-2 text-[0.8125rem] text-[var(--color-dust)]">@{u.handle}</span>
+      <ul className="glass divide-y divide-line overflow-hidden rounded-[1.5rem]">
+        {(users ?? []).length === 0 && <li className="p-5 text-[0.875rem] text-muted">No matches.</li>}
+        {(users ?? []).map((u) => {
+          const suspended = u.suspended_until && new Date(u.suspended_until) > new Date();
+          return (
+            <li key={u.id}>
+              <Link href={`/admin/users/${u.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-white/60">
+                <Avatar name={u.display_name} src={publicAvatarUrl(u.avatar_path)} size={40} />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-bold text-plum">{u.display_name} <span className="font-medium text-muted">@{u.handle}</span></span>
+                  <span className="text-[0.75rem] text-muted">
+                    {u.birth_date ? `${ageFrom(u.birth_date)} · ` : ""}{u.gender ?? "—"} · joined {timeAgo(u.created_at)}
+                  </span>
                 </span>
-                <span className="font-data text-[0.75rem] uppercase text-[var(--color-dust)]">
-                  {u.reliability_band} · {u.verification_status}
+                <span className="hidden flex-wrap justify-end gap-1.5 sm:flex">
+                  {u.is_admin && <Badge tone="plum">admin</Badge>}
+                  {suspended && <Badge tone="coral">suspended</Badge>}
+                  <Badge tone={u.verification_status === "verified" ? "mint" : "muted"}>{u.verification_status}</Badge>
+                  <Badge tone="white">{u.reliability_band}</Badge>
                 </span>
-              </Card>
-            </Link>
-          </li>
-        ))}
+                <ChevronRight className="h-4.5 w-4.5 text-muted" />
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

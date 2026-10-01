@@ -3,8 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { moderateUserAction, setVerificationAction } from "../_actions";
+import { Input, Label, Select, Textarea } from "@/components/ui/Field";
+import { Notice } from "@/components/ui/Notice";
+import { moderateUserAction, setAdminAction, setProfileFieldsAction, setVerificationAction } from "../_actions";
+import { removeLivePhotoAction } from "../../photos/_actions";
 import type { ModAction } from "@/lib/database.types";
 
 const LADDER: { action: ModAction; label: string; needsDuration: boolean }[] = [
@@ -16,94 +18,99 @@ const LADDER: { action: ModAction; label: string; needsDuration: boolean }[] = [
   { action: "clear", label: "Clear all restrictions", needsDuration: false },
 ];
 
-const FIELD =
-  "w-full rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] px-3 py-2 text-[0.875rem] outline-none";
-
-/** Apply a rung of the moderation ladder, or force/revoke verification. Each
- *  writes moderation_actions + admin_audit and notifies the user. */
-export function ModerationForm({ targetId, verified }: { targetId: string; verified: boolean }) {
+export function ModerationForm({
+  targetId,
+  verified,
+  isAdmin,
+  hasLivePhoto,
+  birthDate,
+  gender,
+}: {
+  targetId: string;
+  verified: boolean;
+  isAdmin: boolean;
+  hasLivePhoto: boolean;
+  birthDate: string | null;
+  gender: "woman" | "man" | "nonbinary" | null;
+}) {
   const router = useRouter();
   const [action, setAction] = useState<ModAction>("warn");
   const [reason, setReason] = useState("");
   const [days, setDays] = useState(30);
+  const [dob, setDob] = useState(birthDate ?? "");
+  const [gen, setGen] = useState(gender ?? "nonbinary");
+  const [fixReason, setFixReason] = useState("");
   const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-  const [ok, setOk] = useState<string | null>(null);
-  const [activeAction, setActiveAction] = useState<"apply" | "verify" | null>(null);
-
+  const [which, setWhich] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ tone: "safe" | "danger"; text: string } | null>(null);
   const current = LADDER.find((l) => l.action === action)!;
 
-  function apply() {
-    setError(null);
-    setOk(null);
-    setActiveAction("apply");
+  const run = (key: string, fn: () => Promise<{ ok: boolean; error?: string }>, okText: string) => {
+    setWhich(key);
+    setMsg(null);
     start(async () => {
-      const res = await moderateUserAction({
-        targetId,
-        action,
-        reason,
-        durationDays: current.needsDuration ? days : undefined,
-      });
-      if (!res.ok) return setError(res.error);
-      setOk("Applied.");
-      setReason("");
-      router.refresh();
+      const res = await fn();
+      setMsg(res.ok ? { tone: "safe", text: okText } : { tone: "danger", text: res.error ?? "Failed." });
+      if (res.ok) router.refresh();
     });
-  }
-
-  function toggleVerify() {
-    setActiveAction("verify");
-    start(async () => {
-      const res = await setVerificationAction(targetId, !verified);
-      if (!res.ok) return setError(res.error);
-      router.refresh();
-    });
-  }
+  };
 
   return (
-    <Card className="p-5">
-      <h2 className="mb-3 font-display text-[1.25rem] font-600">Moderation</h2>
-      <div className="space-y-3">
-        <select className={FIELD} value={action} onChange={(e) => setAction(e.target.value as ModAction)}>
-          {LADDER.map((l) => (
-            <option key={l.action} value={l.action}>{l.label}</option>
-          ))}
-        </select>
+    <div className="space-y-4">
+      <section className="glass space-y-3 rounded-[1.5rem] p-5">
+        <h2 className="text-[1rem] font-bold">Moderation</h2>
+        <Select value={action} onChange={(e) => setAction(e.target.value as ModAction)} aria-label="Action">
+          {LADDER.map((l) => <option key={l.action} value={l.action}>{l.label}</option>)}
+        </Select>
         {current.needsDuration && (
-          <label className="flex items-center gap-2 text-[0.875rem]">
-            For
-            <input type="number" min={1} max={3650} value={days}
-              onChange={(e) => setDays(Number(e.target.value))}
-              className={`${FIELD} w-24`} />
-            days
+          <label className="flex items-center gap-2 text-[0.875rem] font-semibold text-plum">
+            For <Input type="number" min={1} max={3650} value={days} onChange={(e) => setDays(Number(e.target.value))} className="!w-24 !py-2" /> days
           </label>
         )}
-        <textarea className={FIELD} rows={2} value={reason} maxLength={1000}
-          onChange={(e) => setReason(e.target.value)}
-          placeholder="Reason (recorded; a ban should name the second admin who signed off)" />
-        {error && <p className="text-[0.8125rem] text-[var(--color-tape)]">{error}</p>}
-        {ok && <p className="text-[0.8125rem] text-[var(--color-net)]">{ok}</p>}
-        <Button
-          onClick={apply}
-          disabled={pending || reason.trim().length < 3}
-          loading={activeAction === "apply"}
-          className="w-full"
-        >
+        <Textarea rows={2} value={reason} maxLength={1000} onChange={(e) => setReason(e.target.value)} placeholder="Reason (recorded and sent to the user)" />
+        <Button block variant="dark" disabled={pending || reason.trim().length < 3} loading={pending && which === "mod"}
+          onClick={() => run("mod", () => moderateUserAction({ targetId, action, reason, durationDays: current.needsDuration ? days : undefined }), "Applied.")}>
           Apply
         </Button>
-      </div>
+      </section>
 
-      <div className="mt-4 border-t-2 border-[var(--color-ink)] pt-4">
-        <Button
-          variant="secondary"
-          onClick={toggleVerify}
-          disabled={pending}
-          loading={activeAction === "verify"}
-          className="w-full"
-        >
+      <section className="glass space-y-2 rounded-[1.5rem] p-5">
+        <h2 className="text-[1rem] font-bold">Quick actions</h2>
+        <Button block variant="secondary" loading={pending && which === "verify"} disabled={pending}
+          onClick={() => run("verify", () => setVerificationAction(targetId, !verified), verified ? "Verification revoked." : "Marked verified.")}>
           {verified ? "Revoke verification" : "Force-verify"}
         </Button>
-      </div>
-    </Card>
+        {hasLivePhoto && (
+          <Button block variant="danger" loading={pending && which === "photo"} disabled={pending}
+            onClick={() => run("photo", () => removeLivePhotoAction(targetId, "Removed from user page"), "Photo removed.")}>
+            Take down profile photo
+          </Button>
+        )}
+        <Button block variant="ghost" loading={pending && which === "admin"} disabled={pending}
+          onClick={() => confirm(isAdmin ? "Remove admin access?" : "Give this person full admin access?") && run("admin", () => setAdminAction(targetId, !isAdmin), "Role updated.")}>
+          {isAdmin ? "Revoke admin" : "Make admin"}
+        </Button>
+      </section>
+
+      <section className="glass space-y-3 rounded-[1.5rem] p-5">
+        <h2 className="text-[1rem] font-bold">Correct age / gender</h2>
+        <div className="grid grid-cols-2 gap-2">
+          <div><Label htmlFor="adob">Date of birth</Label><Input id="adob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="!py-2" /></div>
+          <div>
+            <Label htmlFor="agen">Gender</Label>
+            <Select id="agen" value={gen} onChange={(e) => setGen(e.target.value as typeof gen)} className="!py-2">
+              <option value="woman">Woman</option><option value="man">Man</option><option value="nonbinary">Non-binary</option>
+            </Select>
+          </div>
+        </div>
+        <Input value={fixReason} onChange={(e) => setFixReason(e.target.value)} placeholder="Why (e.g. user emailed with ID)" className="!py-2" />
+        <Button block variant="secondary" disabled={pending || fixReason.trim().length < 3 || !dob} loading={pending && which === "fields"}
+          onClick={() => run("fields", () => setProfileFieldsAction({ targetId, birthDate: dob, gender: gen, reason: fixReason }), "Profile corrected.")}>
+          Save correction
+        </Button>
+      </section>
+
+      {msg && <Notice tone={msg.tone} compact>{msg.text}</Notice>}
+    </div>
   );
 }

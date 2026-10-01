@@ -1,95 +1,69 @@
-# CLAUDE.md — Trio
+# CLAUDE.md — Tremigos
 
-> **Trio** is a working codename. Rename before launch; it appears only in `lib/brand.ts` and copy files.
+**Tremigos** (formerly the "Trio" codename) is a group-meetup web app + installable PWA for Sri Lanka. People post a "gig" (futsal, coffee, a hike), others claim spots, they meet in real life. Minimum three humans, always, in public places. It is deliberately **not** a dating app.
 
-Group-meetup web app for Sri Lanka. People post a "gig" (badminton, movie, board games, coffee), other people claim slots, they meet in real life. Minimum three humans, always. It is deliberately **not** a dating app.
-
-This file is the entry point. Read `docs/00-start-here.md` next — it gives the build order and tells you which doc to open for each task.
+`docs/` holds the original Trio-era spec pack. It is background reading only — where it disagrees with this file or the code (branding, design system, glassmorphism ban, schema), **this file and the code win**.
 
 ---
 
-## Stack (fixed — do not substitute)
+## Stack (fixed)
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js 15, App Router, TypeScript `strict` |
-| Styling | Tailwind CSS v4 (CSS-first config, `@theme` in `globals.css`) |
-| Backend | Supabase — Postgres, Auth, Storage, Realtime, Edge Functions |
-| Forms/validation | `react-hook-form` + `zod` |
-| Motion | `motion` (Framer Motion v11+), used sparingly — see `docs/04-design-system.md` |
-| Maps | Google Maps JS API + Places Autocomplete (venue picking only) |
-| Dates | `date-fns` + `date-fns-tz`. App timezone is `Asia/Colombo` |
-| Deploy | Vercel |
+| Framework | Next.js 15 App Router, TypeScript `strict` |
+| Styling | Tailwind CSS v4, CSS-first tokens in `app/globals.css` `@theme` |
+| Icons | `lucide-react` (icons only — still no component library) |
+| Backend | Supabase — Postgres, Auth (email+password), Storage, Realtime |
+| Face detection | `@mediapipe/tasks-vision` BlazeFace, on-device (model in `public/models`) |
+| PWA | `app/manifest.ts`, `public/sw.js`, `components/pwa/*` |
+| Dates | `date-fns` + `date-fns-tz`, app timezone `Asia/Colombo` |
+| Deploy | Vercel (HTTPS is required for the camera) |
 
-Do not add a component library (no shadcn, no MUI, no Chakra). The visual identity in `docs/04-design-system.md` is the point of this build and generic components will destroy it. Build primitives by hand in `components/ui/`.
+## Design system
+
+Palette comes from the logo: coral `#FF3450` (primary), sunshine `#FFBA30`, plum `#360253` (text/dark surfaces), cream `#FBF8F3`. Font: Plus Jakarta Sans. Surfaces are frosted glass (`glass`, `glass-strong`, `glass-dark` utilities) floating over the fixed `.ambient` colour blobs in `app/layout.tsx`; hero/dark panels use `bg-hero`. Primitives live in `components/ui/` (Button, Card, Field, Badge, Avatar, Notice, Sheet, SlotStrip, Logo, EmptyState). Base element styles are inside `@layer base` so Tailwind utilities can override them — keep it that way.
+
+Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + maskable), `app/icon.png`, `app/apple-icon.png`, `app/favicon.ico`. They were cut from the supplied logo artwork.
 
 ---
 
 ## Hard rules
 
-These are non-negotiable. If a task seems to require breaking one, stop and flag it instead.
-
-1. **RLS on every table. No exceptions.** A table without an enabled policy set is a bug, including join tables and log tables.
-2. **The service role key never reaches the browser.** It lives in server-only code (`lib/supabase/admin.ts`, route handlers, Edge Functions). Never in a `NEXT_PUBLIC_` var, never in a client component, never in a server action that is reachable without an admin check.
-3. **Every admin action re-checks admin status server-side.** Hiding the nav link is not access control.
-4. **Capacity is enforced in the database, not the UI.** Slot claiming goes through a Postgres function with row locking. See `docs/02-data-model.md` § Claiming a slot. A client-side "is it full?" check is a race condition, and this app's core promise is that slots are honest.
-5. **Verification media is never publicly readable.** Private bucket, short-lived signed URLs, admin-only, auto-purged. See `docs/05-verification.md`.
-6. **No `any`.** Generate DB types with `supabase gen types typescript --local > lib/database.types.ts` and use them.
-7. **Mutations are server actions or route handlers.** No direct table writes from client components.
-8. **Every user-facing string lives in `lib/copy.ts`**, not inline in JSX. The voice is a product feature and it needs to be editable in one place. See `docs/09-copy-and-legal.md`.
-
----
-
-## Project structure
-
-```
-app/
-  (marketing)/            landing, about, safety, terms
-  (app)/                  authenticated shell
-    feed/                 browse open gigs
-    gigs/[id]/            lobby view
-    gigs/new/             create a gig
-    me/                   profile, my gigs, verification status
-  admin/                  admin-only; layout guards on role
-  api/                    route handlers (webhooks, signed URLs)
-components/
-  ui/                     hand-built primitives (Button, Card, SlotStrip, ...)
-  gig/                    gig-specific composites
-lib/
-  supabase/               server.ts, client.ts, admin.ts, middleware.ts
-  copy.ts                 all user-facing strings
-  brand.ts                name, taglines, colors as TS constants
-supabase/
-  migrations/             numbered SQL migrations
-  functions/              edge functions (purge-media, lock-gigs, ...)
-docs/                     the specs — read before building
-```
+1. **RLS on every table.** Base `profiles` is own-row only; other people are read through the `profiles_public` view. New tables need policies.
+2. **Service role key never reaches the browser.** Only `lib/supabase/admin.ts` (server-only), route handlers, server actions after an admin check.
+3. **Every admin action re-checks admin server-side** (`adminContext()` in `app/admin/_lib.ts`, `requireAdminId()` in `lib/auth.ts`).
+4. **Capacity, audience filters, invite seats, votes are enforced in Postgres** (security-definer functions in `supabase/migrations/0002_functions.sql`), never only in the UI.
+5. **Verification media is private.** Uploads go through one-shot signed upload URLs; admins watch via 60-second signed URLs; media is purged 7 days after review.
+6. **Privileges are explicit.** `0003` revokes table/function access and grants back narrowly (column-level `update` grants on `profiles`/`gigs`). Any new function must be granted explicitly — nothing is callable by default.
+7. **No `any`.** Types come from `npm run gen:types` (`scripts/gen-types.mjs`, which also tightens view nullability).
+8. **Mutations are server actions or route handlers.**
+9. **User-facing strings live in `lib/copy.ts`** (legal text in `lib/legal.ts`). Admin-only screens may inline strings.
 
 ---
 
-## Conventions
+## Product rules worth knowing
 
-- Server Components by default. `"use client"` only where there is real interactivity.
-- Mutations: server actions in `_actions.ts` colocated with the route. Always `zod`-parse input at the top of the action.
-- Naming: DB is `snake_case`, TypeScript is `camelCase`, components are `PascalCase`, routes are `kebab-case`.
-- Times are stored `timestamptz` (UTC) and rendered in `Asia/Colombo`. Never store naive timestamps.
-- Money is stored in **LKR cents** as `bigint`. Never floats.
-- Migrations are additive and numbered. Never edit an applied migration.
+- **Audience:** gigs carry `age_min/age_max/gender_pref`. RLS hides gigs whose audience doesn't include the viewer; `claim_slot` re-checks. Hosts must fit their own audience.
+- **Bringing friends:** `host_guests` (what the host declared) + `reserved_slots` (seats still held). `headcount = claimed_count + reserved_slots`. The host's `/join/<invite_code>` link lets friends join (skipping the audience filter, consuming a held seat). Feed/lobby warn "join at your own risk".
+- **Chat opens** when headcount ≥ `min_to_confirm` **and** ≥ 2 app members. Client warns before sending phone numbers/links and labels received ones.
+- **Crew vote:** `cast_kick_vote` — majority of other claimed members, min 2 votes, host can't be voted out. Removal files a `crew_vote_removal` report for admins.
+- **Photos:** uploaded as pending after on-device face check; shown only after admin approval (`avatar_path` is only ever set on approval).
+- **Age/gender** are write-once for users (`complete_profile`), editable by admins with an audit row.
 
 ## Commands
 
 ```bash
-pnpm dev                # local dev
-pnpm typecheck          # tsc --noEmit — must pass before you call a task done
-pnpm lint
-supabase start          # local stack
-supabase db reset       # re-run all migrations + seed
-supabase gen types typescript --local > lib/database.types.ts
+npm run dev            # local dev
+npm run typecheck      # must pass before calling work done
+npm run build
+npm run gen:types      # regenerate lib/database.types.ts from the linked project
 ```
+
+Migrations were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
 
 ## Before you call any task done
 
-- `pnpm typecheck` passes.
-- New tables have RLS policies and you have stated in your summary what they are.
-- New UI works at 375px wide, has visible keyboard focus, and respects `prefers-reduced-motion`.
-- No new hardcoded user-facing strings outside `lib/copy.ts`.
+- `npm run typecheck` passes (and `npm run build` for anything structural).
+- New tables have RLS + explicit grants; new functions have explicit `grant execute`.
+- UI works at 375px, has visible focus, respects `prefers-reduced-motion`.
+- No hardcoded user-facing strings outside `lib/copy.ts`.

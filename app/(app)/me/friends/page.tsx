@@ -1,139 +1,108 @@
-import { createClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/Card";
+import { MessageCircleOff } from "lucide-react";
+import { getViewer } from "@/lib/auth";
+import { Card, PageHeader, SectionTitle } from "@/components/ui/Card";
+import { Avatar } from "@/components/ui/Avatar";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { AcceptButton, UnfriendButton } from "./FriendButtons";
-import { firstName } from "@/lib/avatar";
+import { firstName, publicAvatarUrl } from "@/lib/avatar";
 import { formatDay } from "@/lib/time";
 import { copy } from "@/lib/copy";
 
-export const metadata = { title: "Friends — Trio" };
+export const metadata = { title: "Friends" };
 
-/**
- * Friends (M5). Friendships, incoming requests (accept only — no decline),
- * outgoing pending (shown vaguely; expired and declined look identical to the
- * sender). No 1:1 messaging surface anywhere — see the explainer at the bottom.
- */
+const NONE = ["00000000-0000-0000-0000-000000000000"];
+
 export default async function FriendsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getViewer();
   const me = user!.id;
 
   const [{ data: friendships }, { data: incoming }, { data: outgoing }] = await Promise.all([
     supabase.from("friendships").select("user_a, user_b, created_at"),
-    supabase
-      .from("friend_requests")
-      .select("id, sender_id, gig_id, created_at")
-      .eq("recipient_id", me)
-      .eq("status", "pending"),
-    supabase
-      .from("friend_requests")
-      .select("id, recipient_id, created_at")
-      .eq("sender_id", me)
-      .eq("status", "pending"),
+    supabase.from("friend_requests").select("id, sender_id, gig_id, created_at").eq("recipient_id", me).eq("status", "pending"),
+    supabase.from("friend_requests").select("id, recipient_id, created_at").eq("sender_id", me).eq("status", "pending"),
   ]);
 
   const friendIds = (friendships ?? []).map((f) => (f.user_a === me ? f.user_b : f.user_a));
-  const otherIds = [
-    ...new Set([
-      ...friendIds,
-      ...(incoming ?? []).map((r) => r.sender_id),
-      ...(outgoing ?? []).map((r) => r.recipient_id),
-    ]),
-  ];
-
-  const { data: profiles } = await supabase
-    .from("profiles_public")
-    .select("id, display_name")
-    .in("id", otherIds.length ? otherIds : ["00000000-0000-0000-0000-000000000000"]);
-  const nameById = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
-
-  // activity/date context for incoming requests
+  const ids = [...new Set([...friendIds, ...(incoming ?? []).map((r) => r.sender_id), ...(outgoing ?? []).map((r) => r.recipient_id)])];
   const gigIds = (incoming ?? []).map((r) => r.gig_id);
-  const { data: gigs } = await supabase
-    .from("gigs")
-    .select("id, starts_at, activities(name)")
-    .in("id", gigIds.length ? gigIds : ["00000000-0000-0000-0000-000000000000"]);
-  const gigById = new Map(
-    (gigs ?? []).map((g) => [g.id, { starts_at: g.starts_at, activity: (g.activities as { name: string } | null)?.name ?? "a gig" }]),
-  );
 
+  const [{ data: profiles }, { data: gigs }] = await Promise.all([
+    supabase.from("profiles_public").select("id, display_name, avatar_path").in("id", ids.length ? ids : NONE),
+    supabase.from("gigs").select("id, starts_at, activities(name)").in("id", gigIds.length ? gigIds : NONE),
+  ]);
+  const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
+  const gigById = new Map(
+    (gigs ?? []).map((g) => [g.id, { starts_at: g.starts_at, activity: (g.activities as unknown as { name: string } | null)?.name ?? "a gig" }]),
+  );
   const f = copy.friends;
 
-  return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="font-display text-[clamp(1.75rem,4vw,2.5rem)] font-700">{f.title}</h1>
+  const Person = ({ id, children }: { id: string; children?: React.ReactNode }) => {
+    const p = byId.get(id);
+    return (
+      <li className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+        <Avatar name={p?.display_name ?? "?"} src={publicAvatarUrl(p?.avatar_path)} size={44} />
+        <span className="min-w-0 flex-1 truncate font-bold text-plum">{firstName(p?.display_name)}</span>
+        {children}
+      </li>
+    );
+  };
 
-      {/* Incoming */}
+  return (
+    <div className="mx-auto max-w-2xl space-y-5">
+      <PageHeader title={f.title} />
+
       {(incoming ?? []).length > 0 && (
-        <section>
-          <h2 className="mb-2 font-display text-[1.25rem] font-600">{f.incoming}</h2>
-          <ul className="space-y-2">
+        <Card className="p-5 ring-2 ring-coral/30">
+          <SectionTitle>{f.incoming}</SectionTitle>
+          <ul className="divide-y divide-line">
             {(incoming ?? []).map((r) => {
               const g = gigById.get(r.gig_id);
+              const p = byId.get(r.sender_id);
               return (
-                <li key={r.id}>
-                  <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
-                    <span className="text-[0.9375rem]">
-                      {f.requestReceived(
-                        firstName(nameById.get(r.sender_id) ?? "Someone"),
-                        g?.activity ?? "a gig",
-                        g ? formatDay(g.starts_at) : "",
-                      )}
-                    </span>
-                    <AcceptButton requestId={r.id} />
-                  </Card>
+                <li key={r.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
+                  <Avatar name={p?.display_name ?? "?"} src={publicAvatarUrl(p?.avatar_path)} size={44} />
+                  <span className="min-w-0 flex-1 text-[0.9375rem]">
+                    {f.requestReceived(firstName(p?.display_name), g?.activity ?? "a gig", g ? formatDay(g.starts_at) : "")}
+                  </span>
+                  <AcceptButton requestId={r.id} />
                 </li>
               );
             })}
           </ul>
-        </section>
+        </Card>
       )}
 
-      {/* Friends */}
-      <section>
-        <h2 className="mb-2 font-display text-[1.25rem] font-600">{f.yourFriends}</h2>
+      <Card className="p-5">
+        <SectionTitle>{f.yourFriends}</SectionTitle>
         {friendIds.length === 0 ? (
-          <Card className="p-5 text-[0.9375rem] text-[var(--color-dust)]">{f.listEmpty}</Card>
+          <EmptyState title={f.listEmpty} className="!bg-transparent !shadow-none !ring-0 py-4" />
         ) : (
-          <ul className="space-y-2">
-            {friendIds.map((fid) => (
-              <li key={fid}>
-                <Card className="flex items-center justify-between p-4">
-                  <span className="font-500">{firstName(nameById.get(fid) ?? "Friend")}</span>
-                  <UnfriendButton otherId={fid} />
-                </Card>
-              </li>
+          <ul className="divide-y divide-line">
+            {friendIds.map((id) => (
+              <Person key={id} id={id}>
+                <UnfriendButton otherId={id} />
+              </Person>
             ))}
           </ul>
         )}
-      </section>
+      </Card>
 
-      {/* Outgoing — deliberately vague */}
       {(outgoing ?? []).length > 0 && (
-        <section>
-          <h2 className="mb-2 font-display text-[1.25rem] font-600">{f.outgoing}</h2>
-          <p className="mb-2 text-[0.875rem] text-[var(--color-dust)]">{f.outgoingHint}</p>
-          <ul className="space-y-2">
+        <Card className="p-5">
+          <SectionTitle>{f.outgoing}</SectionTitle>
+          <p className="-mt-1 mb-3 text-[0.8125rem] text-muted">{f.outgoingHint}</p>
+          <ul className="divide-y divide-line">
             {(outgoing ?? []).map((r) => (
-              <li key={r.id}>
-                <Card className="p-4 text-[0.9375rem]">
-                  {firstName(nameById.get(r.recipient_id) ?? "Someone")}
-                </Card>
-              </li>
+              <Person key={r.id} id={r.recipient_id} />
             ))}
           </ul>
-        </section>
+        </Card>
       )}
 
-      {/* Why no DMs */}
-      <Card className="p-5">
-        <h2 className="mb-2 font-display text-[1.125rem] font-600">{f.whyNoDms.heading}</h2>
-        <div className="space-y-2 text-[0.9375rem]">
-          <p>{f.whyNoDms.body}</p>
-          <p>{f.whyNoDms.body2}</p>
-          <p>{f.whyNoDms.body3}</p>
-        </div>
+      <Card tone="tint" className="p-5">
+        <p className="flex items-center gap-2 font-bold text-plum"><MessageCircleOff className="h-5 w-5" /> {f.whyNoDms.heading}</p>
+        <p className="mt-2 text-[0.875rem] text-ink/80">{f.whyNoDms.body}</p>
+        <p className="mt-2 text-[0.875rem] text-ink/80">{f.whyNoDms.body2}</p>
       </Card>
     </div>
   );

@@ -1,5 +1,5 @@
 # Supabase local config. `supabase start` reads this.
-project_id = "trio"
+project_id = "tremigos"
 
 [api]
 enabled = true

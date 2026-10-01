@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SpotForm } from "./SpotForm";
-import { brand } from "@/lib/brand";
+import { Logo } from "@/components/ui/Logo";
 import { copy } from "@/lib/copy";
 
-export const metadata = { title: "Redeem — Trio" };
+export const metadata = { title: "Redeem a perk" };
 
 /**
  * Public, no-login redemption page for venue staff (docs/08). Just the venue's
@@ -25,9 +25,9 @@ export default async function SpotPage({ params }: { params: Promise<{ slug: str
   return (
     <div className="mx-auto grid min-h-dvh max-w-md place-items-center px-5">
       <div className="w-full">
-        <p className="font-display text-2xl font-800 tracking-[-0.03em]">{brand.name}</p>
-        <h1 className="mt-4 font-display text-[1.5rem] font-700">{venue.name}</h1>
-        <p className="mb-6 mt-1 text-[0.9375rem] text-[var(--color-dust)]">{copy.spot.intro}</p>
+        <Logo href={null} />
+        <h1 className="mt-6 text-[1.75rem] font-extrabold">{venue.name}</h1>
+        <p className="mb-6 mt-1 text-[0.9375rem] text-muted">{copy.spot.intro}</p>
         <SpotForm slug={slug} />
       </div>
     </div>

@@ -1,23 +1,27 @@
 /**
- * Brand constants. Trio is a working codename — rename here before launch
- * (CLAUDE.md: the name appears only in this file and copy files).
+ * Brand constants. The product name appears here and in lib/copy.ts only.
  */
 export const brand = {
-  name: "Trio",
-  tagline: "Post a plan. Three people minimum. Go do the thing.",
+  name: "Tremigos",
+  shortName: "Tremigos",
+  tagline: "Plans need people. Find your crew.",
+  description:
+    "Post a plan — futsal, coffee, a hike — and meet people in Sri Lanka who are up for the same thing. Groups of three or more, always in public.",
   city: "Colombo",
+  country: "Sri Lanka",
   timezone: "Asia/Colombo",
-  supportEmail: "hello@trio.lk",
-  appealsEmail: "appeals@trio.lk",
+  supportEmail: "hello@tremigos.app",
+  safetyEmail: "safety@tremigos.app",
+  privacyEmail: "privacy@tremigos.app",
+  legalEntity: "Tremigos",
+  themeColor: "#ff3450",
 } as const;
 
 /** Palette as TS constants, mirroring the @theme block in globals.css. */
 export const colors = {
-  court: "#E7EDE4",
-  chalk: "#FFFFFF",
-  ink: "#1B1A16",
-  tape: "#FF5E3A",
-  line: "#FFD23F",
-  net: "#12706B",
-  dust: "#9A9B8F",
+  coral: "#FF3450",
+  sun: "#FFBA30",
+  plum: "#360253",
+  cream: "#FBF8F3",
+  mint: "#12A26B",
 } as const;

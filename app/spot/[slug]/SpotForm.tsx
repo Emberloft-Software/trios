@@ -33,7 +33,7 @@ export function SpotForm({ slug }: { slug: string }) {
           });
         }}
       >
-        <label htmlFor="code" className="mb-1 block text-[0.875rem] font-500">
+        <label htmlFor="code" className="mb-1 block text-[0.875rem] font-medium">
           {copy.spot.codeLabel}
         </label>
         <input
@@ -41,9 +41,9 @@ export function SpotForm({ slug }: { slug: string }) {
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           placeholder="BDM-4KQ2"
-          className="w-full rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] px-3 py-2.5 font-data text-lg tracking-[0.1em] outline-none"
+          className="w-full rounded-2xl ring-1 ring-line bg-white px-3 py-2.5 tabular text-lg tracking-[0.1em] outline-none"
         />
-        {error && <p className="mt-2 text-[0.875rem] text-[var(--color-tape)]">{error}</p>}
+        {error && <p className="mt-2 text-[0.875rem] text-coral-600">{error}</p>}
         <Button
           type="submit"
           disabled={pending || code.trim().length < 3}

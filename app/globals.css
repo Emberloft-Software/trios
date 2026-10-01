@@ -1,108 +1,179 @@
 @import "tailwindcss";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Trio — "Court Day" design system.  Source of truth: docs/04-design-system.md.
-   Tailwind v4 CSS-first config: tokens live here in @theme, not in a JS file.
-   No dark mode in v1 — the identity is a bright daytime one.
+   Tremigos design system. Palette lifted straight from the logo:
+   coral (the icon tile), sunshine (left amigo), plum (right amigo + wordmark),
+   cream (the white amigo). Surfaces are frosted glass floating over soft
+   colour blobs; primary actions are solid coral.
    ──────────────────────────────────────────────────────────────────────────── */
 
 @theme {
-  /* Palette — drawn from court surfaces, boundary tape, line paint, net shadow */
-  --color-court: #e7ede4; /* page background — pale court green-grey */
-  --color-chalk: #ffffff; /* card surfaces */
-  --color-ink: #1b1a16; /* text, borders, hard shadows — warm near-black */
-  --color-tape: #ff5e3a; /* primary action — sports-tape orange */
-  --color-line: #ffd23f; /* highlight, active slot, hover fills */
-  --color-net: #12706b; /* secondary, links, verified badge */
-  --color-dust: #9a9b8f; /* muted text, disabled, empty sockets */
+  --color-coral: #ff3450;
+  --color-coral-600: #e81f3d;
+  --color-coral-100: #ffe1e6;
+  --color-coral-50: #fff1f3;
+  --color-sun: #ffba30;
+  --color-sun-600: #e89a0c;
+  --color-sun-100: #fff0cc;
+  --color-plum: #360253;
+  --color-plum-800: #2a0241;
+  --color-plum-700: #4a0f6e;
+  --color-plum-500: #6f3f8f;
+  --color-plum-100: #efe6f5;
+  --color-plum-50: #f7f2fa;
+  --color-cream: #fbf8f3;
+  --color-ink: #24113a;
+  --color-muted: #6e6280;
+  --color-line: rgba(54, 2, 83, 0.1);
+  --color-mint: #12a26b;
+  --color-mint-50: #e7f7ef;
 
-  /* Type — loaded as CSS vars by next/font in app/layout.tsx */
-  --font-display: var(--font-gabarito), system-ui, sans-serif;
-  --font-body: var(--font-instrument), system-ui, sans-serif;
-  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 
-  /* Shape and depth — inconsistent radii by element type is deliberate */
-  --radius-card: 20px;
-  --radius-btn: 999px; /* buttons only */
-  --radius-chip: 8px;
-  --radius-tile: 4px;
+  --radius-xl2: 1.25rem;
+  --radius-xl3: 1.75rem;
 
-  /* Hard offset shadows — no blur, ever */
-  --shadow-hard: 4px 4px 0 var(--color-ink);
-  --shadow-lift: 6px 6px 0 var(--color-ink);
+  --shadow-soft: 0 1px 2px rgba(54, 2, 83, 0.04), 0 8px 24px rgba(54, 2, 83, 0.06);
+  --shadow-lift: 0 2px 4px rgba(54, 2, 83, 0.05), 0 18px 40px rgba(54, 2, 83, 0.12);
+  --shadow-coral: 0 8px 22px rgba(255, 52, 80, 0.32);
+
+  --animate-float: float 9s ease-in-out infinite;
+  --animate-rise: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pop: pop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* Custom static utilities Tailwind v4 can't infer from the theme */
-@utility border-ink {
-  border: 2px solid var(--color-ink);
+@keyframes float {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -18px, 0) scale(1.04); }
 }
-@utility shadow-hard {
-  box-shadow: var(--shadow-hard);
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-@utility shadow-lift {
-  box-shadow: var(--shadow-lift);
+@keyframes pop {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+@keyframes tm-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+@keyframes rec-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* ── Glass surfaces ───────────────────────────────────────────────────────── */
+@utility glass {
+  background: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, var(--shadow-soft);
+}
+@utility glass-strong {
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, var(--shadow-soft);
+}
+@utility glass-dark {
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+@utility text-gradient {
+  background: linear-gradient(100deg, var(--color-coral) 10%, #ff6a3d 45%, var(--color-sun) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility bg-hero {
+  background:
+    radial-gradient(60% 80% at 85% 10%, rgba(255, 52, 80, 0.55), transparent 60%),
+    radial-gradient(50% 60% at 10% 90%, rgba(255, 186, 48, 0.35), transparent 60%),
+    linear-gradient(160deg, #2a0241 0%, #360253 45%, #4a0f6e 100%);
+}
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────────── */
 :root {
   color-scheme: light;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 
-html,
+@layer base {
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  background: var(--color-court);
+  background: var(--color-cream);
   color: var(--color-ink);
-  font-family: var(--font-body);
+  font-family: var(--font-sans);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  min-height: 100dvh;
 }
 
-body {
-  line-height: 1.6;
-}
-
-h1,
-h2,
-h3,
-h4 {
+h1, h2, h3, h4 {
   font-family: var(--font-display);
-  line-height: 1.05;
+  color: var(--color-plum);
+  line-height: 1.12;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
-/* Data face — for counts, codes, timers, LKR amounts only. Never decoration. */
-.font-data {
-  font-family: var(--font-mono);
-  letter-spacing: 0.02em;
-  font-weight: 500;
+::selection {
+  background: var(--color-coral-100);
+  color: var(--color-plum);
+}
 }
 
-/* ── Accessibility floor (docs/04 § Quality floor) ────────────────────────── */
-:where(a, button, input, textarea, select, [tabindex]):focus-visible {
-  outline: 3px solid var(--color-net);
+/* Background colour field that the glass refracts. Fixed so it doesn't scroll. */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-cream);
+}
+.ambient span {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.5;
+}
+
+/* ── Accessibility floor ──────────────────────────────────────────────────── */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-coral) 70%, white);
   outline-offset: 2px;
+  border-radius: 10px;
 }
 
-/* Button-loading spinner — three dots, bounce in sequence (docs/04 motion budget) */
-@keyframes trio-bounce {
-  0%,
-  80%,
-  100% {
-    transform: scale(0.6);
-    opacity: 0.5;
-  }
-  40% {
-    transform: scale(1);
-    opacity: 1;
-  }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+  cursor: pointer;
 }
 
-/* Respect reduced motion everywhere, including the SlotStrip spring */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

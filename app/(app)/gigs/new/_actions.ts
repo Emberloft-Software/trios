@@ -1,29 +1,38 @@
 "use server";
 
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { errorCopy } from "@/lib/copy";
 
-const schema = z.object({
-  activityId: z.string().uuid(),
-  title: z.string().min(4).max(80),
-  venueId: z.string().uuid(),
-  placeLabel: z.string().min(2).max(120),
-  lat: z.number(),
-  lng: z.number(),
-  startsAt: z.string().min(1), // ISO from the client (already UTC)
-  capacity: z.coerce.number().int().min(3).max(12),
-  durationMin: z.coerce.number().int().min(30).max(480).default(90),
-  notes: z.string().max(600).optional().nullable(),
-  costNote: z.string().max(120).optional().nullable(),
-});
+const schema = z
+  .object({
+    activityId: z.string().uuid(),
+    title: z.string().trim().min(4).max(80),
+    venueId: z.string().uuid(),
+    placeLabel: z.string().min(2).max(120),
+    lat: z.number(),
+    lng: z.number(),
+    startsAt: z.string().datetime(),
+    capacity: z.coerce.number().int().min(3).max(16),
+    durationMin: z.coerce.number().int().min(30).max(480).default(90),
+    notes: z.string().trim().max(600).optional().nullable(),
+    costNote: z.string().trim().max(120).optional().nullable(),
+    ageMin: z.coerce.number().int().min(18).max(99),
+    ageMax: z.coerce.number().int().min(18).max(99),
+    genderPref: z.enum(["everyone", "women", "men"]),
+    hostGuests: z.coerce.number().int().min(0).max(14),
+  })
+  .refine((v) => v.ageMin <= v.ageMax, { message: "bad_age_range" })
+  .refine((v) => v.hostGuests <= v.capacity - 2, { message: "too_many_guests" });
 
 export type CreateGigResult = { ok: true; gigId: string } | { ok: false; error: string };
 
 export async function createGigAction(input: unknown): Promise<CreateGigResult> {
   const parsed = schema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: "Check the fields and try again." };
+    const msg = parsed.error.issues[0]?.message;
+    return { ok: false, error: msg && msg in { bad_age_range: 1, too_many_guests: 1 } ? errorCopy(msg) : "Check the fields and try again." };
   }
   const v = parsed.data;
 
@@ -38,22 +47,19 @@ export async function createGigAction(input: unknown): Promise<CreateGigResult> 
     p_starts_at: v.startsAt,
     p_capacity: v.capacity,
     p_duration_min: v.durationMin,
-    p_notes: v.notes ?? null,
-    p_cost_note: v.costNote ?? null,
+    p_notes: v.notes || undefined,
+    p_cost_note: v.costNote || undefined,
+    p_age_min: v.ageMin,
+    p_age_max: v.ageMax,
+    p_gender_pref: v.genderPref,
+    p_host_guests: v.hostGuests,
   });
 
   if (error || !data) {
-    // Surface the real reason server-side for debugging; map to friendly copy.
-    console.error("create_gig failed:", {
-      code: error?.code,
-      message: error?.message,
-      details: error?.details,
-      hint: error?.hint,
-    });
-    // A missing profiles row (FK violation on host_id) means the signup trigger
-    // never ran for this user — common if the account predates the migrations.
-    if (error?.code === "23503") return { ok: false, error: errorCopy("profile_missing") };
-    return { ok: false, error: errorCopy(error?.message ?? "generic") };
+    console.error("create_gig failed:", error?.code, error?.message);
+    return { ok: false, error: errorCopy(error?.message) };
   }
+  revalidatePath("/feed");
+  revalidatePath("/gigs");
   return { ok: true, gigId: data.id };
 }

@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Minus, Plus, UserPlus } from "lucide-react";
 import { SlotStrip } from "@/components/ui/SlotStrip";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Checkbox, FieldError, Hint, Input, Label, Segmented, Select, Textarea } from "@/components/ui/Field";
+import { Notice } from "@/components/ui/Notice";
 import { VenuePicker } from "@/components/gig/VenuePicker";
 import { copy } from "@/lib/copy";
-import { colomboLocalToUtcISO } from "@/lib/time";
+import { colomboLocalToUtcISO, toColomboLocalInput } from "@/lib/time";
 import { createGigAction } from "./_actions";
 import type { PickedVenue } from "./venue-actions";
 
@@ -20,167 +22,301 @@ interface Activity {
   default_capacity: number;
 }
 
-const FIELD =
-  "w-full rounded-[var(--radius-chip)] border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] px-3 py-2.5 text-[1rem] outline-none";
+type GenderPref = "everyone" | "women" | "men";
+const DURATIONS = [60, 90, 120, 180, 240];
+const AGE_PRESETS: [number, number][] = [
+  [18, 99],
+  [18, 25],
+  [21, 30],
+  [25, 35],
+  [30, 45],
+  [40, 99],
+];
+const AGES = Array.from({ length: 82 }, (_, i) => i + 18);
 
-/** Create-gig flow (docs/03). Capacity stepper renders a live SlotStrip so the
- *  host sees the shape of the crew they're building. The platonic reminder is
- *  shown before submit. Minimum is 3, enforced again by the DB. */
-export function NewGigForm({ activities }: { activities: Activity[] }) {
+export function NewGigForm({
+  activities,
+  hostAge,
+  hostGender,
+}: {
+  activities: Activity[];
+  hostAge: number;
+  hostGender: "woman" | "man" | "nonbinary";
+}) {
   const router = useRouter();
-  const [activityId, setActivityId] = useState<string>(activities[0]?.id ?? "");
-  const selected = useMemo(
-    () => activities.find((a) => a.id === activityId),
-    [activities, activityId],
-  );
-  const [capacity, setCapacity] = useState<number>(selected?.default_capacity ?? 4);
+  const n = copy.newGig;
+  const [pending, start] = useTransition();
+
+  const [activityId, setActivityId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [venue, setVenue] = useState<PickedVenue | null>(null);
   const [startsAtLocal, setStartsAtLocal] = useState("");
   const [durationMin, setDurationMin] = useState(90);
   const [notes, setNotes] = useState("");
   const [costNote, setCostNote] = useState("");
+  const [genderPref, setGenderPref] = useState<GenderPref>("everyone");
+  const [ageMin, setAgeMin] = useState(18);
+  const [ageMax, setAgeMax] = useState(99);
+  const [capacity, setCapacity] = useState(4);
+  const [guests, setGuests] = useState(0);
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
 
-  function pickActivity(id: string) {
-    setActivityId(id);
-    const a = activities.find((x) => x.id === id);
-    if (a) setCapacity(a.default_capacity);
+  const minLocal = toColomboLocalInput(new Date(Date.now() + 3 * 3600e3 + 5 * 60e3));
+  const maxLocal = toColomboLocalInput(new Date(Date.now() + 59 * 864e5));
+  const hostOutside = hostAge < ageMin || hostAge > ageMax;
+  const maxGuests = Math.max(0, capacity - 2);
+  const genderOptions: { value: GenderPref; label: string }[] = [
+    { value: "everyone", label: copy.audience.everyone },
+    ...(hostGender === "woman" ? [{ value: "women" as const, label: copy.audience.women }] : []),
+    ...(hostGender === "man" ? [{ value: "men" as const, label: copy.audience.men }] : []),
+  ];
+
+  const grouped = useMemo(() => {
+    const m = new Map<string, Activity[]>();
+    activities.forEach((a) => m.set(a.category, [...(m.get(a.category) ?? []), a]));
+    return [...m.entries()];
+  }, [activities]);
+
+  function pickActivity(a: Activity) {
+    setActivityId(a.id);
+    setCapacity(a.default_capacity);
+    setGuests((g) => Math.min(g, Math.max(0, a.default_capacity - 2)));
   }
 
-  async function submit(e: React.FormEvent) {
+  function changeCapacity(c: number) {
+    const next = Math.max(3, Math.min(16, c));
+    setCapacity(next);
+    setGuests((g) => Math.min(g, next - 2));
+  }
+
+  function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!agree) {
-      setError(copy.gig.mustAgree);
-      return;
-    }
-    if (!startsAtLocal) {
-      setError(copy.gig.needTime);
-      return;
-    }
-    if (!venue) {
-      setError(copy.gig.needVenue);
-      return;
-    }
-    // The datetime-local value is Colombo wall-time — interpret it as Asia/
-    // Colombo (not the browser's zone) before converting to a UTC ISO.
-    const startsAt = colomboLocalToUtcISO(startsAtLocal);
-    setBusy(true);
-    const res = await createGigAction({
-      activityId,
-      title,
-      venueId: venue.id,
-      placeLabel: venue.name,
-      lat: venue.lat,
-      lng: venue.lng,
-      startsAt,
-      capacity,
-      durationMin,
-      notes: notes || null,
-      costNote: costNote || null,
+    if (!activityId) return setError(n.pickActivity);
+    if (title.trim().length < 4) return setError(n.title);
+    if (!startsAtLocal) return setError(copy.gig.needTime);
+    if (!venue) return setError(copy.gig.needVenue);
+    if (hostOutside) return setError(copy.errors.host_outside_age_range);
+    if (!agree) return setError(copy.gig.mustAgree);
+
+    start(async () => {
+      const res = await createGigAction({
+        activityId,
+        title: title.trim(),
+        venueId: venue.id,
+        placeLabel: venue.name,
+        lat: venue.lat,
+        lng: venue.lng,
+        startsAt: colomboLocalToUtcISO(startsAtLocal),
+        capacity,
+        durationMin,
+        notes: notes || null,
+        costNote: costNote || null,
+        ageMin,
+        ageMax,
+        genderPref,
+        hostGuests: guests,
+      });
+      if (!res.ok) return setError(res.error);
+      router.push(`/gigs/${res.gigId}?created=1`);
     });
-    setBusy(false);
-    if (!res.ok) {
-      setError(res.error);
-      return;
-    }
-    router.push(`/gigs/${res.gigId}`);
   }
 
   return (
-    <form onSubmit={submit} className="space-y-6">
-      {/* Activity picker */}
-      <Card className="p-5">
-        <h2 className="mb-3 font-display text-[1.25rem] font-600">{copy.newGig.pickActivity}</h2>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {activities.map((a) => (
-            <button
-              key={a.id}
-              type="button"
-              onClick={() => pickActivity(a.id)}
-              aria-pressed={a.id === activityId}
-              className={`flex flex-col items-center gap-1 rounded-[var(--radius-tile)] border-2 border-[var(--color-ink)] px-2 py-3 text-[0.8125rem] transition-transform hover:-translate-y-[2px] ${
-                a.id === activityId
-                  ? "bg-[var(--color-line)]"
-                  : "bg-[var(--color-chalk)]"
-              }`}
-            >
-              <span className="text-xl" aria-hidden>{a.emoji}</span>
-              {a.name}
-            </button>
+    <form onSubmit={submit} className="space-y-5">
+      {/* 1. Activity */}
+      <Step n={1} title={n.pickActivity}>
+        <div className="space-y-4">
+          {grouped.map(([cat, list]) => (
+            <div key={cat}>
+              <p className="mb-2 text-[0.75rem] font-bold uppercase tracking-wider text-muted">{cat}</p>
+              <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0">
+                {list.map((a) => {
+                  const active = a.id === activityId;
+                  return (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => pickActivity(a)}
+                      aria-pressed={active}
+                      className={`flex w-[5.75rem] shrink-0 flex-col items-center gap-1 rounded-2xl px-2 py-3 text-[0.8125rem] font-semibold transition sm:w-auto ${
+                        active
+                          ? "bg-plum text-white shadow-[0_8px_20px_rgba(54,2,83,0.25)]"
+                          : "bg-white/75 text-plum ring-1 ring-line hover:bg-white"
+                      }`}
+                    >
+                      <span className="text-2xl" aria-hidden>{a.emoji}</span>
+                      <span className="text-center leading-tight">{a.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </div>
-      </Card>
+      </Step>
 
-      {/* When & where */}
-      <Card className="p-5 space-y-4">
-        <div>
-          <label htmlFor="title" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.title}</label>
-          <input id="title" className={FIELD} maxLength={80} value={title}
-            onChange={(e) => setTitle(e.target.value)} placeholder={copy.newGig.titlePlaceholder} />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+      {/* 2. Details */}
+      <Step n={2} title={n.step2}>
+        <div className="space-y-4">
           <div>
-            <label htmlFor="when" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.when}</label>
-            <input id="when" type="datetime-local" className={`${FIELD} font-data`}
-              value={startsAtLocal} onChange={(e) => setStartsAtLocal(e.target.value)} />
+            <Label htmlFor="title">{n.title}</Label>
+            <Input id="title" maxLength={80} value={title} onChange={(e) => setTitle(e.target.value)}
+              placeholder={n.titlePlaceholder} />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-[1.4fr_1fr]">
+            <div>
+              <Label htmlFor="when">{n.when}</Label>
+              <Input id="when" type="datetime-local" className="tabular" min={minLocal} max={maxLocal} value={startsAtLocal}
+                onChange={(e) => setStartsAtLocal(e.target.value)} />
+              <Hint>{n.whenHint}</Hint>
+            </div>
+            <div>
+              <Label htmlFor="dur">{n.length}</Label>
+              <Select id="dur" value={durationMin} onChange={(e) => setDurationMin(Number(e.target.value))}>
+                {DURATIONS.map((d) => (
+                  <option key={d} value={d}>{d < 60 ? `${d} ${n.minutes}` : `${d / 60} h`}</option>
+                ))}
+              </Select>
+            </div>
           </div>
           <div>
-            <label htmlFor="dur" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.length}</label>
-            <input id="dur" type="number" min={30} max={480} step={15} className={`${FIELD} font-data`}
-              value={durationMin} onChange={(e) => setDurationMin(Number(e.target.value))} />
+            <Label>{n.where}</Label>
+            <VenuePicker value={venue} onPick={setVenue} />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="cost" optional={n.optional}>{n.costNote}</Label>
+              <Input id="cost" maxLength={120} value={costNote} onChange={(e) => setCostNote(e.target.value)} placeholder={n.costPlaceholder} />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="notes" optional={n.optional}>{n.notes}</Label>
+              <Textarea id="notes" rows={3} maxLength={600} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={n.notesPlaceholder} />
+            </div>
           </div>
         </div>
-        <div>
-          <span className="mb-1 block text-[0.875rem] font-500">{copy.newGig.where}</span>
-          <VenuePicker value={venue} onPick={setVenue} />
-        </div>
-        <div>
-          <label htmlFor="cost" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.costNote}</label>
-          <input id="cost" className={FIELD} maxLength={120} value={costNote}
-            onChange={(e) => setCostNote(e.target.value)} placeholder={copy.newGig.costPlaceholder} />
-        </div>
-        <div>
-          <label htmlFor="notes" className="mb-1 block text-[0.875rem] font-500">{copy.newGig.notes}</label>
-          <textarea id="notes" className={FIELD} rows={3} maxLength={600} value={notes}
-            onChange={(e) => setNotes(e.target.value)} placeholder={copy.newGig.notesPlaceholder} />
-        </div>
-      </Card>
+      </Step>
 
-      {/* Capacity stepper with live SlotStrip */}
-      <Card className="p-5">
-        <h2 className="mb-1 font-display text-[1.25rem] font-600">{copy.newGig.howMany}</h2>
-        <p className="mb-4 text-[0.875rem] text-[var(--color-dust)]">
-          {copy.newGig.howManyHint}
-        </p>
-        <div className="mb-4 flex items-center gap-3">
-          <button type="button" onClick={() => setCapacity((c) => Math.max(3, c - 1))}
-            className="grid h-10 w-10 place-items-center rounded-full border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] text-xl">−</button>
-          <span className="font-data w-10 text-center text-2xl">{capacity}</span>
-          <button type="button" onClick={() => setCapacity((c) => Math.min(12, c + 1))}
-            className="grid h-10 w-10 place-items-center rounded-full border-2 border-[var(--color-ink)] bg-[var(--color-chalk)] text-xl">+</button>
+      {/* 3. Audience */}
+      <Step n={3} title={n.audience} sub={n.audienceHint}>
+        <div className="space-y-5">
+          {genderOptions.length > 1 && (
+            <div>
+              <Label>{n.gender}</Label>
+              <Segmented<GenderPref> name={n.gender} value={genderPref} onChange={setGenderPref} options={genderOptions} />
+            </div>
+          )}
+          <div>
+            <Label>{n.ageRange}</Label>
+            <div className="mb-3 flex flex-wrap gap-2">
+              {AGE_PRESETS.map(([a, b]) => {
+                const active = a === ageMin && b === ageMax;
+                const disabled = hostAge < a || hostAge > b;
+                return (
+                  <button
+                    key={`${a}-${b}`}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => { setAgeMin(a); setAgeMax(b); }}
+                    className={`rounded-full px-3.5 py-1.5 text-[0.8125rem] font-semibold transition disabled:opacity-35 ${
+                      active ? "bg-plum text-white" : "bg-white/80 text-plum ring-1 ring-line hover:bg-white"
+                    }`}
+                  >
+                    {copy.audience.ages(a, b)}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-3">
+              <Select aria-label="Minimum age" value={ageMin} onChange={(e) => { const v = Number(e.target.value); setAgeMin(v); if (v > ageMax) setAgeMax(v); }}>
+                {AGES.map((a) => <option key={a} value={a}>{a}</option>)}
+              </Select>
+              <span className="text-muted">–</span>
+              <Select aria-label="Maximum age" value={ageMax} onChange={(e) => { const v = Number(e.target.value); setAgeMax(v); if (v < ageMin) setAgeMin(v); }}>
+                {AGES.map((a) => <option key={a} value={a}>{a === 99 ? "99+" : a}</option>)}
+              </Select>
+            </div>
+            {hostOutside ? <FieldError>{copy.errors.host_outside_age_range}</FieldError> : <Hint>{n.ageRangeHint}</Hint>}
+          </div>
         </div>
-        {/* index 0 = host slot; show the host filled */}
-        <SlotStrip variant="blind" capacity={capacity} filled={1} minToConfirm={3} />
-      </Card>
+      </Step>
 
-      {/* Platonic reminder (docs/09) */}
-      <Card className="p-5">
-        <label className="flex items-start gap-3 text-[0.9375rem]">
-          <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)}
-            className="mt-1 h-5 w-5 shrink-0 accent-[var(--color-tape)]" />
-          <span>{copy.platonicClause.firstGigCheckbox}</span>
-        </label>
-      </Card>
+      {/* 4. Size + guests */}
+      <Step n={4} title={n.howMany} sub={n.howManyHint}>
+        <Stepper value={capacity} min={3} max={16} onChange={changeCapacity} label={n.howMany} />
 
-      {error && <p className="text-[0.9375rem] text-[var(--color-tape)]">{error}</p>}
+        <div className="mt-6 rounded-2xl bg-sun-100/60 p-4 ring-1 ring-sun/30">
+          <p className="flex items-center gap-2 text-[0.9375rem] font-bold text-plum">
+            <UserPlus className="h-4.5 w-4.5" /> {n.guests}
+          </p>
+          <p className="mt-1 text-[0.8125rem] text-[#6b4400]">{n.guestsHint}</p>
+          <div className="mt-3">
+            <Stepper value={guests} min={0} max={maxGuests} onChange={setGuests} label={n.guests} zeroLabel={n.guestsNone} />
+          </div>
+        </div>
 
-      <Button type="submit" disabled={busy} loading={busy} className="w-full">
-        {copy.newGig.submit}
-      </Button>
+        <div className="mt-5 rounded-2xl bg-white/70 p-4 ring-1 ring-line">
+          <SlotStrip capacity={capacity} claimed={1} reserved={guests} minToConfirm={3} crew={[{ userId: "you", name: copy.lobby.you }]} />
+          <p className="mt-2 text-[0.8125rem] font-semibold text-plum">{n.openSpots(capacity - 1 - guests)}</p>
+        </div>
+      </Step>
+
+      <div className="glass space-y-4 rounded-[1.75rem] p-5">
+        <Checkbox id="agree" checked={agree} onChange={setAgree}>{copy.platonicClause.checkbox}</Checkbox>
+        <Notice tone="info" compact>{copy.disclaimers.meetPublic}</Notice>
+      </div>
+
+      {error && <Notice tone="danger">{error}</Notice>}
+
+      <Button type="submit" size="lg" block loading={pending}>{n.submit}</Button>
     </form>
+  );
+}
+
+function Step({ n, title, sub, children }: { n: number; title: string; sub?: string; children: React.ReactNode }) {
+  return (
+    <section className="glass rounded-[1.75rem] p-5 sm:p-6">
+      <div className="mb-4 flex items-start gap-3">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-coral text-[0.8125rem] font-bold text-white">{n}</span>
+        <div>
+          <h2 className="text-[1.0625rem] font-bold">{title}</h2>
+          {sub && <p className="text-[0.8125rem] text-muted">{sub}</p>}
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Stepper({
+  value,
+  min,
+  max,
+  onChange,
+  label,
+  zeroLabel,
+}: {
+  value: number;
+  min: number;
+  max: number;
+  onChange: (v: number) => void;
+  label: string;
+  zeroLabel?: string;
+}) {
+  return (
+    <div className="flex items-center gap-4" role="group" aria-label={label}>
+      <button type="button" aria-label="Fewer" disabled={value <= min} onClick={() => onChange(value - 1)}
+        className="grid h-11 w-11 place-items-center rounded-full bg-white text-plum ring-1 ring-line transition hover:bg-plum-50 disabled:opacity-40">
+        <Minus className="h-5 w-5" />
+      </button>
+      <span className="min-w-16 text-center text-[1.75rem] font-extrabold text-plum tabular" aria-live="polite">
+        {value === 0 && zeroLabel ? <span className="text-[1rem] font-bold">{zeroLabel}</span> : value}
+      </span>
+      <button type="button" aria-label="More" disabled={value >= max} onClick={() => onChange(value + 1)}
+        className="grid h-11 w-11 place-items-center rounded-full bg-white text-plum ring-1 ring-line transition hover:bg-plum-50 disabled:opacity-40">
+        <Plus className="h-5 w-5" />
+      </button>
+    </div>
   );
 }

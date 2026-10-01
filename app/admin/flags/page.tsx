@@ -1,63 +1,47 @@
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { Card } from "@/components/ui/Card";
-import { formatDay } from "@/lib/time";
+import { PageHeader } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { timeAgo } from "@/lib/time";
+import { ids } from "../_lib";
 
-export const metadata = { title: "Flags — Trio admin" };
+export const metadata = { title: "Red flags — Admin" };
 
-const KIND_LABEL: Record<string, string> = {
-  host_removals: "Removing a lot of people",
-  blocks_received: "Being blocked by others",
+const KIND: Record<string, string> = {
+  host_removals: "Removing lots of people",
+  vote_removed: "Voted out repeatedly",
+  blocks_received: "Blocked by several people",
   friend_spam: "Friend-request spray",
 };
 
-/**
- * Behavioural red flags (docs/06). Surface, don't sentence — every row links to
- * the user view so a human decides. Built from the admin_flags view over
- * existing tables. Read via the service role.
- */
 export default async function FlagsPage() {
-  const admin = createAdminClient();
-  const { data: flags } = await admin
-    .from("admin_flags")
-    .select("*")
-    .order("count", { ascending: false });
-
-  const rows = flags ?? [];
-  const ids = [...new Set(rows.map((f) => f.subject_id))];
-  const { data: profiles } = await admin
-    .from("profiles")
-    .select("id, display_name, handle")
-    .in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
+  const db = createAdminClient();
+  const { data } = await db.from("admin_flags").select("*").order("count", { ascending: false });
+  const rows = data ?? [];
+  const { data: profiles } = await db.from("profiles").select("id, display_name, handle").in("id", ids(rows.map((r) => r.subject_id)));
   const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
 
   return (
     <div>
-      <h1 className="mb-2 font-display text-[2rem] font-700">Flags</h1>
-      <p className="mb-6 text-[0.875rem] text-[var(--color-dust)]">
-        Cross-gig patterns worth a look. Nothing here is a punishment — a human decides.
-      </p>
-
+      <PageHeader title="Red flags" sub="Cross-gig patterns worth a look. Nothing here is a punishment — a person decides." />
       {rows.length === 0 ? (
-        <Card className="p-6 text-[0.9375rem] text-[var(--color-dust)]">No patterns flagged.</Card>
+        <EmptyState title="No patterns flagged." />
       ) : (
         <ul className="space-y-2">
           {rows.map((f) => {
-            const p = byId.get(f.subject_id);
+            const p = f.subject_id ? byId.get(f.subject_id) : null;
             return (
               <li key={`${f.kind}-${f.subject_id}`}>
-                <Link href={`/admin/users/${f.subject_id}`}>
-                  <Card hover className="flex flex-wrap items-center justify-between gap-2 p-4">
-                    <span>
-                      <span className="font-500">{p?.display_name ?? "Unknown"}</span>
-                      <span className="font-data ml-2 text-[0.75rem] text-[var(--color-dust)]">
-                        {KIND_LABEL[f.kind] ?? f.kind}
-                      </span>
-                    </span>
-                    <span className="text-[0.875rem] text-[var(--color-dust)]">
-                      {f.detail} · {formatDay(f.last_at)}
-                    </span>
-                  </Card>
+                <Link href={`/admin/users/${f.subject_id}`} className="glass flex items-center gap-3 rounded-2xl p-4 hover:bg-white/80">
+                  <span className="min-w-0 flex-1">
+                    <span className="font-bold text-plum">{p?.display_name ?? "Unknown"}</span>
+                    <span className="ml-2 text-[0.75rem] text-muted">@{p?.handle}</span>
+                    <span className="block text-[0.8125rem] text-muted">{f.detail}{f.last_at ? ` · last ${timeAgo(f.last_at)}` : ""}</span>
+                  </span>
+                  <Badge tone="coral">{KIND[f.kind ?? ""] ?? f.kind}</Badge>
+                  <ChevronRight className="h-4.5 w-4.5 text-muted" />
                 </Link>
               </li>
             );
