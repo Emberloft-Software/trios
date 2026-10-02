@@ -3,6 +3,7 @@ import { Logo } from "@/components/ui/Logo";
 import { ButtonLink } from "@/components/ui/Button";
 import { brand } from "@/lib/brand";
 import { copy } from "@/lib/copy";
+import { MadeBy } from "@/components/marketing/MadeBy";
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -47,9 +48,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             </ul>
           </div>
         </div>
-        <p className="border-t border-line px-5 py-4 text-center text-[0.75rem] text-muted">
-          © {new Date().getFullYear()} {brand.name} · {brand.city}, {brand.country} · 18+
-        </p>
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 border-t border-line px-5 py-4 text-center text-[0.75rem] text-muted sm:flex-row sm:justify-between">
+          <p>© {new Date().getFullYear()} {brand.name} · {brand.city}, {brand.country} · 18+</p>
+          <MadeBy />
+        </div>
       </footer>
     </div>
   );

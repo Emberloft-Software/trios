@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { copy } from "@/lib/copy";
+import { MadeBy } from "@/components/marketing/MadeBy";
 
 /** Split layout for auth screens: plum brand panel on desktop, form on glass. */
 export function AuthShell({ children }: { children: React.ReactNode }) {
@@ -30,6 +31,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           <Link href="/privacy" className="hover:text-plum">Privacy</Link>
           <Link href="/safety" className="hover:text-plum">Safety</Link>
         </nav>
+        <div className="mt-3 flex justify-center"><MadeBy /></div>
       </main>
     </div>
   );

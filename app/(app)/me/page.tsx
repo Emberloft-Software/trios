@@ -9,6 +9,7 @@ import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { publicAvatarUrl } from "@/lib/avatar";
 import { ageFrom } from "@/lib/time";
 import { copy } from "@/lib/copy";
+import { MadeBy } from "@/components/marketing/MadeBy";
 import { PhotoUploader } from "./PhotoUploader";
 import { ProfileEditor } from "./ProfileEditor";
 import { AccountActions } from "./AccountActions";
@@ -114,6 +115,7 @@ function Stat({ label, value }: { label: string; value: number }) {
     <div className="rounded-2xl bg-white/70 p-3 text-center ring-1 ring-line">
       <dd className="text-[1.5rem] font-extrabold text-plum tabular">{value}</dd>
       <dt className="text-[0.75rem] font-semibold text-muted">{label}</dt>
+      <div className="flex justify-center pb-2 pt-4"><MadeBy /></div>
     </div>
   );
 }

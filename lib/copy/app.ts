@@ -3,6 +3,7 @@ import { brand } from "@/lib/brand";
 const N = brand.name;
 
 export const appCopy = {
+  madeBy: "A product by",
   productLine: "Plans need people. Find your crew.",
   nav: {
     feed: "Discover",

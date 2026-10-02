@@ -14,6 +14,7 @@ export const brand = {
   safetyEmail: "safety@tremigos.app",
   privacyEmail: "privacy@tremigos.app",
   legalEntity: "Tremigos",
+  studio: "Emberloft",
   themeColor: "#ff3450",
 } as const;
 
