@@ -58,6 +58,7 @@ export default async function GigPage({
               minToConfirm={gig.min_to_confirm}
               crew={L.crewUi.map((m) => ({ userId: m.userId, name: m.name, avatarUrl: m.avatarUrl, isHost: m.isHost }))}
               locked={locked}
+              privateGig={gig.is_private}
             />
             {!chatOpen && active && <p className="mt-3 text-[0.8125rem] text-muted">{copy.lobby.unlockHint}</p>}
           </Card>
@@ -66,6 +67,7 @@ export default async function GigPage({
             <InvitePanel
               gigId={gig.id}
               title={gig.title}
+              isPrivate={gig.is_private}
               invites={L.guestInvites}
               friends={L.friends}
               highlight={created === "1" && L.guestInvites.length > 0}

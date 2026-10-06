@@ -22,10 +22,11 @@ const schema = z
     ageMin: z.coerce.number().int().min(18).max(99),
     ageMax: z.coerce.number().int().min(18).max(99),
     genderPref: z.enum(["everyone", "women", "men"]),
-    hostGuests: z.coerce.number().int().min(0).max(14),
+    hostGuests: z.coerce.number().int().min(0).max(15),
+    isPrivate: z.boolean().default(false),
   })
   .refine((v) => v.ageMin <= v.ageMax, { message: "bad_age_range" })
-  .refine((v) => v.hostGuests <= v.capacity - 2, { message: "too_many_guests" });
+  .refine((v) => v.isPrivate || v.hostGuests <= v.capacity - 2, { message: "too_many_guests" });
 
 export type CreateGigResult = { ok: false; error: string } | undefined;
 
@@ -53,7 +54,8 @@ export async function createGigAction(input: unknown): Promise<CreateGigResult> 
     p_age_min: v.ageMin,
     p_age_max: v.ageMax,
     p_gender_pref: v.genderPref,
-    p_host_guests: v.hostGuests,
+    p_host_guests: v.isPrivate ? v.capacity - 1 : v.hostGuests,
+    p_is_private: v.isPrivate,
   });
 
   if (error || !data) {

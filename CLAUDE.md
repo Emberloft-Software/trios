@@ -49,6 +49,8 @@ Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + 
 
 - **Audience:** gigs carry `age_min/age_max/gender_pref`. RLS hides gigs whose audience doesn't include the viewer; `claim_slot` re-checks. Hosts must fit their own audience.
 - **Bringing friends:** `host_guests` (declared) + `reserved_slots` (seats still held). `headcount = claimed_count + reserved_slots`. Each held seat has its own **single-use** link in `gig_invites` (`/join/<code>`); no guests → no links. Redeeming skips the audience filter, consumes the seat, and posts a `guest_joined` system message. The host can cancel unused links (seat goes public). Feed/lobby warn "join at your own risk".
+- **Private gigs** (`gigs.is_private`): never in any feed (RLS + `gig_feed`), not claimable (`claim_slot` raises `private_gig`). Every non-host seat is held with its own single-use link; audience is forced to everyone/18+. Cancelling a link on a private gig issues a replacement instead of opening the seat.
+- **Discover filters** (category, area, closest first) run client-side in `app/(app)/feed/DiscoverFeed.tsx` over the RLS-filtered list and only rewrite the URL with `history.replaceState`. Same-route `router.push` with a full card list hung in production builds (transition never committed), so don't move these filters back to server navigations. Areas are fixed circles in `lib/geo.ts`; the viewer's location is opt-in, rounded to ~1 km, and kept in the `tm_loc` cookie (`lat_lng`), never in URLs or the DB.
 - **Chat AND photos unlock** only when every spot is filled by people who actually joined (`claimed_count >= capacity`), or when the gig locks 2h before start. Sticky via `gigs.chat_opened_at`. Photos are hidden structurally by `can_see_face()` inside `profiles_public` (self, admin, friends, or a shared unlocked gig). Lobbies listen to their `gigs` row over realtime to flip open instantly.
 - Client warns before sending phone numbers/links in chat and labels received ones.
 - **Crew vote:** `cast_kick_vote` — majority of other claimed members, min 2 votes, host can't be voted out. Removal files a `crew_vote_removal` report for admins.
@@ -64,7 +66,7 @@ npm run build
 npm run gen:types      # regenerate lib/database.types.ts from the linked project
 ```
 
-Migrations (`0001`–`0019`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
+Migrations (`0001`–`0023`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
 
 ## Before you call any task done
 

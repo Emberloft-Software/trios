@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { UserPlus } from "lucide-react";
-import { SlotStrip } from "@/components/ui/SlotStrip";
 import { Button } from "@/components/ui/Button";
 import { Checkbox, Hint, Input, Label, Select, Textarea } from "@/components/ui/Field";
 import { Notice } from "@/components/ui/Notice";
@@ -10,11 +8,11 @@ import { VenuePicker } from "@/components/gig/VenuePicker";
 import { copy } from "@/lib/copy";
 import { colomboLocalToUtcISO, toColomboLocalInput } from "@/lib/time";
 import { createGigAction } from "./_actions";
-import { Step, Stepper } from "./form-parts";
+import { Step } from "./form-parts";
+import { GroupSize, VisibilityPicker } from "./VisibilityFields";
 import { ActivityPicker, type Activity } from "./ActivityPicker";
 import { AudienceFields, type GenderPref } from "./AudienceFields";
 import type { PickedVenue } from "./venue-actions";
-
 
 const DURATIONS = [60, 90, 120, 180, 240];
 
@@ -42,13 +40,13 @@ export function NewGigForm({
   const [ageMax, setAgeMax] = useState(99);
   const [capacity, setCapacity] = useState(4);
   const [guests, setGuests] = useState(0);
+  const [isPrivate, setIsPrivate] = useState(false);
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const minLocal = toColomboLocalInput(new Date(Date.now() + 3 * 3600e3 + 5 * 60e3));
   const maxLocal = toColomboLocalInput(new Date(Date.now() + 59 * 864e5));
-  const hostOutside = hostAge < ageMin || hostAge > ageMax;
-  const maxGuests = Math.max(0, capacity - 2);
+  const hostOutside = !isPrivate && (hostAge < ageMin || hostAge > ageMax);
 
   function pickActivity(a: Activity) {
     setActivityId(a.id);
@@ -88,7 +86,8 @@ export function NewGigForm({
         ageMin,
         ageMax,
         genderPref,
-        hostGuests: guests,
+        hostGuests: isPrivate ? capacity - 1 : guests,
+        isPrivate,
       });
       if (res && !res.ok) setError(res.error);
     });
@@ -142,40 +141,32 @@ export function NewGigForm({
         </div>
       </Step>
 
-      {/* 3. Audience */}
-      <Step n={3} title={n.audience} sub={n.audienceHint}>
-        <AudienceFields
-          hostAge={hostAge}
-          hostGender={hostGender}
-          genderPref={genderPref}
-          onGender={setGenderPref}
-          ageMin={ageMin}
-          ageMax={ageMax}
-          onAges={(lo, hi) => {
-            setAgeMin(lo);
-            setAgeMax(hi);
-          }}
-        />
+      {/* 3. Visibility + audience */}
+      <Step n={3} title={copy.privacy.title}>
+        <VisibilityPicker isPrivate={isPrivate} onChange={setIsPrivate} />
+        {!isPrivate && (
+          <div className="mt-5 border-t border-line pt-5">
+            <p className="font-bold text-plum">{n.audience}</p>
+            <p className="mb-3 text-[0.8125rem] text-muted">{n.audienceHint}</p>
+            <AudienceFields
+              hostAge={hostAge}
+              hostGender={hostGender}
+              genderPref={genderPref}
+              onGender={setGenderPref}
+              ageMin={ageMin}
+              ageMax={ageMax}
+              onAges={(lo, hi) => {
+                setAgeMin(lo);
+                setAgeMax(hi);
+              }}
+            />
+          </div>
+        )}
       </Step>
 
       {/* 4. Size + guests */}
       <Step n={4} title={n.howMany} sub={n.howManyHint}>
-        <Stepper value={capacity} min={3} max={16} onChange={changeCapacity} label={n.howMany} />
-
-        <div className="mt-6 rounded-2xl bg-sun-100/60 p-4 ring-1 ring-sun/30">
-          <p className="flex items-center gap-2 text-[0.9375rem] font-bold text-plum">
-            <UserPlus className="h-4.5 w-4.5" /> {n.guests}
-          </p>
-          <p className="mt-1 text-[0.8125rem] text-[#6b4400]">{n.guestsHint}</p>
-          <div className="mt-3">
-            <Stepper value={guests} min={0} max={maxGuests} onChange={setGuests} label={n.guests} zeroLabel={n.guestsNone} />
-          </div>
-        </div>
-
-        <div className="mt-5 rounded-2xl bg-white/70 p-4 ring-1 ring-line">
-          <SlotStrip capacity={capacity} claimed={1} reserved={guests} minToConfirm={3} crew={[{ userId: "you", name: copy.lobby.you }]} />
-          <p className="mt-2 text-[0.8125rem] font-semibold text-plum">{n.openSpots(capacity - 1 - guests)}</p>
-        </div>
+        <GroupSize capacity={capacity} onCapacity={changeCapacity} guests={guests} onGuests={setGuests} isPrivate={isPrivate} />
       </Step>
 
       <div className="glass space-y-4 rounded-[1.75rem] p-5">

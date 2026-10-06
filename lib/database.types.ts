@@ -666,6 +666,7 @@ export type Database = {
           host_id: string
           id: string
           invite_code: string
+          is_private: boolean
           lat: number
           lng: number
           locks_at: string
@@ -695,6 +696,7 @@ export type Database = {
           host_id: string
           id?: string
           invite_code: string
+          is_private?: boolean
           lat: number
           lng: number
           locks_at: string
@@ -724,6 +726,7 @@ export type Database = {
           host_id?: string
           id?: string
           invite_code?: string
+          is_private?: boolean
           lat?: number
           lng?: number
           locks_at?: string
@@ -1498,6 +1501,7 @@ export type Database = {
           headcount: number
           host_guests: number
           id: string
+          is_private: boolean
           lat: number
           lng: number
           locks_at: string
@@ -1685,7 +1689,9 @@ export type Database = {
         }
       }
       age_years: { Args: { p_birth: string }; Returns: number }
+      am_gig_crew: { Args: { p_gig_id: string }; Returns: boolean }
       block_user: { Args: { p_blocked: string }; Returns: undefined }
+      blocked_with_me: { Args: { p_other: string }; Returns: boolean }
       can_see_face: { Args: { p_target: string }; Returns: boolean }
       cancel_gig: {
         Args: { p_gig_id: string; p_reason?: string }
@@ -1769,6 +1775,7 @@ export type Database = {
           p_duration_min?: number
           p_gender_pref?: Database["public"]["Enums"]["gig_gender"]
           p_host_guests?: number
+          p_is_private?: boolean
           p_lat: number
           p_lng: number
           p_notes?: string
@@ -1794,6 +1801,7 @@ export type Database = {
           host_id: string
           id: string
           invite_code: string
+          is_private: boolean
           lat: number
           lng: number
           locks_at: string
@@ -1885,6 +1893,7 @@ export type Database = {
           host_id: string
           id: string
           invite_code: string
+          is_private: boolean
           lat: number
           lng: number
           locks_at: string
@@ -1984,6 +1993,7 @@ export type Database = {
           host_id: string
           id: string
           invite_code: string
+          is_private: boolean
           lat: number
           lng: number
           locks_at: string

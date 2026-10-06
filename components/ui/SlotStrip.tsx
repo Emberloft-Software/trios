@@ -23,6 +23,7 @@ export function SlotStrip({
   locked = false,
   size = "md",
   showLabel = true,
+  privateGig = false,
 }: {
   capacity: number;
   claimed: number;
@@ -32,6 +33,8 @@ export function SlotStrip({
   locked?: boolean;
   size?: "sm" | "md";
   showLabel?: boolean;
+  /** private gigs hold every seat for an invite: show unused invites, not "Full" */
+  privateGig?: boolean;
 }) {
   const headcount = claimed + reserved;
   const open = Math.max(0, capacity - headcount);
@@ -102,7 +105,9 @@ export function SlotStrip({
               <span className="font-medium text-muted"> · {copy.slots.needMore(minToConfirm - headcount)}</span>
             )}
           </span>
-          {!locked && (open > 0 ? (
+          {!locked && (privateGig && reserved > 0 ? (
+            <span className="font-medium text-muted">{copy.privacy.unused(reserved)}</span>
+          ) : open > 0 ? (
             <span className="font-medium text-muted">{copy.feed.spotsLeft(open)}</span>
           ) : (
             <span className="font-medium text-coral-600">{copy.feed.full}</span>

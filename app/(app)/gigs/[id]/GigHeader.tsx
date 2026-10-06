@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { CalendarClock, Hash, MessageCircle, Wallet } from "lucide-react";
+import { CalendarClock, Hash, Lock, MessageCircle, Wallet } from "lucide-react";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Notice } from "@/components/ui/Notice";
@@ -14,7 +14,7 @@ import { ActivityIcon } from "@/components/ui/ActivityIcon";
 export function GigHeader({ g }: { g: LoadedGig }) {
   const { gig, venue, activity } = g;
   const active = gig.status === "open" || gig.status === "locked";
-  const full = gig.claimed_count + gig.reserved_slots >= gig.capacity;
+  const full = gig.claimed_count + (gig.is_private ? 0 : gig.reserved_slots) >= gig.capacity;
   const photo = venue?.photo_refs?.[0] ? `/api/place-photo?ref=${encodeURIComponent(venue.photo_refs[0])}&w=1200` : null;
   return (
     <div className="relative -mx-4 -mt-5 mb-5 overflow-hidden sm:mx-0 sm:mt-0 sm:rounded-[2rem]">
@@ -30,6 +30,7 @@ export function GigHeader({ g }: { g: LoadedGig }) {
             <Badge tone={gig.status === "cancelled" ? "coral" : "white"}>
               {gig.status === "open" && full ? copy.feed.full : copy.gig.status[gig.status]}
             </Badge>
+            {gig.is_private && <Badge tone="plum" icon={<Lock className="h-3 w-3" />}>{copy.privacy.badge}</Badge>}
             {gig.chat_opened_at && active && <Badge tone="mint" icon={<MessageCircle className="h-3 w-3" />}>{copy.slots.on}</Badge>}
           </div>
           <h1 className="text-[clamp(1.5rem,5vw,2.25rem)] font-extrabold text-white">{gig.title}</h1>
@@ -47,7 +48,7 @@ export function GigHeader({ g }: { g: LoadedGig }) {
 /** Venue, audience, cost, notes. */
 export function GigDetails({ g, showCode }: { g: LoadedGig; showCode: boolean }) {
   const { gig, venue } = g;
-  const everyone = gig.gender_pref === "everyone" && gig.age_min === 18 && gig.age_max === 99;
+  const everyone = !gig.is_private && gig.gender_pref === "everyone" && gig.age_min === 18 && gig.age_max === 99;
   return (
     <Card className="p-5">
       <SectionTitle>{copy.lobby.whenWhere}</SectionTitle>
@@ -79,6 +80,7 @@ export function GigDetails({ g, showCode }: { g: LoadedGig; showCode: boolean })
  * declared OR anyone in the crew actually joined through a host's link.
  */
 export function GuestsNotice({ g }: { g: LoadedGig }) {
+  if (g.gig.is_private) return <Notice tone="info" title={copy.privacy.badge}>{copy.privacy.lobbyNote}</Notice>;
   const joined = g.crew.filter((r) => r.joined_via === "invite").length;
   const n = Math.max(g.gig.host_guests, joined);
   if (n === 0) return null;

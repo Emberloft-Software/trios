@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, Copy, Link2, Share2, UserPlus, X } from "lucide-react";
+import { Check, Copy, Link2, RotateCcw, Share2, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { copy } from "@/lib/copy";
@@ -25,12 +25,14 @@ export interface GuestInvite {
 export function InvitePanel({
   gigId,
   title,
+  isPrivate,
   invites,
   friends,
   highlight,
 }: {
   gigId: string;
   title: string;
+  isPrivate: boolean;
   invites: GuestInvite[];
   friends: { id: string; name: string }[];
   highlight: boolean;
@@ -38,31 +40,37 @@ export function InvitePanel({
   if (invites.length === 0 && friends.length === 0) return null;
   return (
     <>
-      {invites.length > 0 && <GuestLinks gigId={gigId} title={title} invites={invites} highlight={highlight} />}
+      {invites.length > 0 && (
+        <GuestLinks gigId={gigId} title={title} isPrivate={isPrivate} highlight={highlight}
+          invites={isPrivate ? invites.filter((i) => !i.revoked) : invites} />
+      )}
       {friends.length > 0 && <FriendNudges gigId={gigId} friends={friends} />}
     </>
   );
 }
 
-function GuestLinks({ gigId, title, invites, highlight }: { gigId: string; title: string; invites: GuestInvite[]; highlight: boolean }) {
+type LinksProps = { gigId: string; title: string; isPrivate: boolean; invites: GuestInvite[]; highlight: boolean };
+
+function GuestLinks({ gigId, title, isPrivate, invites, highlight }: LinksProps) {
   const v = copy.invite;
+  const p = copy.privacy;
   return (
     <section className={`glass rounded-[1.75rem] p-5 ${highlight ? "ring-2 ring-sun" : ""}`}>
       <div className="mb-1 flex items-center gap-2">
         <Link2 className="h-5 w-5 text-plum" />
-        <h2 className="text-[1.0625rem] font-bold">{v.title}</h2>
+        <h2 className="text-[1.0625rem] font-bold">{isPrivate ? p.linksTitle : v.title}</h2>
       </div>
-      <p className="mb-4 text-[0.8125rem] text-muted">{v.sub}</p>
+      <p className="mb-4 text-[0.8125rem] text-muted">{isPrivate ? p.linksSub : v.sub}</p>
       <ul className="space-y-2.5">
         {invites.map((inv) => (
-          <InviteRow key={inv.id} gigId={gigId} title={title} inv={inv} />
+          <InviteRow key={inv.id} gigId={gigId} title={title} inv={inv} isPrivate={isPrivate} />
         ))}
       </ul>
     </section>
   );
 }
 
-function InviteRow({ gigId, title, inv }: { gigId: string; title: string; inv: GuestInvite }) {
+function InviteRow({ gigId, title, inv, isPrivate }: { gigId: string; title: string; inv: GuestInvite; isPrivate: boolean }) {
   const v = copy.invite;
   const [copied, setCopied] = useState(false);
   const [pending, start] = useTransition();
@@ -120,14 +128,15 @@ function InviteRow({ gigId, title, inv }: { gigId: string; title: string; inv: G
               className="text-muted"
               loading={pending}
               onClick={() => {
-                if (!confirm(v.revokeConfirm)) return;
+                if (!confirm(isPrivate ? copy.privacy.resetConfirm : v.revokeConfirm)) return;
                 start(async () => {
                   const r = await revokeInviteAction(gigId, inv.id);
                   if (!r.ok) return setError(r.error);
                 });
               }}
             >
-              <X className="h-4 w-4" /> {v.revoke}
+              {isPrivate ? <RotateCcw className="h-4 w-4" /> : <X className="h-4 w-4" />}
+              {isPrivate ? copy.privacy.reset : v.revoke}
             </Button>
           </div>
           {error && <p className="mt-1 text-[0.8125rem] text-coral-600">{error}</p>}

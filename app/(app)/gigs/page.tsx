@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, Crown } from "lucide-react";
+import { ChevronRight, Crown, Lock } from "lucide-react";
 import { getViewer } from "@/lib/auth";
 import { PageHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -25,6 +25,7 @@ type Row = {
     reserved_slots: number;
     min_to_confirm: number;
     host_id: string;
+    is_private: boolean;
     activities: { name: string; slug: string } | null;
   } | null;
 };
@@ -34,7 +35,7 @@ export default async function MyGigsPage() {
   const { data } = await supabase
     .from("gig_crew")
     .select(
-      "state, joined_via, gigs(id, title, status, starts_at, place_label, capacity, claimed_count, reserved_slots, min_to_confirm, host_id, activities(name, slug))",
+      "state, joined_via, gigs(id, title, status, starts_at, place_label, capacity, claimed_count, reserved_slots, min_to_confirm, host_id, is_private, activities(name, slug))",
     )
     .eq("user_id", user!.id)
     .in("state", ["claimed", "attended", "no_show"]);
@@ -102,6 +103,7 @@ function GigRow({ row, isHost }: { row: Row; isHost: boolean }) {
           <p className="truncate text-[1rem] font-bold text-plum">{g.title}</p>
           <div className="mt-1 flex flex-wrap gap-1.5">
             {isHost && <Badge tone="sun" icon={<Crown className="h-3 w-3" />}>{copy.myGigs.hosting}</Badge>}
+            {g.is_private && <Badge tone="plum" icon={<Lock className="h-3 w-3" />}>{copy.privacy.badge}</Badge>}
             <Badge tone={g.status === "cancelled" ? "coral" : on ? "mint" : "muted"}>
               {g.status === "open" && on ? copy.slots.on : copy.gig.status[g.status]}
             </Badge>

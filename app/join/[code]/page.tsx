@@ -23,6 +23,7 @@ type Preview = {
   claimed_count: number;
   reserved_slots: number;
   host_guests: number;
+  is_private?: boolean;
   activity_name: string;
   activity_slug: string;
   host_name: string;
@@ -62,6 +63,7 @@ export default async function JoinPage({ params }: { params: Promise<{ code: str
             </p>
             <h1 className="mt-3 text-[2rem] font-extrabold">{g.title}</h1>
             <p className="mt-1 text-[0.9375rem] text-muted">{copy.invite.landingSub}</p>
+            {g.is_private && <Notice tone="info" className="mt-3" compact>{copy.privacy.landingNote}</Notice>}
 
             <div className="glass mt-6 space-y-4 rounded-[1.75rem] p-5">
               <p className="flex items-center gap-2 font-semibold text-plum">
@@ -69,7 +71,7 @@ export default async function JoinPage({ params }: { params: Promise<{ code: str
               </p>
               <p className="flex items-center gap-2 text-[0.9375rem]"><CalendarClock className="h-4 w-4 text-muted" /> <span className="tabular">{formatGigTime(g.starts_at)}</span></p>
               <p className="flex items-center gap-2 text-[0.9375rem]"><MapPin className="h-4 w-4 text-muted" /> {g.place_label}</p>
-              <SlotStrip capacity={g.capacity} claimed={g.claimed_count} reserved={g.reserved_slots} minToConfirm={3} />
+              <SlotStrip capacity={g.capacity} claimed={g.claimed_count} reserved={g.reserved_slots} minToConfirm={3} privateGig={!!g.is_private} />
             </div>
 
             <Notice tone="warn" className="mt-4">{copy.disclaimers.chatShort} {copy.disclaimers.meetPublic}</Notice>

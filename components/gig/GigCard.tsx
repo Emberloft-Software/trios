@@ -32,7 +32,7 @@ export function AudienceBadges({ ageMin, ageMax, gender }: { ageMin: number; age
  * Feed card. Blind by construction: activity, time, place and how full it is —
  * never who's in it (friend-hosted cards add only the host's name).
  */
-export function GigCard({ gig, friend }: { gig: FeedGig | FriendGig; friend?: boolean }) {
+export function GigCard({ gig, friend, km }: { gig: FeedGig | FriendGig; friend?: boolean; km?: number | null }) {
   const tile = dateTile(gig.starts_at);
   const locked = gig.status === "locked";
   const photo = gig.venue_photo_ref ? `/api/place-photo?ref=${encodeURIComponent(gig.venue_photo_ref)}&w=640` : null;
@@ -83,6 +83,7 @@ export function GigCard({ gig, friend }: { gig: FeedGig | FriendGig; friend?: bo
           <p className="flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{gig.venue_name ?? gig.place_label}</span>
+            {km != null && <span className="shrink-0 font-semibold text-plum">· {copy.nearby.away(km)}</span>}
           </p>
         </div>
         <div className="mt-2.5 flex flex-wrap gap-1.5">

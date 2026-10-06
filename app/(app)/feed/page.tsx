@@ -1,44 +1,38 @@
-import Link from "next/link";
+import { cookies } from "next/headers";
 import { Plus } from "lucide-react";
 import { getViewer } from "@/lib/auth";
-import { GigCard } from "@/components/gig/GigCard";
 import { ButtonLink } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/Card";
 import { firstName } from "@/lib/avatar";
 import { copy } from "@/lib/copy";
-import { CATEGORY_ICON } from "@/components/ui/ActivityIcon";
+import { LOC_COOKIE, areaBySlug, parseLoc } from "@/lib/geo";
+import { DiscoverFeed } from "./DiscoverFeed";
 
 export const metadata = { title: "Discover" };
 
-const CATEGORIES = [
-  { key: "", label: copy.feed.all },
-  { key: "Sports", label: "Sports" },
-  { key: "Chill", label: "Food & chill" },
-  { key: "Outdoors", label: "Outdoors" },
-  { key: "Making", label: "Learn & make" },
-];
+const CATS = new Set(["Sports", "Chill", "Outdoors", "Making"]);
 
 /**
  * The blind feed. RLS on gigs already removes anything outside the viewer's
- * age range / audience and anything hosted by someone in a block relationship.
+ * age range / audience, anything hosted by someone in a block relationship,
+ * and every private gig. Filtering by category / area / distance is done on
+ * the client over this list (see DiscoverFeed).
  */
-export default async function FeedPage({ searchParams }: { searchParams: Promise<{ cat?: string }> }) {
-  const { cat = "" } = await searchParams;
-  const { supabase, profile } = await getViewer();
+export default async function FeedPage({ searchParams }: { searchParams: Promise<{ cat?: string; area?: string; sort?: string }> }) {
+  const [sp, { supabase, profile }, jar] = await Promise.all([searchParams, getViewer(), cookies()]);
   const nowIso = new Date().toISOString();
-
-  let q = supabase.from("gig_feed").select("*").gte("starts_at", nowIso).order("starts_at", { ascending: true }).limit(60);
-  if (cat) q = q.eq("activity_category", cat);
+  const loc = parseLoc(jar.get(LOC_COOKIE)?.value);
 
   const [{ data: gigs }, { data: friendGigs }] = await Promise.all([
-    q,
+    supabase.from("gig_feed").select("*").gte("starts_at", nowIso).order("starts_at", { ascending: true }).limit(200),
     supabase.from("friend_hosted_gigs").select("*").gte("starts_at", nowIso).order("starts_at", { ascending: true }).limit(12),
   ]);
 
-  const friendIds = new Set((friendGigs ?? []).map((g) => g.id));
-  const list = (gigs ?? []).filter((g) => !friendIds.has(g.id));
-  const friends = cat ? (friendGigs ?? []).filter((g) => g.activity_category === cat) : friendGigs ?? [];
+  const initial = {
+    cat: sp.cat && CATS.has(sp.cat) ? sp.cat : "",
+    area: areaBySlug(sp.area)?.slug ?? "",
+    sort: sp.sort === "near" && loc ? "near" : "",
+  };
 
   return (
     <div>
@@ -53,60 +47,8 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
           </div>
         }
       />
-
-      <div className="no-scrollbar -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        {CATEGORIES.map((c) => {
-          const active = c.key === cat;
-          return (
-            <Link
-              key={c.key || "all"}
-              href={c.key ? `/feed?cat=${c.key}` : "/feed"}
-              scroll={false}
-              aria-current={active ? "true" : undefined}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-[0.875rem] font-semibold transition ${
-                active ? "bg-plum text-white shadow-[0_6px_16px_rgba(54,2,83,0.25)]" : "glass text-plum hover:bg-white"
-              }`}
-            >
-              <CatIcon k={c.key} /> {c.label}
-            </Link>
-          );
-        })}
-      </div>
-
-      {friends.length > 0 && (
-        <section className="mb-8">
-          <h2 className="mb-3 text-[1.0625rem] font-bold">{copy.feed.fromFriends}</h2>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {friends.map((g, i) => (
-              <div key={g.id} className="animate-rise" style={{ animationDelay: `${i * 40}ms` }}>
-                <GigCard gig={g} friend />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {list.length === 0 ? (
-        <EmptyState
-          title={cat ? copy.feed.emptyFiltered : copy.feed.empty}
-          action={<ButtonLink href="/gigs/new">{copy.feed.emptyCta}</ButtonLink>}
-        />
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((g, i) => (
-            <div key={g.id} className="animate-rise" style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}>
-              <GigCard gig={g} />
-            </div>
-          ))}
-        </div>
-      )}
-
+      <DiscoverFeed gigs={gigs ?? []} friendGigs={friendGigs ?? []} initial={initial} initialLoc={loc} />
       <p className="mt-8 text-center text-[0.8125rem] text-muted">{copy.feed.audienceNote}</p>
     </div>
   );
-}
-
-function CatIcon({ k }: { k: string }) {
-  const Icon = CATEGORY_ICON[k];
-  return Icon ? <Icon aria-hidden className="h-4 w-4" /> : null;
 }

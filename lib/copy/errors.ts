@@ -36,6 +36,7 @@ export const errorsCopy = {
     not_in_crew: "You're not in this gig.",
     invite_not_found: "This invite link doesn't work any more.",
     invite_used: "This invite has already been used. Each link only works once.",
+    private_gig: "This gig is private. You can only join with a personal link from the host.",
     nothing_reserved: "There are no held seats left.",
     checkin_closed: "Check-in is open from 30 minutes before the start.",
     residential: "That looks like a home address. Gigs must be at a public place, like a café, court, park or venue.",

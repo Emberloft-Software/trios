@@ -23,7 +23,7 @@ export default async function AdminGigsPage({ searchParams }: { searchParams: Pr
   const now = new Date().toISOString();
   let q = db
     .from("gigs")
-    .select("id, title, code, status, starts_at, capacity, claimed_count, reserved_slots, host_guests, age_min, age_max, gender_pref, host_id, place_label, activities(name, slug)")
+    .select("id, title, code, status, starts_at, capacity, claimed_count, reserved_slots, host_guests, is_private, age_min, age_max, gender_pref, host_id, place_label, activities(name, slug)")
     .limit(100);
   if (tab === "upcoming") q = q.in("status", ["open", "locked"]).gte("starts_at", now).order("starts_at");
   else if (tab === "past") q = q.in("status", ["completed", "expired"]).order("starts_at", { ascending: false });
@@ -58,7 +58,8 @@ export default async function AdminGigsPage({ searchParams }: { searchParams: Pr
                   </p>
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     <Badge tone="white">{g.claimed_count + g.reserved_slots}/{g.capacity}</Badge>
-                    {g.host_guests > 0 && <Badge tone="sun">{copy.guests.badge(g.host_guests)}</Badge>}
+                    {g.is_private && <Badge tone="plum">Private</Badge>}
+                    {g.host_guests > 0 && !g.is_private && <Badge tone="sun">{copy.guests.badge(g.host_guests)}</Badge>}
                     {g.gender_pref !== "everyone" && <Badge tone="plum">{g.gender_pref === "women" ? copy.audience.women : copy.audience.men}</Badge>}
                     <Badge tone="muted">{copy.audience.ages(g.age_min, g.age_max)}</Badge>
                     <Badge tone={g.status === "cancelled" ? "coral" : "white"}>{g.status}</Badge>
