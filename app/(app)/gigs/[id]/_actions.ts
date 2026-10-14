@@ -174,3 +174,10 @@ export async function redeemPerkAction(gigId: string, venueId: string): Promise<
   revalidatePath(`/gigs/${gigId}`);
   return { ok: true };
 }
+
+/** "I'm reading this chat": suppresses chat pushes for this gig for a bit. */
+export async function markChatSeenAction(gigId: string): Promise<void> {
+  if (!/^[0-9a-f-]{36}$/i.test(gigId)) return;
+  const supabase = await createClient();
+  await supabase.rpc("mark_chat_seen", { p_gig_id: gigId });
+}

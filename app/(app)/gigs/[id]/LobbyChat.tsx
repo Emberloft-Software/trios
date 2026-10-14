@@ -9,6 +9,7 @@ import { sendMessageAction } from "./_actions";
 import { MEMBERSHIP_EVENTS, mergeIncoming, type Msg } from "./chat-utils";
 import { ChatMessages } from "./ChatMessages";
 import { ChatComposer } from "./ChatComposer";
+import { useChatSeen } from "./useChatSeen";
 
 /**
  * Realtime group chat. Locked until every spot is filled (or the gig locks);
@@ -45,6 +46,7 @@ export function LobbyChat({
   const [unlockedLive, setUnlockedLive] = useState(false);
   const open = confirmed || unlockedLive;
   useRefreshOnReturn(refresh, 5000, !completed);
+  useChatSeen(gigId, open && !completed, messages[messages.length - 1]?.id);
 
   // While locked: listen for this gig's row changing (the last spot filling
   // sets chat_opened_at) and refresh; poll slowly as a fallback.

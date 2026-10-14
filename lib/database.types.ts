@@ -163,6 +163,69 @@ export type Database = {
           },
         ]
       }
+      chat_push_state: {
+        Row: {
+          first_pending_at: string | null
+          gig_id: string
+          last_pushed_at: string | null
+          last_seen_at: string | null
+          pending: number
+          user_id: string
+        }
+        Insert: {
+          first_pending_at?: string | null
+          gig_id: string
+          last_pushed_at?: string | null
+          last_seen_at?: string | null
+          pending?: number
+          user_id: string
+        }
+        Update: {
+          first_pending_at?: string | null
+          gig_id?: string
+          last_pushed_at?: string | null
+          last_seen_at?: string | null
+          pending?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_push_state_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "friend_hosted_gigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_push_state_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gig_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_push_state_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_push_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_push_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       checkins: {
         Row: {
           confirmer_id: string
@@ -1757,6 +1820,15 @@ export type Database = {
         Args: { p_gig_id: string; p_subject: string }
         Returns: undefined
       }
+      claim_chat_push_batch: {
+        Args: { p_limit?: number }
+        Returns: {
+          gig_id: string
+          gig_title: string
+          pending: number
+          user_id: string
+        }[]
+      }
       claim_push_batch: {
         Args: { p_limit?: number }
         Returns: {
@@ -2002,6 +2074,7 @@ export type Database = {
         Returns: undefined
       }
       lock_gigs_job: { Args: never; Returns: undefined }
+      mark_chat_seen: { Args: { p_gig_id: string }; Returns: undefined }
       mark_notifications_read: { Args: never; Returns: undefined }
       ping_push_dispatch: { Args: never; Returns: undefined }
       purge_old_chats_job: { Args: never; Returns: undefined }

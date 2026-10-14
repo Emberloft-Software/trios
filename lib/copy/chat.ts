@@ -1,6 +1,7 @@
 export const chatCopy = {
   chat: {
     heading: "Group chat",
+    pushNew: (n: number) => (n <= 1 ? "New message in the group chat" : `${n} new messages in the group chat`),
     lockedTitle: "Chat unlocks when the gig is on",
     beforeConfirm: (n: number) =>
       `Chat and everyone's photos unlock once every spot is filled: ${n === 1 ? "1 more person" : `${n} more people`} to go. If it doesn't fill, they unlock 2 hours before the start.`,

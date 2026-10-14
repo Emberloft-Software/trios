@@ -8,7 +8,7 @@ The hosted project is `swvbgmoljmvkvihxtakp` (ap-south-1). The direct `db.<ref>.
 psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmoljmvkvihxtakp dbname=postgres sslmode=require" -v ON_ERROR_STOP=1 -f supabase/migrations/00XX_name.sql
 ```
 
-`0001`–`0024` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
+`0001`–`0025` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
 
 ## First admin
 
@@ -25,6 +25,7 @@ psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmol
 Every row in `notification_outbox` is also pushed to the user's subscribed devices:
 
 1. An insert trigger calls `ping_push_dispatch()`, which uses `pg_net` to POST to `/api/push/dispatch` with a shared secret. A `push-sweep` cron job (every minute) re-pings while anything from the last 24h is unsent.
+   Chat messages (0025) count up in `chat_push_state` instead and ping the same route; they're claimed with `claim_chat_push_batch()` (skips people reading the chat, max one push per gig per 2 minutes).
 2. The route checks the secret, claims a batch with `claim_push_batch()` and sends via `web-push` (VAPID). Subscriptions that return 404/410 are deleted.
 
 Config:
