@@ -44,7 +44,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <ul className="space-y-1.5 text-muted">
               <li><Link href="/terms" className="hover:text-plum">Terms of Service</Link></li>
               <li><Link href="/privacy" className="hover:text-plum">Privacy Policy</Link></li>
-              <li><a href={`mailto:${brand.supportEmail}`} className="hover:text-plum">{brand.supportEmail}</a></li>
+              <li><a href={`mailto:${brand.email}`} className="hover:text-plum">{brand.email}</a></li>
             </ul>
           </div>
         </div>

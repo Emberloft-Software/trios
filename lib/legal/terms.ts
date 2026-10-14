@@ -144,7 +144,7 @@ export const terms: { intro: string; sections: LegalSection[] } = {
     {
       id: "contact",
       title: "15. Contact",
-      body: [`Questions about these Terms: ${brand.supportEmail}. Safety concerns: ${brand.safetyEmail}.`],
+      body: [`Questions about these Terms or safety concerns: ${brand.email}.`],
     },
   ],
 };

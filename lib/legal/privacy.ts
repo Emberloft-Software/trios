@@ -84,7 +84,7 @@ export const privacy: { intro: string; sections: LegalSection[] } = {
           "object to or restrict certain processing; and",
           "review a decision made about you.",
         ],
-        `Email ${brand.privacyEmail}. We'll respond within the time the law requires and may need to confirm your identity. If you're unhappy with our response you can complain to the Data Protection Authority of Sri Lanka.`,
+        `Email ${brand.email}. We'll respond within the time the law requires and may need to confirm your identity. If you're unhappy with our response you can complain to the Data Protection Authority of Sri Lanka.`,
       ],
     },
     {
@@ -114,7 +114,7 @@ export const privacy: { intro: string; sections: LegalSection[] } = {
     {
       id: "contact",
       title: "11. Contact",
-      body: [`Privacy questions or requests: ${brand.privacyEmail}. General support: ${brand.supportEmail}.`],
+      body: [`Privacy questions, requests and general support: ${brand.email}.`],
     },
   ],
 };
