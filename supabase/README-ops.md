@@ -8,7 +8,7 @@ The hosted project is `swvbgmoljmvkvihxtakp` (ap-south-1). The direct `db.<ref>.
 psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmoljmvkvihxtakp dbname=postgres sslmode=require" -v ON_ERROR_STOP=1 -f supabase/migrations/00XX_name.sql
 ```
 
-`0001`–`0023` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
+`0001`–`0024` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
 
 ## First admin
 
@@ -19,6 +19,24 @@ psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmol
 - **Confirm email is OFF** right now, so sign-ups get a session immediately. The app also handles it being ON (shows "check your email", `/auth/callback` finishes the link).
 - Supabase's built-in email sender is for testing only (a couple of emails an hour, and only to your own team's addresses), so **email confirmation and password-reset emails won't reach real users until you add custom SMTP** (Authentication → Emails → SMTP). Resend's free tier (3,000/month, 100/day) or Brevo (300/day) both work. After that you can switch "Confirm email" on.
 - Add your production URL to **URL Configuration** (Site URL + Redirect URLs: `https://<domain>/auth/callback`).
+
+## Push notifications (Web Push)
+
+Every row in `notification_outbox` is also pushed to the user's subscribed devices:
+
+1. An insert trigger calls `ping_push_dispatch()`, which uses `pg_net` to POST to `/api/push/dispatch` with a shared secret. A `push-sweep` cron job (every minute) re-pings while anything from the last 24h is unsent.
+2. The route checks the secret, claims a batch with `claim_push_batch()` and sends via `web-push` (VAPID). Subscriptions that return 404/410 are deleted.
+
+Config:
+
+- **Vercel env:** `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `PUSH_DISPATCH_SECRET`. The generated values are in the gitignored `push-keys.local.env`; copy them into `.env.local` for local use too. The public key is baked in at build time, so redeploy after setting it.
+- **Supabase Vault:** `push_dispatch_url` (currently `https://trios-smoky.vercel.app/api/push/dispatch`) and `push_dispatch_secret` (must equal `PUSH_DISPATCH_SECRET`). If the domain changes:
+  ```sql
+  update vault.secrets set secret = 'https://<domain>/api/push/dispatch' where name = 'push_dispatch_url';
+  ```
+  (use `vault.update_secret(id, new_secret)` if a direct update is refused).
+- Ping results land in `net._http_response` (status_code 401 means the secret doesn't match; 503 means the VAPID env is missing).
+- iPhones only get Web Push from the installed Home Screen app (iOS 16.4+). The Activity page explains this.
 
 ## Scheduled jobs
 

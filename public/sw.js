@@ -3,8 +3,10 @@
  * - Build assets (/_next/static) and brand images: cache-first (immutable).
  * - Never touches API routes, auth, Supabase, or non-GET requests, so sessions,
  *   uploads and realtime chat always go straight to the network.
+ * - Push: shows notifications sent by /api/push/dispatch; tapping one focuses
+ *   an open Tremigos window (or opens one) on the right page.
  */
-const VERSION = "tm-v1";
+const VERSION = "tm-v2";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const PRECACHE = [
@@ -70,3 +72,39 @@ self.addEventListener("fetch", (event) => {
     );
   }
 });
+
+// ── push notifications ───────────────────────────────────────────────────────
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data ? event.data.text() : "" };
+  }
+  const url = typeof data.url === "string" && data.url.startsWith("/") ? data.url : "/notifications";
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Tremigos", {
+      body: data.body || "There's an update in Tremigos.",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/badge-96.png",
+      tag: data.tag || undefined,
+      renotify: !!data.tag,
+      data: { url },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || "/notifications", self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (wins) => {
+      // reuse an open Tremigos window: move it to the page, then bring it forward
+      const win = wins.find((w) => new URL(w.url).origin === self.location.origin);
+      const moved = win ? await win.navigate(target).catch(() => null) : null;
+      if (moved) return moved.focus().catch(() => moved);
+      return self.clients.openWindow(target);
+    }),
+  );
+});
+

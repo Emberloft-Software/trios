@@ -8,6 +8,7 @@ import { Input, Label } from "@/components/ui/Field";
 import { Notice } from "@/components/ui/Notice";
 import { copy } from "@/lib/copy";
 import { deleteAccountAction, signOutAction } from "./_actions";
+import { disablePush } from "@/lib/push/client";
 
 export function AccountActions() {
   const [open, setOpen] = useState(false);
@@ -18,7 +19,10 @@ export function AccountActions() {
 
   return (
     <div className="flex flex-wrap gap-2">
-      <form action={() => startSignOut(() => signOutAction())}>
+      <form action={() => startSignOut(async () => {
+        await disablePush(); // stop pushes for this account on this device
+        await signOutAction();
+      })}>
         <Button type="submit" variant="secondary" loading={signingOut}>
           <LogOut className="h-4 w-4" /> {copy.nav.signOut}
         </Button>

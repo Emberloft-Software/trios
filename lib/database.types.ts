@@ -913,6 +913,7 @@ export type Database = {
           id: string
           kind: string
           payload: Json
+          pushed_at: string | null
           read_at: string | null
           sent_at: string | null
           user_id: string
@@ -923,6 +924,7 @@ export type Database = {
           id?: string
           kind: string
           payload?: Json
+          pushed_at?: string | null
           read_at?: string | null
           sent_at?: string | null
           user_id: string
@@ -933,6 +935,7 @@ export type Database = {
           id?: string
           kind?: string
           payload?: Json
+          pushed_at?: string | null
           read_at?: string | null
           sent_at?: string | null
           user_id?: string
@@ -1108,6 +1111,54 @@ export type Database = {
           verified_at?: string | null
         }
         Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reliability_events: {
         Row: {
@@ -1706,6 +1757,26 @@ export type Database = {
         Args: { p_gig_id: string; p_subject: string }
         Returns: undefined
       }
+      claim_push_batch: {
+        Args: { p_limit?: number }
+        Returns: {
+          created_at: string
+          gig_id: string | null
+          id: string
+          kind: string
+          payload: Json
+          pushed_at: string | null
+          read_at: string | null
+          sent_at: string | null
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "notification_outbox"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       claim_slot: {
         Args: { p_gig_id: string }
         Returns: {
@@ -1821,6 +1892,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      delete_push_subscription: {
+        Args: { p_endpoint: string }
+        Returns: undefined
+      }
       enqueue_notification: {
         Args: {
           p_gig: string
@@ -1928,7 +2003,9 @@ export type Database = {
       }
       lock_gigs_job: { Args: never; Returns: undefined }
       mark_notifications_read: { Args: never; Returns: undefined }
+      ping_push_dispatch: { Args: never; Returns: undefined }
       purge_old_chats_job: { Args: never; Returns: undefined }
+      push_sweep_job: { Args: never; Returns: undefined }
       recompute_bands_job: { Args: never; Returns: undefined }
       recompute_reliability_band: {
         Args: { p_user: string }
@@ -2012,6 +2089,15 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      save_push_subscription: {
+        Args: {
+          p_auth: string
+          p_endpoint: string
+          p_p256dh: string
+          p_user_agent?: string
+        }
+        Returns: undefined
       }
       send_friend_request: {
         Args: { p_gig_id: string; p_recipient: string }

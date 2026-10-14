@@ -55,6 +55,18 @@ export const appCopy = {
     title: "Activity",
     empty: "Nothing yet. Updates about your gigs will show up here.",
     markRead: "Mark all read",
+    fallback: "There's an update in Tremigos.",
+    push: {
+      title: "Push notifications",
+      offHint: "Get a ping on this device when your gig fills up, locks in, or a friend invites you.",
+      onHint: "On for this device. You'll get a ping when something happens with your gigs.",
+      turnOn: "Turn on",
+      turnOff: "Turn off",
+      denied: "Notifications are blocked for Tremigos in this browser's settings. Allow them there, then come back.",
+      unsupported: "This browser can't show push notifications.",
+      iosInstall: "On iPhone, add Tremigos to your Home Screen first (Share, then Add to Home Screen), then open it from there to turn on notifications.",
+      failed: "Couldn't turn on notifications. Try again in a moment.",
+    },
     kinds: {
       gig_confirmed: "Your gig is full and the group chat is open.",
       gig_locked: "Your gig is locked in. Check the details.",

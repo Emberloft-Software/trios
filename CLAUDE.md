@@ -15,7 +15,7 @@
 | Icons | `lucide-react` (icons only — still no component library) |
 | Backend | Supabase — Postgres, Auth (email+password), Storage, Realtime |
 | Face detection | `@mediapipe/tasks-vision` BlazeFace, on-device (model in `public/models`) |
-| PWA | `app/manifest.ts`, `public/sw.js`, `components/pwa/*` |
+| PWA | `app/manifest.ts`, `public/sw.js`, `components/pwa/*`; Web Push via `web-push` (VAPID) |
 | Dates | `date-fns` + `date-fns-tz`, app timezone `Asia/Colombo` |
 | Deploy | Vercel (HTTPS is required for the camera) |
 
@@ -52,6 +52,7 @@ Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + 
 - **Private gigs** (`gigs.is_private`): never in any feed (RLS + `gig_feed`), not claimable (`claim_slot` raises `private_gig`). Every non-host seat is held with its own single-use link; audience is forced to everyone/18+. Cancelling a link on a private gig issues a replacement instead of opening the seat.
 - **Discover filters** (category, area, closest first) run client-side in `app/(app)/feed/DiscoverFeed.tsx` over the RLS-filtered list and only rewrite the URL with `history.replaceState`. Same-route `router.push` with a full card list hung in production builds (transition never committed), so don't move these filters back to server navigations. Areas are fixed circles in `lib/geo.ts`; the viewer's location is opt-in, rounded to ~1 km, and kept in the `tm_loc` cookie (`lat_lng`), never in URLs or the DB.
 - **Chat AND photos unlock** only when every spot is filled by people who actually joined (`claimed_count >= capacity`), or when the gig locks 2h before start. Sticky via `gigs.chat_opened_at`. Photos are hidden structurally by `can_see_face()` inside `profiles_public` (self, admin, friends, or a shared unlocked gig). Lobbies listen to their `gigs` row over realtime to flip open instantly.
+- **Push notifications:** anything written to `notification_outbox` is pushed automatically (insert trigger → `pg_net` → `/api/push/dispatch` → `lib/push/dispatch.ts`). To notify someone, call `enqueue_notification()` and add text for the new kind in `lib/copy/app.ts` (`notifications.kinds`); links come from `lib/notifications.ts`. Payloads carry only generic text, the gig title and a same-site link; never chat content or other people's details. Devices subscribe from the Activity page (`PushToggle`), and sign-out unsubscribes this device. Setup is in `supabase/README-ops.md`.
 - Client warns before sending phone numbers/links in chat and labels received ones.
 - **Crew vote:** `cast_kick_vote` — majority of other claimed members, min 2 votes, host can't be voted out. Removal files a `crew_vote_removal` report for admins.
 - **Photos:** uploaded as pending after on-device face check; shown only after admin approval (`avatar_path` is only ever set on approval).
@@ -66,7 +67,7 @@ npm run build
 npm run gen:types      # regenerate lib/database.types.ts from the linked project
 ```
 
-Migrations (`0001`–`0023`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
+Migrations (`0001`–`0024`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
 
 ## Before you call any task done
 
