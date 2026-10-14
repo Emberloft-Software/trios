@@ -41,7 +41,7 @@ export function PartnerForm({
           value={text}
           onChange={(e) => setText(e.target.value)}
           maxLength={200}
-          placeholder="15% off for Tremigos crews of 3+"
+          placeholder="15% off for Trimegos crews of 3+"
           className="mt-2 w-full rounded-2xl ring-1 ring-line bg-white px-3 py-2 text-[0.875rem] outline-none"
         />
       )}

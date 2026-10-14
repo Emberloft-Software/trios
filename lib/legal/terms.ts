@@ -8,7 +8,7 @@ export const terms: { intro: string; sections: LegalSection[] } = {
   sections: [
     {
       id: "eligibility",
-      title: "1. Who can use Tremigos",
+      title: "1. Who can use Trimegos",
       body: [
         [
           "You must be at least 18 years old. We refuse sign-ups under 18 and remove accounts we believe belong to minors.",
@@ -21,7 +21,7 @@ export const terms: { intro: string; sections: LegalSection[] } = {
     },
     {
       id: "what",
-      title: "2. What Tremigos is (and isn't)",
+      title: "2. What Trimegos is (and isn't)",
       body: [
         `${N} is a tool that helps people find others for group activities ("gigs") in public places. We don't organise, host, supervise, attend, insure or vouch for any gig, venue or person. We are not a party to anything that happens between users, at a venue, or after you leave the Service.`,
         `${N} is not a dating service. Gigs need at least three people, there are no private messages, and using the Service to pursue romantic or sexual contact is against these Terms.`,
@@ -35,7 +35,7 @@ export const terms: { intro: string; sections: LegalSection[] } = {
         [
           "Only meet at the public venue listed for the gig, and arrange your own transport.",
           "Tell someone you trust where you're going and who with.",
-          "Don't share personal phone numbers, home addresses, financial details or social media handles in chat. Anything you share, and any contact you take off Tremigos, is entirely at your own risk.",
+          "Don't share personal phone numbers, home addresses, financial details or social media handles in chat. Anything you share, and any contact you take off Trimegos, is entirely at your own risk.",
           "Don't open links other users send you. We can't check where they lead, and opening them is at your own risk.",
           "Where a host says they are bringing friends, the group may include people who already know each other. Joining such a gig is at your own risk.",
           "Leave any situation that feels wrong. Leaving through “I didn't feel comfortable” never counts against you.",

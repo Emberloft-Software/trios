@@ -24,12 +24,12 @@ export const marketingCopy = {
       { title: "Your audience", body: "Hosts set the age range and audience. Gigs outside yours never show up." },
       { title: "Crew has a say", body: "If someone's out of line, the group can vote them out, and our team follows up." },
       { title: "Bring your friends", body: "Hold seats for people you know and share a private invite link to the group chat." },
-      { title: "Install it", body: "Add Tremigos to your home screen and it runs like a native app." },
+      { title: "Install it", body: "Add Trimegos to your home screen and it runs like a native app." },
     ],
     activitiesTitle: "Whatever you're into",
     safetyTitle: "Safety, without the theatre",
     safetyBody:
-      "We verify faces, not backgrounds, and we say so. Meet in public, keep chat on Tremigos, and leave whenever you want. The “I didn't feel comfortable” exit never counts against you.",
+      "We verify faces, not backgrounds, and we say so. Meet in public, keep chat on Trimegos, and leave whenever you want. The “I didn't feel comfortable” exit never counts against you.",
     safetyCta: "Read our safety approach",
     finalTitle: "Your next plan is three people away.",
     finalSub: "Free to join. 18+. Colombo first, the rest of Sri Lanka soon.",
@@ -62,7 +62,7 @@ export const marketingCopy = {
     meetingTips: [
       "Meet at the venue and sort your own transport.",
       "Tell someone where you're going and who with.",
-      "Keep chat on Tremigos. Don't hand out your number or follow outside links.",
+      "Keep chat on Trimegos. Don't hand out your number or follow outside links.",
       "If a host is bringing friends, the group may know each other. Factor that in.",
       "If it feels off, leave. Use “I didn't feel comfortable”. It never counts against you.",
     ],

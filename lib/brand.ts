@@ -2,8 +2,8 @@
  * Brand constants. The product name appears here and in lib/copy.ts only.
  */
 export const brand = {
-  name: "Tremigos",
-  shortName: "Tremigos",
+  name: "Trimegos",
+  shortName: "Trimegos",
   tagline: "Plans need people. Find your crew.",
   description:
     "Post a plan (futsal, coffee, a hike) and meet people in Sri Lanka who are up for the same thing. Groups of three or more, always in public.",
@@ -13,7 +13,7 @@ export const brand = {
   supportEmail: "hello@tremigos.app",
   safetyEmail: "safety@tremigos.app",
   privacyEmail: "privacy@tremigos.app",
-  legalEntity: "Tremigos",
+  legalEntity: "Trimegos",
   studio: "Emberloft",
   themeColor: "#ff3450",
 } as const;

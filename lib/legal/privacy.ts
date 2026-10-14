@@ -46,7 +46,7 @@ export const privacy: { intro: string; sections: LegalSection[] } = {
           "Service providers who process data for us under contract: Supabase (database, authentication, file storage and realtime chat, hosted in the Asia-Pacific (Mumbai) region), our web hosting provider, and Google Maps Platform (venue search and maps; we send it search text, not your identity).",
           "The face-detection software is downloaded from a public code CDN (jsDelivr) but runs entirely on your device; your photos and video are not sent to it.",
           "Authorities: when required by law, or where we believe disclosure is necessary to prevent serious harm.",
-          "A successor: if Tremigos is merged or sold, subject to this policy.",
+          "A successor: if Trimegos is merged or sold, subject to this policy.",
         ],
       ],
     },

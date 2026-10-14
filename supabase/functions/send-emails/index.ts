@@ -51,10 +51,10 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: Deno.env.get("EMAIL_FROM") ?? "Tremigos <hello@tremigos.app>",
+          from: Deno.env.get("EMAIL_FROM") ?? "Trimegos <hello@tremigos.app>",
           to: email,
-          subject: SUBJECTS[n.kind] ?? "Tremigos",
-          text: `Open Tremigos to see the details.`,
+          subject: SUBJECTS[n.kind] ?? "Trimegos",
+          text: `Open Trimegos to see the details.`,
         }),
       });
     }

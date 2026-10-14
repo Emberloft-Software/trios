@@ -1,4 +1,4 @@
-# Tremigos
+# Trimegos
 
 **Plans need people. Find your crew.** A group-meetup web app and installable PWA for Sri Lanka: post a gig (futsal, coffee, a hike, quiz night), people nearby claim the spots, you meet up — in groups of three or more, always somewhere public. Deliberately **not** a dating app.
 

@@ -1,4 +1,4 @@
-# Tremigos — database & ops notes
+# Trimegos — database & ops notes
 
 ## Applying migrations
 

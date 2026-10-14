@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { brand } from "@/lib/brand";
 import { getSiteURL } from "@/lib/site-url";
 import { ServiceWorker } from "@/components/pwa/ServiceWorker";
+import { RenameBanner } from "@/components/app/RenameBanner";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <span style={{ width: 460, height: 460, bottom: -140, left: -140, background: "#ffba30", opacity: 0.28 }} />
           <span style={{ width: 380, height: 380, top: "40%", left: "55%", background: "#6f3f8f", opacity: 0.12 }} />
         </div>
+        <RenameBanner />
         {children}
         <ServiceWorker />
       </body>

@@ -44,7 +44,7 @@ export const verificationCopy = {
     } as Record<string, string>,
     readCodeNow: "Now read the number aloud",
     cameraBlocked: "Camera or microphone access is blocked. Allow it in your browser or phone settings, then try again.",
-    cameraIosHint: "On iPhone: Settings → Safari (or the Tremigos app) → Camera & Microphone → Allow.",
+    cameraIosHint: "On iPhone: Settings → Safari (or the Trimegos app) → Camera & Microphone → Allow.",
     insecure: "The camera only works over a secure (https) connection.",
     noCamera: "We couldn't find a front camera on this device.",
     tooLarge: "That recording is too big. Try again and keep it short.",

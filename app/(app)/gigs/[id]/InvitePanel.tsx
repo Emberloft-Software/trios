@@ -20,7 +20,7 @@ export interface GuestInvite {
 /**
  * Host-only. One single-use link per guest the host said they're bringing —
  * each link seats exactly one person, once. Only rendered when the host
- * declared guests (or has Tremigos friends to nudge).
+ * declared guests (or has Trimegos friends to nudge).
  */
 export function InvitePanel({
   gigId,

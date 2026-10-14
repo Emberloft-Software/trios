@@ -94,7 +94,7 @@ export async function loadLobby(supabase: Supa, g: LoadedGig, me: string) {
     revoked: !!i.revoked_at,
   }));
 
-  // Tremigos friends not already in the crew, for in-app nudges
+  // Trimegos friends not already in the crew, for in-app nudges
   let friends: { id: string; name: string }[] = [];
   const fids = (friendships.data ?? []).map((x) => (x.user_a === me ? x.user_b : x.user_a)).filter((f) => !allIds.includes(f));
   if (fids.length) {

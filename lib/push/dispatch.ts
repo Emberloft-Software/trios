@@ -59,7 +59,7 @@ export async function dispatchPendingPushes(limit = 100): Promise<DispatchResult
   const pushes: Push[] = [
     ...rows.map((n) => ({
       userId: n.user_id,
-      title: (n.gig_id && titleOf.get(n.gig_id)) || "Tremigos",
+      title: (n.gig_id && titleOf.get(n.gig_id)) || "Trimegos",
       body: notificationText(n.kind),
       url: notificationHref(n.kind, n.gig_id),
       tag: `${n.kind}:${n.gig_id ?? n.id}`,

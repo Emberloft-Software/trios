@@ -1,6 +1,6 @@
-# CLAUDE.md — Tremigos
+# CLAUDE.md — Trimegos
 
-**Tremigos** (formerly the "Trio" codename) is a group-meetup web app + installable PWA for Sri Lanka. People post a "gig" (futsal, coffee, a hike), others claim spots, they meet in real life. Minimum three humans, always, in public places. It is deliberately **not** a dating app.
+**Trimegos** (launched as "Tremigos", formerly the "Trio" codename; renamed October 2026, now at trimegos.com) is a group-meetup web app + installable PWA for Sri Lanka. People post a "gig" (futsal, coffee, a hike), others claim spots, they meet in real life. Minimum three humans, always, in public places. It is deliberately **not** a dating app.
 
 `docs/` holds the original Trio-era spec pack. It is background reading only — where it disagrees with this file or the code (branding, design system, glassmorphism ban, schema), **this file and the code win**.
 
