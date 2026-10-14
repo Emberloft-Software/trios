@@ -7,6 +7,7 @@
 
 ---
 
+
 ## Stack (fixed)
 
 | Layer | Choice |
