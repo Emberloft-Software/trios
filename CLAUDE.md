@@ -5,6 +5,7 @@
 `docs/` holds the original Trio-era spec pack. It is background reading only — where it disagrees with this file or the code (branding, design system, glassmorphism ban, schema), **this file and the code win**.
 
 
+
 ---
 
 
