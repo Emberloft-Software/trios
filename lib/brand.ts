@@ -10,9 +10,8 @@ export const brand = {
   city: "Colombo",
   country: "Sri Lanka",
   timezone: "Asia/Colombo",
-  supportEmail: "hello@tremigos.app",
-  safetyEmail: "safety@tremigos.app",
-  privacyEmail: "privacy@tremigos.app",
+  /** The only contact address: support, safety and privacy all go here. */
+  email: "emberloft.software@gmail.com",
   legalEntity: "Trimegos",
   studio: "Emberloft",
   themeColor: "#ff3450",
