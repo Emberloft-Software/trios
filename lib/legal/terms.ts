@@ -88,6 +88,7 @@ export const terms: { intro: string; sections: LegalSection[] } = {
       title: "7. Reports, crew votes and moderation",
       body: [
         "You can report anyone at any time; reports go only to our team. Once a gig's group chat is open, its members can vote to remove someone for bad behaviour. If a majority of the other members agree, that person is removed from the gig and our team reviews what happened.",
+        "Group chat messages are automatically screened for abusive, sexual, threatening, drug-related and fraudulent content. Flagged messages are reviewed by a person, who may remove them.",
         "We may, at our discretion and without notice where safety requires it, warn you, limit what you can do, remove content, remove you from a gig, suspend or permanently ban your account. We can also act on behaviour that happens off the Service if it affects the safety of our users. You can appeal any action by emailing us.",
       ],
     },

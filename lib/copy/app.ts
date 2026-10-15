@@ -89,6 +89,8 @@ export const appCopy = {
       friend_invite: "A friend invited you to their gig.",
       moderation_action: "There's an update about your account. Check your email.",
       admin_priority_report: "Priority report waiting for review.",
+      chat_flagged: "A group chat message was flagged for review.",
+      removed_by_admin: "A moderator removed you from a gig for breaking the community rules.",
     } as Record<string, string>,
   },
   safetyReminder:

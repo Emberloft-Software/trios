@@ -10,6 +10,7 @@ import { verificationCopy } from "./verification";
 import { errorsCopy } from "./errors";
 import { marketingCopy } from "./marketing";
 import { discoverCopy } from "./discover";
+import { conductCopy } from "./conduct";
 
 export const copy = {
   ...appCopy,
@@ -20,6 +21,7 @@ export const copy = {
   ...errorsCopy,
   ...marketingCopy,
   ...discoverCopy,
+  ...conductCopy,
 } as const;
 /** Map a thrown Postgres exception message to friendly copy. */
 export function errorCopy(code: string | undefined | null): string {

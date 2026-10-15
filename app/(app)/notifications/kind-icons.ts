@@ -26,6 +26,8 @@ const ICONS: Record<string, LucideIcon> = {
   friend_invite: UserPlus,
   moderation_action: ShieldAlert,
   admin_priority_report: ShieldAlert,
+  chat_flagged: ShieldAlert,
+  removed_by_admin: UserMinus,
 };
 
 export function iconForKind(kind: string): LucideIcon {

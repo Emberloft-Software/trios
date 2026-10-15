@@ -35,7 +35,8 @@ export function ChatMessages({
         const mine = m.user_id === currentUserId;
         const prev = messages[i - 1];
         const startsRun = !prev || prev.system_kind != null || prev.user_id !== m.user_id;
-        const f = flagsFor(m.body);
+        const removed = !!m.deleted_at;
+        const f = removed ? { phone: false, link: false } : flagsFor(m.body);
         return (
           <div key={m.id} className={`flex items-end gap-2 ${mine ? "flex-row-reverse" : ""} ${startsRun ? "mt-3" : ""}`}>
             {!mine && (
@@ -48,9 +49,9 @@ export function ChatMessages({
               <div
                 className={`whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-[0.9375rem] leading-snug ${
                   mine ? "rounded-br-md bg-coral text-white" : "rounded-bl-md bg-white text-ink ring-1 ring-line"
-                } ${m.id.startsWith("tmp-") ? "opacity-70" : ""}`}
+                } ${m.id.startsWith("tmp-") ? "opacity-70" : ""} ${removed ? "italic opacity-60" : ""}`}
               >
-                {m.body}
+                {removed ? copy.chat.removedMessage : m.body}
               </div>
               {(f.phone || f.link) && (
                 <span className="mt-1 inline-flex items-center gap-1 text-[0.6875rem] font-semibold text-[#8a5a00]">

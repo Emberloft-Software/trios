@@ -9,6 +9,7 @@ import {
   Handshake,
   ImageIcon,
   LayoutDashboard,
+  MessageSquareWarning,
   MapPin,
   ScanFace,
   TriangleAlert,
@@ -21,6 +22,7 @@ const LINKS = [
   { href: "/admin/verifications", label: "Face verification", icon: ScanFace, count: "verifications" },
   { href: "/admin/photos", label: "Profile photos", icon: ImageIcon, count: "photos" },
   { href: "/admin/reports", label: "Reports", icon: Flag, count: "reports" },
+  { href: "/admin/chat", label: "Chat flags", icon: MessageSquareWarning, count: "chat" },
   { href: "/admin/flags", label: "Red flags", icon: TriangleAlert },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/gigs", label: "Gigs", icon: CalendarDays },
@@ -28,7 +30,7 @@ const LINKS = [
   { href: "/admin/partners", label: "Partners", icon: Handshake },
 ] as const;
 
-export function AdminNav({ counts }: { counts: Record<"verifications" | "photos" | "reports", number> }) {
+export function AdminNav({ counts }: { counts: Record<"verifications" | "photos" | "reports" | "chat", number> }) {
   const path = usePathname();
   const active = (href: string, exact?: boolean) => (exact ? path === href : path === href || path.startsWith(`${href}/`));
 

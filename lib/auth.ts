@@ -18,7 +18,7 @@ export const getViewer = cache(async () => {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "id, handle, display_name, bio, birth_date, gender, city, interests, avatar_path, avatar_pending_path, avatar_status, avatar_reject_reason, verification_status, reliability_band, is_admin, suspended_until, created_at",
+      "id, handle, display_name, bio, birth_date, gender, city, interests, avatar_path, avatar_pending_path, avatar_status, avatar_reject_reason, verification_status, reliability_band, is_admin, suspended_until, aup_accepted_at, created_at",
     )
     .eq("id", user.id)
     .maybeSingle();

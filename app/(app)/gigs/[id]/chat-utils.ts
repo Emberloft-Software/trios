@@ -4,6 +4,7 @@ export interface Msg {
   body: string;
   system_kind: string | null;
   created_at: string;
+  deleted_at?: string | null;
 }
 
 // A run of digits/separators counts as a phone number once it holds 9+ digits
@@ -17,7 +18,7 @@ export function flagsFor(body: string) {
 }
 
 /** System messages that change who's in the gig → refresh the page data. */
-export const MEMBERSHIP_EVENTS = ["left", "removed", "vote_removed", "locked", "cancelled", "guest_joined", "confirmed"];
+export const MEMBERSHIP_EVENTS = ["left", "removed", "vote_removed", "admin_removed", "locked", "cancelled", "guest_joined", "confirmed"];
 
 /** Merge a realtime insert, replacing our own optimistic placeholder. */
 export function mergeIncoming(list: Msg[], incoming: Msg): Msg[] {

@@ -71,7 +71,7 @@ export function LobbyChat({
     let live = true;
     supabase
       .from("gig_messages")
-      .select("id, user_id, body, system_kind, created_at")
+      .select("id, user_id, body, system_kind, created_at, deleted_at")
       .eq("gig_id", gigId)
       .order("created_at", { ascending: false })
       .limit(300) // newest 300, shown oldest-first
@@ -83,6 +83,11 @@ export function LobbyChat({
         const incoming = payload.new as Msg;
         setMessages((m) => mergeIncoming(m, incoming));
         if (incoming.system_kind && MEMBERSHIP_EVENTS.includes(incoming.system_kind)) refresh();
+      })
+      // moderators removing a message
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "gig_messages", filter: `gig_id=eq.${gigId}` }, (payload) => {
+        const upd = payload.new as Msg;
+        setMessages((m) => m.map((x) => (x.id === upd.id ? { ...x, ...upd } : x)));
       })
       .subscribe();
     return () => {

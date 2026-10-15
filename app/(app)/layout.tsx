@@ -3,6 +3,7 @@ import { getViewer } from "@/lib/auth";
 import { publicAvatarUrl } from "@/lib/avatar";
 import { AppNav } from "@/components/app/AppNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { AcceptableUseGate } from "@/components/app/AcceptableUseGate";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { supabase, user, profile } = await getViewer();
@@ -25,7 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         unread={unread ?? 0}
       />
       <main className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6 md:pt-8">{children}</main>
-      <InstallPrompt />
+      {profile.aup_accepted_at ? <InstallPrompt /> : <AcceptableUseGate />}
     </div>
   );
 }

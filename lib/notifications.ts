@@ -6,6 +6,7 @@ export function notificationHref(kind: string, gigId: string | null): string {
   if (kind.startsWith("friend_")) return "/me/friends";
   if (kind.startsWith("verification_") || kind.startsWith("photo_")) return "/me";
   if (kind === "admin_priority_report") return "/admin/reports";
+  if (kind === "chat_flagged") return "/admin/chat";
   if (gigId) return `/gigs/${gigId}`;
   return "/me";
 }

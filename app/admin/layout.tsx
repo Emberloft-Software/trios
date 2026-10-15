@@ -14,15 +14,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!profile?.is_admin) notFound();
 
   const admin = createAdminClient();
-  const [v, p, r] = await Promise.all([
+  const [v, p, r, c] = await Promise.all([
     admin.from("verification_requests").select("id", { count: "exact", head: true }).eq("status", "pending").not("media_path", "is", null),
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("avatar_status", "pending"),
     admin.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
+    admin.from("chat_flags").select("id", { count: "exact", head: true }).eq("status", "open"),
   ]);
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[250px_1fr]">
-      <AdminNav counts={{ verifications: v.count ?? 0, photos: p.count ?? 0, reports: r.count ?? 0 }} />
+      <AdminNav counts={{ verifications: v.count ?? 0, photos: p.count ?? 0, reports: r.count ?? 0, chat: c.count ?? 0 }} />
       <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">{children}</main>
     </div>
   );

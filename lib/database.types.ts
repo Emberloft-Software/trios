@@ -163,6 +163,111 @@ export type Database = {
           },
         ]
       }
+      chat_flags: {
+        Row: {
+          action: string | null
+          body: string
+          categories: string[]
+          created_at: string
+          gig_id: string
+          id: string
+          matched: string[]
+          message_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          severity: number
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          body: string
+          categories: string[]
+          created_at?: string
+          gig_id: string
+          id?: string
+          matched: string[]
+          message_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity: number
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          body?: string
+          categories?: string[]
+          created_at?: string
+          gig_id?: string
+          id?: string
+          matched?: string[]
+          message_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: number
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_flags_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "friend_hosted_gigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_flags_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gig_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_flags_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_flags_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "gig_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_flags_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_flags_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_push_state: {
         Row: {
           first_pending_at: string | null
@@ -652,6 +757,8 @@ export type Database = {
         Row: {
           body: string
           created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
           gig_id: string
           id: string
           system_kind: string | null
@@ -660,6 +767,8 @@ export type Database = {
         Insert: {
           body: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           gig_id: string
           id?: string
           system_kind?: string | null
@@ -668,12 +777,28 @@ export type Database = {
         Update: {
           body?: string
           created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           gig_id?: string
           id?: string
           system_kind?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "gig_messages_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gig_messages_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "gig_messages_gig_id_fkey"
             columns: ["gig_id"]
@@ -969,6 +1094,24 @@ export type Database = {
           },
         ]
       }
+      moderation_terms: {
+        Row: {
+          category: string
+          severity: number
+          term: string
+        }
+        Insert: {
+          category: string
+          severity?: number
+          term: string
+        }
+        Update: {
+          category?: string
+          severity?: number
+          term?: string
+        }
+        Relationships: []
+      }
       notification_outbox: {
         Row: {
           created_at: string
@@ -1097,6 +1240,7 @@ export type Database = {
       profiles: {
         Row: {
           accepted_terms_at: string | null
+          aup_accepted_at: string | null
           avatar_face_score: number | null
           avatar_faces_found: number | null
           avatar_path: string | null
@@ -1123,6 +1267,7 @@ export type Database = {
         }
         Insert: {
           accepted_terms_at?: string | null
+          aup_accepted_at?: string | null
           avatar_face_score?: number | null
           avatar_faces_found?: number | null
           avatar_path?: string | null
@@ -1149,6 +1294,7 @@ export type Database = {
         }
         Update: {
           accepted_terms_at?: string | null
+          aup_accepted_at?: string | null
           avatar_face_score?: number | null
           avatar_faces_found?: number | null
           avatar_path?: string | null
@@ -1725,6 +1871,7 @@ export type Database = {
         Args: { p_user: string }
         Returns: {
           accepted_terms_at: string | null
+          aup_accepted_at: string | null
           avatar_face_score: number | null
           avatar_faces_found: number | null
           avatar_path: string | null
@@ -1787,6 +1934,7 @@ export type Database = {
         Args: { p_gig_id: string; p_was_confirmed: boolean }
         Returns: undefined
       }
+      accept_acceptable_use: { Args: never; Returns: undefined }
       accept_friend_request: {
         Args: { p_request_id: string }
         Returns: {
@@ -1801,6 +1949,19 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      admin_delete_message: {
+        Args: { p_admin: string; p_message_id: string }
+        Returns: undefined
+      }
+      admin_remove_crew_member: {
+        Args: {
+          p_admin: string
+          p_gig_id: string
+          p_reason: string
+          p_target: string
+        }
+        Returns: undefined
       }
       age_years: { Args: { p_birth: string }; Returns: number }
       am_gig_crew: { Args: { p_gig_id: string }; Returns: boolean }
@@ -1877,6 +2038,7 @@ export type Database = {
         }
         Returns: {
           accepted_terms_at: string | null
+          aup_accepted_at: string | null
           avatar_face_score: number | null
           avatar_faces_found: number | null
           avatar_path: string | null
@@ -2076,6 +2238,15 @@ export type Database = {
       lock_gigs_job: { Args: never; Returns: undefined }
       mark_chat_seen: { Args: { p_gig_id: string }; Returns: undefined }
       mark_notifications_read: { Args: never; Returns: undefined }
+      mod_matches: {
+        Args: { p_body: string }
+        Returns: {
+          category: string
+          severity: number
+          term: string
+        }[]
+      }
+      mod_normalize: { Args: { p: string }; Returns: string }
       ping_push_dispatch: { Args: never; Returns: undefined }
       purge_old_chats_job: { Args: never; Returns: undefined }
       push_sweep_job: { Args: never; Returns: undefined }

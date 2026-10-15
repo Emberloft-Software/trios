@@ -30,6 +30,7 @@ export const privacy: { intro: string; sections: LegalSection[] } = {
         [
           "To provide the Service: create your account, show you gigs whose age range and audience include you, run group chats, handle invites (performance of our contract with you).",
           "To keep people safe: review photos, verify liveness, investigate reports and crew votes, prevent fraud and abuse, enforce our Terms (our legitimate interests and your consent where required).",
+          "Chat safety screening: group chat messages are automatically checked against a list of abusive, sexual, threatening, drug-related and scam terms. Matching messages are kept for our moderators to review and may be removed; nothing is decided by the automated check alone (our legitimate interests in keeping users safe).",
           "Verification videos and photo review: only with your consent, which you give by starting the process. You can withdraw it at any time.",
           "To send service messages: gig updates and account notices (performance of contract).",
           "To meet legal obligations and respond to lawful requests from authorities.",

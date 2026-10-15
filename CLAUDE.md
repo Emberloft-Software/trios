@@ -56,6 +56,9 @@ Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + 
 - **Chat AND photos unlock** only when every spot is filled by people who actually joined (`claimed_count >= capacity`), or when the gig locks 2h before start. Sticky via `gigs.chat_opened_at`. Photos are hidden structurally by `can_see_face()` inside `profiles_public` (self, admin, friends, or a shared unlocked gig). Lobbies listen to their `gigs` row over realtime to flip open instantly.
 - **Push notifications:** anything written to `notification_outbox` is pushed automatically (insert trigger → `pg_net` → `/api/push/dispatch` → `lib/push/dispatch.ts`). To notify someone, call `enqueue_notification()` and add text for the new kind in `lib/copy/app.ts` (`notifications.kinds`); links come from `lib/notifications.ts`. Payloads carry only generic text, the gig title and a same-site link; never chat content or other people's details. Devices subscribe from the Activity page (`PushToggle`), and sign-out unsubscribes this device. **Chat messages** don't use the outbox: a `gig_messages` trigger bumps `chat_push_state.pending` for other members with push on, and the dispatcher sends one collapsed "N new messages" push per gig (tag `chat:<gig>`), skipping anyone whose open lobby pinged `mark_chat_seen` in the last 45s (`useChatSeen`) and throttling to one per gig per 2 minutes. Setup is in `supabase/README-ops.md`.
 - Client warns before sending phone numbers/links in chat and labels received ones.
+- **Chat moderation:** every human chat message is matched against `moderation_terms` (`mod_matches()`: normalises case, character swaps, stretched and spelled-out letters). Matches are never blocked; they go to `chat_flags` and admins get a `chat_flagged` notification (max one per gig per 10 minutes). Admins review at `/admin/chat` and can remove the message (soft delete via `deleted_at`, shown live in chat as "removed by a moderator"), remove the sender from the gig (`admin_remove_crew_member`), or dismiss. Add words with a plain insert into `moderation_terms` (lowercase letters and spaces only). Disclosed in Terms §7 and the Privacy Policy.
+- **Acceptable-use agreement:** `AcceptableUseGate` blocks the app until the account accepts (`profiles.aup_accepted_at`, via `accept_acceptable_use()`); text in `lib/copy/conduct.ts`.
+- **Wording:** "photos unlock" means *profile photos become visible*. There is no image sharing in chat; keep copy explicit about that.
 - **Crew vote:** `cast_kick_vote` — majority of other claimed members, min 2 votes, host can't be voted out. Removal files a `crew_vote_removal` report for admins.
 - **Photos:** uploaded as pending after on-device face check; shown only after admin approval (`avatar_path` is only ever set on approval).
 - **Age/gender** are write-once for users (`complete_profile`), editable by admins with an audit row.
@@ -69,7 +72,7 @@ npm run build
 npm run gen:types      # regenerate lib/database.types.ts from the linked project
 ```
 
-Migrations (`0001`–`0025`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
+Migrations (`0001`–`0028`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
 
 ## Before you call any task done
 
