@@ -16,7 +16,7 @@ psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmol
 
 ## Auth settings (Supabase dashboard → Authentication)
 
-- **URL Configuration:** Site URL `https://trimegos.vercel.app` (or trimegos.com once live). Redirect URLs must include every domain the app is served from, e.g. `https://trimegos.vercel.app/**`, `https://trimegos.com/**`, `https://www.trimegos.com/**`, `http://localhost:3000/**`. A link pointing anywhere not listed is silently replaced with the Site URL.
+- **URL Configuration:** Site URL `https://www.trimegos.com` (the address people actually use; the bare domain forwards to www). Redirect URLs must include every domain the app is served from, e.g. `https://trimegos.vercel.app/**`, `https://trimegos.com/**`, `https://www.trimegos.com/**`, `http://localhost:3000/**`. A link pointing anywhere not listed is silently replaced with the Site URL.
 - **Multi-Factor → TOTP (authenticator app): enabled.** Admins can't open `/admin` without it. Lost phone: another admin (or SQL) can remove the factor with `delete from auth.mfa_factors where user_id = '<id>';`, then that admin enrols again on next visit.
 - **Reset email template (optional, recommended):** set the "Reset password" link to `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery` so the link works even when opened in a different browser or device than the one that requested it (the default link only works in the same browser).
 
