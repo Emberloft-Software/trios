@@ -8,13 +8,17 @@ The hosted project is `swvbgmoljmvkvihxtakp` (ap-south-1). The direct `db.<ref>.
 psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmoljmvkvihxtakp dbname=postgres sslmode=require" -v ON_ERROR_STOP=1 -f supabase/migrations/00XX_name.sql
 ```
 
-`0001`–`0028` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
+`0001`–`0029` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
 
 ## First admin
 
 `seed.sql` puts emails in `admin_allowlist`; anyone signing up with one of those emails becomes an admin automatically. To add another admin later, use **Admin → Users → (person) → Make admin**, or insert into `admin_allowlist` before they sign up.
 
 ## Auth settings (Supabase dashboard → Authentication)
+
+- **URL Configuration:** Site URL `https://trimegos.vercel.app` (or trimegos.com once live). Redirect URLs must include every domain the app is served from, e.g. `https://trimegos.vercel.app/**`, `https://trimegos.com/**`, `https://www.trimegos.com/**`, `http://localhost:3000/**`. A link pointing anywhere not listed is silently replaced with the Site URL.
+- **Multi-Factor → TOTP (authenticator app): enabled.** Admins can't open `/admin` without it. Lost phone: another admin (or SQL) can remove the factor with `delete from auth.mfa_factors where user_id = '<id>';`, then that admin enrols again on next visit.
+- **Reset email template (optional, recommended):** set the "Reset password" link to `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery` so the link works even when opened in a different browser or device than the one that requested it (the default link only works in the same browser).
 
 - **Confirm email is OFF** right now, so sign-ups get a session immediately. The app also handles it being ON (shows "check your email", `/auth/callback` finishes the link).
 - Supabase's built-in email sender is for testing only (a couple of emails an hour, and only to your own team's addresses), so **email confirmation and password-reset emails won't reach real users until you add custom SMTP** (Authentication → Emails → SMTP). Resend's free tier (3,000/month, 100/day) or Brevo (300/day) both work. After that you can switch "Confirm email" on.

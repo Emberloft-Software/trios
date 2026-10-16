@@ -1184,6 +1184,30 @@ export type Database = {
           },
         ]
       }
+      password_reset_tickets: {
+        Row: {
+          created_at: string
+          expires_at: string
+          token_hash: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          token_hash: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          token_hash?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       perk_redemptions: {
         Row: {
           crew_size: number
@@ -2238,6 +2262,7 @@ export type Database = {
       lock_gigs_job: { Args: never; Returns: undefined }
       mark_chat_seen: { Args: { p_gig_id: string }; Returns: undefined }
       mark_notifications_read: { Args: never; Returns: undefined }
+      mod_join_singles: { Args: { p: string }; Returns: string }
       mod_matches: {
         Args: { p_body: string }
         Returns: {
@@ -2254,6 +2279,10 @@ export type Database = {
       recompute_reliability_band: {
         Args: { p_user: string }
         Returns: Database["public"]["Enums"]["reliability_band"]
+      }
+      redeem_password_reset_ticket: {
+        Args: { p_token_hash: string }
+        Returns: string
       }
       redeem_perk: {
         Args: { p_gig_id: string; p_venue_id: string }
@@ -2295,6 +2324,7 @@ export type Database = {
         Args: { p_gig_id: string; p_target: string }
         Returns: undefined
       }
+      revoke_all_sessions: { Args: { p_user: string }; Returns: undefined }
       revoke_guest_invite: {
         Args: { p_invite_id: string }
         Returns: {

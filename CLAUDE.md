@@ -34,7 +34,7 @@ Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + 
 
 1. **RLS on every table.** Base `profiles` is own-row only; other people are read through the `profiles_public` view. New tables need policies.
 2. **Service role key never reaches the browser.** Only `lib/supabase/admin.ts` (server-only), route handlers, server actions after an admin check.
-3. **Every admin action re-checks admin server-side** (`adminContext()` in `app/admin/_lib.ts`, `requireAdminId()` in `lib/auth.ts`).
+3. **Every admin action re-checks admin server-side** (`adminContext()` in `app/admin/_lib.ts`, `requireAdminId()` in `lib/auth.ts`). Admin also requires a two-factor session (`aal2`, authenticator app): `/admin` sends password-only sessions to `/admin-verify`, `requireAdminId()` refuses them, and `is_admin()` in SQL does too for the signed-in user. Never write a bespoke `is_admin` check; use `requireAdminId()`.
 4. **Capacity, audience filters, invite seats, votes are enforced in Postgres** (security-definer functions in `supabase/migrations/0002_functions.sql`), never only in the UI.
 5. **Verification media is private.** Uploads go through one-shot signed upload URLs; admins watch via 60-second signed URLs; media is purged 7 days after review.
 6. **Privileges are explicit.** `0003` revokes table/function access and grants back narrowly (column-level `update` grants on `profiles`/`gigs`). Any new function must be granted explicitly — nothing is callable by default.
@@ -58,6 +58,7 @@ Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + 
 - **Push notifications:** anything written to `notification_outbox` is pushed automatically (insert trigger → `pg_net` → `/api/push/dispatch` → `lib/push/dispatch.ts`). To notify someone, call `enqueue_notification()` and add text for the new kind in `lib/copy/app.ts` (`notifications.kinds`); links come from `lib/notifications.ts`. Payloads carry only generic text, the gig title and a same-site link; never chat content or other people's details. Devices subscribe from the Activity page (`PushToggle`), and sign-out unsubscribes this device. **Chat messages** don't use the outbox: a `gig_messages` trigger bumps `chat_push_state.pending` for other members with push on, and the dispatcher sends one collapsed "N new messages" push per gig (tag `chat:<gig>`), skipping anyone whose open lobby pinged `mark_chat_seen` in the last 45s (`useChatSeen`) and throttling to one per gig per 2 minutes. Setup is in `supabase/README-ops.md`.
 - Client warns before sending phone numbers/links in chat and labels received ones.
 - **Chat moderation:** every human chat message is matched against `moderation_terms` (`mod_matches()`: normalises case, character swaps, stretched and spelled-out letters). Matches are never blocked; they go to `chat_flags` and admins get a `chat_flagged` notification (max one per gig per 10 minutes). Admins review at `/admin/chat` and can remove the message (soft delete via `deleted_at`, shown live in chat as "removed by a moderator"), remove the sender from the gig (`admin_remove_crew_member`), or dismiss. Add words with a plain insert into `moderation_terms` (lowercase letters and spaces only). Disclosed in Terms §7 and the Privacy Policy.
+- **Password reset:** the email link lands on `/auth/reset`, which verifies it, signs that session straight out, and sets a single-use 15-minute `tm_reset` ticket cookie (only its SHA-256 is stored, `password_reset_tickets`). `/reset-password` only works with a valid ticket; saving sets the password via the service role and revokes every session (`revoke_all_sessions`). A reset link never logs anyone in. Email links are built from `requestOrigin()` (`lib/request-origin.ts`, allow-listed hosts), not a fixed URL.
 - **Acceptable-use agreement:** `AcceptableUseGate` blocks the app until the account accepts (`profiles.aup_accepted_at`, via `accept_acceptable_use()`); text in `lib/copy/conduct.ts`.
 - **Wording:** "photos unlock" means *profile photos become visible*. There is no image sharing in chat; keep copy explicit about that.
 - **Crew vote:** `cast_kick_vote` — majority of other claimed members, min 2 votes, host can't be voted out. Removal files a `crew_vote_removal` report for admins.
@@ -73,7 +74,7 @@ npm run build
 npm run gen:types      # regenerate lib/database.types.ts from the linked project
 ```
 
-Migrations (`0001`–`0028`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
+Migrations (`0001`–`0029`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
 
 ## Before you call any task done
 
