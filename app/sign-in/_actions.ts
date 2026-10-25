@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSiteURL } from "@/lib/site-url";
+import { requestOrigin } from "@/lib/request-origin";
 import { ageFrom } from "@/lib/time";
 
 export type AuthResult =
@@ -76,7 +76,7 @@ export async function signUpAction(input: unknown, next?: string): Promise<AuthR
     email: v.email,
     password: v.password,
     options: {
-      emailRedirectTo: `${getSiteURL()}/auth/callback?next=/feed`,
+      emailRedirectTo: `${await requestOrigin()}/auth/callback?next=/feed`,
       data: {
         display_name: v.name,
         handle: v.handle,
@@ -107,16 +107,8 @@ export async function requestPasswordResetAction(email: string): Promise<AuthRes
   if (!parsed.success) return { ok: false, error: "email_invalid" };
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
-    redirectTo: `${getSiteURL()}/auth/callback?next=/reset-password`,
+    redirectTo: `${await requestOrigin()}/auth/reset`,
   });
   if (error && mapAuthError(error.message) === "rate_limited") return { ok: false, error: "rate_limited" };
   return { ok: true }; // never reveal whether the account exists
-}
-
-export async function updatePasswordAction(password: string): Promise<AuthResult> {
-  if (password.length < 8) return { ok: false, error: "weak_password" };
-  const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password });
-  if (error) return { ok: false, error: mapAuthError(error.message) };
-  redirect("/feed");
 }

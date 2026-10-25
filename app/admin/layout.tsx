@@ -12,6 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { user, profile } = await getViewer();
   if (!user) redirect("/sign-in");
   if (!profile?.is_admin) notFound();
+  if (user.aal !== "aal2") redirect("/admin-verify"); // second factor first
 
   const admin = createAdminClient();
   const [v, p, r, c] = await Promise.all([

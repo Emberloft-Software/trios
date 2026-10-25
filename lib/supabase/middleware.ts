@@ -9,6 +9,16 @@ import type { Database } from "@/lib/database.types";
  * re-checks server-side — the layout guard is not authorisation).
  */
 export async function updateSession(request: NextRequest) {
+  // Supabase sends failed email links (expired, already used) back with
+  // ?error_code=... on whatever page it lands; show a proper explanation.
+  const linkError = request.nextUrl.searchParams.get("error_code");
+  if (linkError && !request.nextUrl.pathname.startsWith("/auth/")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/reset";
+    url.search = `?error_code=${encodeURIComponent(linkError.slice(0, 40))}`;
+    return NextResponse.redirect(url);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(

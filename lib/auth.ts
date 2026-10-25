@@ -13,7 +13,12 @@ export const getViewer = cache(async () => {
   const { data: claimsData } = await supabase.auth.getClaims();
   const sub = claimsData?.claims?.sub;
   if (!sub) return { supabase, user: null, profile: null } as const;
-  const user = { id: sub, email: (claimsData.claims.email as string | undefined) ?? null };
+  const user = {
+    id: sub,
+    email: (claimsData.claims.email as string | undefined) ?? null,
+    // "aal2" once a second factor (authenticator app) was verified this session
+    aal: (claimsData.claims.aal as string | undefined) ?? "aal1",
+  };
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -29,6 +34,7 @@ export const getViewer = cache(async () => {
 /** Server-side admin re-check for actions/route handlers. Returns the admin's id or null. */
 export async function requireAdminId(): Promise<string | null> {
   const { user, profile } = await getViewer();
-  if (!user || !profile?.is_admin) return null;
+  // Admin powers need an authenticator-app verified session, not just a password.
+  if (!user || !profile?.is_admin || user.aal !== "aal2") return null;
   return user.id;
 }

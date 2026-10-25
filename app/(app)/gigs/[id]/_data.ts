@@ -1,7 +1,7 @@
 import "server-only";
 import type { createClient } from "@/lib/supabase/server";
 import { firstName, publicAvatarUrl } from "@/lib/avatar";
-import { getSiteURL } from "@/lib/site-url";
+import { requestOrigin } from "@/lib/request-origin";
 import type { CrewRow } from "./CrewList";
 import type { GuestInvite } from "./InvitePanel";
 
@@ -85,10 +85,11 @@ export async function loadLobby(supabase: Supa, g: LoadedGig, me: string) {
     };
   });
 
+  const origin = await requestOrigin();
   const guestInvites: GuestInvite[] = (invites.data ?? []).map((i) => ({
     id: i.id,
     label: i.label,
-    url: `${getSiteURL()}/join/${i.code}`,
+    url: `${origin}/join/${i.code}`,
     usedBy: i.used_by ? names[i.used_by] ?? null : null,
     used: !!i.used_at,
     revoked: !!i.revoked_at,
