@@ -6,7 +6,9 @@
  * - Push: shows notifications sent by /api/push/dispatch; tapping one focuses
  *   an open Trimegos window (or opens one) on the right page.
  */
-const VERSION = "tm-v2";
+// Bump whenever anything in PRECACHE, /icons or /brand changes: those are cache-first,
+// so installed devices keep the old files until the cache name changes.
+const VERSION = "tm-v3";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const PRECACHE = [

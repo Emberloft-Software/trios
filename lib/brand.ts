@@ -11,9 +11,10 @@ export const brand = {
   country: "Sri Lanka",
   timezone: "Asia/Colombo",
   /** The only contact address: support, safety and privacy all go here. */
-  email: "emberloft.software@gmail.com",
+  email: "trimegos@gmail.com",
   legalEntity: "Trimegos",
   studio: "Emberloft",
+  studioUrl: "https://www.emberloft.studio/",
   themeColor: "#ff3450",
 } as const;
 
