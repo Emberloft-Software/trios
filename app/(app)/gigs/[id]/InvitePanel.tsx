@@ -55,7 +55,7 @@ function GuestLinks({ gigId, title, isPrivate, invites, highlight }: LinksProps)
   const v = copy.invite;
   const p = copy.privacy;
   return (
-    <section className={`glass rounded-[1.75rem] p-5 ${highlight ? "ring-2 ring-sun" : ""}`}>
+    <section className={`glass rounded-2xl p-5 ${highlight ? "ring-2 ring-sun" : ""}`}>
       <div className="mb-1 flex items-center gap-2">
         <Link2 className="h-5 w-5 text-plum" />
         <h2 className="text-[1.0625rem] font-bold">{isPrivate ? p.linksTitle : v.title}</h2>
@@ -151,7 +151,7 @@ function FriendNudges({ gigId, friends }: { gigId: string; friends: { id: string
   const [invited, setInvited] = useState<Set<string>>(new Set());
   const [busyId, setBusyId] = useState<string | null>(null);
   return (
-    <section className="glass rounded-[1.75rem] p-5">
+    <section className="glass rounded-2xl p-5">
       <p className="font-bold text-plum">{v.friendsFeature}</p>
       <p className="mb-3 text-[0.8125rem] text-muted">{v.friendsHint}</p>
       <ul className="space-y-1.5">

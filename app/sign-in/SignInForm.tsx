@@ -7,6 +7,7 @@ import { FieldError, Hint, Input, Label } from "@/components/ui/Field";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { ProfileBasics, type Gender } from "@/components/app/ProfileBasics";
 import { Notice } from "@/components/ui/Notice";
+import { GoogleButton } from "./GoogleButton";
 import { copy } from "@/lib/copy";
 import {
   checkHandleAction,
@@ -18,7 +19,7 @@ import {
 type Mode = "signin" | "signup" | "reset";
 
 
-export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: string; initialMode?: Mode }) {
+export function SignInForm({ next = "/feed", initialMode = "signup", google = false }: { next?: string; initialMode?: Mode; google?: boolean }) {
   const c = copy.auth;
   const [mode, setMode] = useState<Mode>(initialMode);
   const [pending, start] = useTransition();
@@ -85,7 +86,7 @@ export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: 
 
   if (notice) {
     return (
-      <div className="glass rounded-[1.75rem] p-7 text-center animate-rise">
+      <div className="glass rounded-2xl p-7 text-center animate-rise">
         <span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-mint-50 text-mint">
           <MailCheck className="h-7 w-7" />
         </span>
@@ -109,7 +110,8 @@ export function SignInForm({ next = "/feed", initialMode = "signup" }: { next?: 
         {mode === "signin" ? c.signInSub : mode === "reset" ? c.resetSub : c.signUpSub}
       </p>
 
-      <form onSubmit={submit} noValidate className="glass mt-6 space-y-4 rounded-[1.75rem] p-5 sm:p-6">
+      <form onSubmit={submit} noValidate className="glass mt-6 space-y-4 rounded-2xl p-5 sm:p-6">
+        {google && mode !== "reset" && <GoogleButton next={next} />}
         {isSignup && (
           <>
             <div className="grid gap-4 sm:grid-cols-2">

@@ -3,8 +3,9 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    Trimegos design system. Palette lifted straight from the logo:
    coral (the icon tile), sunshine (left amigo), plum (right amigo + wordmark),
-   cream (the white amigo). Surfaces are frosted glass floating over soft
-   colour blobs; primary actions are solid coral.
+   cream (the white amigo). Look: retro "desktop" windows. Surfaces are flat
+   paper cards with a solid plum outline and a hard offset shadow, sitting on
+   a cream desk with soft colour waves; labels and buttons use a mono accent.
    ──────────────────────────────────────────────────────────────────────────── */
 
 @theme {
@@ -24,19 +25,21 @@
   --color-cream: #fbf8f3;
   --color-ink: #24113a;
   --color-muted: #6e6280;
-  --color-line: rgba(54, 2, 83, 0.1);
+  --color-line: rgba(54, 2, 83, 0.16);
+  --color-paper: #fffdf8;
   --color-mint: #12a26b;
   --color-mint-50: #e7f7ef;
 
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   --radius-xl2: 1.25rem;
-  --radius-xl3: 1.75rem;
+  --radius-xl3: 1rem;
 
-  --shadow-soft: 0 1px 2px rgba(54, 2, 83, 0.04), 0 8px 24px rgba(54, 2, 83, 0.06);
-  --shadow-lift: 0 2px 4px rgba(54, 2, 83, 0.05), 0 18px 40px rgba(54, 2, 83, 0.12);
-  --shadow-coral: 0 8px 22px rgba(255, 52, 80, 0.32);
+  --shadow-soft: 4px 4px 0 var(--color-plum);
+  --shadow-lift: 6px 6px 0 var(--color-plum);
+  --shadow-coral: 3px 3px 0 var(--color-plum);
 
   --animate-float: float 9s ease-in-out infinite;
   --animate-rise: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -51,35 +54,36 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes pop {
-  0% { transform: scale(0); }
-  70% { transform: scale(1.12); }
-  100% { transform: scale(1); }
-}
+@keyframes pop { 0% { transform: scale(0); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
 @keyframes tm-bounce {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
   40% { transform: scale(1); opacity: 1; }
 }
-@keyframes rec-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
-}
+@keyframes rec-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
-/* ── Glass surfaces ───────────────────────────────────────────────────────── */
-/* Cards: translucent but NO backdrop-filter — blurring many scrolling cards is
-   the main source of tap/scroll jank on phones. Real blur is reserved for the
-   fixed chrome (nav bars, sheets) via glass-strong. */
+/* ── Surfaces (names kept from the glass era so every screen picks this up) ─ */
+/* glass: a "window" card. Paper, solid plum outline, hard offset shadow. */
 @utility glass {
-  background: rgba(255, 255, 255, 0.74);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, var(--shadow-soft);
+  background: var(--color-paper);
+  border: 2px solid var(--color-plum);
+  box-shadow: var(--shadow-soft);
 }
+/* glass-strong: fixed chrome (menubar, tab bar) and sheets. Opaque, outlined. */
 @utility glass-strong {
-  background: rgba(255, 255, 255, 0.82);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  backdrop-filter: blur(14px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, var(--shadow-soft);
+  background: var(--color-cream);
+  border: 2px solid var(--color-plum);
+}
+/* Window title bar: two "traffic light" dots + mono title. */
+@utility window-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--color-plum);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-plum);
 }
 @utility glass-dark {
   background: rgba(255, 255, 255, 0.08);
@@ -94,10 +98,17 @@
   color: transparent;
 }
 @utility bg-hero {
-  background:
-    radial-gradient(60% 80% at 85% 10%, rgba(255, 52, 80, 0.55), transparent 60%),
-    radial-gradient(50% 60% at 10% 90%, rgba(255, 186, 48, 0.35), transparent 60%),
-    linear-gradient(160deg, #2a0241 0%, #360253 45%, #4a0f6e 100%);
+  /* flat plum with a faint dot grid (retro screen), no gradients */
+  background-color: var(--color-plum);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 @utility tabular {
   font-variant-numeric: tabular-nums;
@@ -148,23 +159,17 @@ h1, h2, h3, h4 {
 }
 }
 
-/* Background colour field that the glass refracts. Fixed so it doesn't scroll. */
+/* Fixed "desk wallpaper": big soft waves in sun + coral tints. */
 .ambient {
   position: fixed;
   inset: 0;
   z-index: -1;
-  overflow: hidden;
   pointer-events: none;
-  background: var(--color-cream);
+  background-color: var(--color-cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C 260 40 420 260 720 180 S 1180 20 1440 110 L1440 300 C 1180 220 980 380 700 360 S 220 250 0 330 Z' fill='%23fff0cc'/%3E%3Cpath d='M0 640 C 300 560 520 760 820 690 S 1260 560 1440 620 L1440 820 C 1220 760 1020 900 760 870 S 260 760 0 830 Z' fill='%23ffe1e6'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
-.ambient {
-  background:
-    radial-gradient(40rem 40rem at 100% -10%, rgba(255, 52, 80, 0.16), transparent 60%),
-    radial-gradient(36rem 36rem at -10% 110%, rgba(255, 186, 48, 0.2), transparent 60%),
-    radial-gradient(30rem 30rem at 60% 50%, rgba(111, 63, 143, 0.07), transparent 60%),
-    var(--color-cream);
-}
-.ambient span { display: none; }
 
 /* ── Accessibility floor ──────────────────────────────────────────────────── */
 :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {

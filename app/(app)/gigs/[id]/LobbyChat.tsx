@@ -126,7 +126,7 @@ export function LobbyChat({
 
   if (!open) {
     return (
-      <section className="glass rounded-[1.75rem] p-5">
+      <section className="glass rounded-2xl p-5">
         <div className="flex items-center gap-2">
           <MessageCircle className="h-5 w-5 text-plum" />
           <h2 className="text-[1.0625rem] font-bold">{copy.chat.heading}</h2>
@@ -144,7 +144,7 @@ export function LobbyChat({
   }
 
   return (
-    <section className="glass flex flex-col overflow-hidden rounded-[1.75rem]">
+    <section className="glass flex flex-col overflow-hidden rounded-2xl">
       <div className="flex items-center gap-2 border-b border-line px-5 py-3.5">
         <MessageCircle className="h-5 w-5 text-plum" />
         <h2 className="text-[1.0625rem] font-bold">{copy.chat.heading}</h2>

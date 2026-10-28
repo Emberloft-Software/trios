@@ -29,7 +29,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
         <Search className="pointer-events-none absolute left-4 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-muted" />
         <Input name="q" defaultValue={q ?? ""} placeholder="Search by name or @handle" className="pl-11" />
       </form>
-      <ul className="glass divide-y divide-line overflow-hidden rounded-[1.5rem]">
+      <ul className="glass divide-y divide-line overflow-hidden rounded-2xl">
         {(users ?? []).length === 0 && <li className="p-5 text-[0.875rem] text-muted">No matches.</li>}
         {(users ?? []).map((u) => {
           const suspended = u.suspended_until && new Date(u.suspended_until) > new Date();

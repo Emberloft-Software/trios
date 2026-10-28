@@ -161,7 +161,7 @@ export function VerifyFlow() {
   if (phase === "done") return <DoneScreen />;
 
   return (
-    <div className="glass overflow-hidden rounded-[1.75rem]">
+    <div className="glass overflow-hidden rounded-2xl">
       <CaptureStage
         phase={phase}
         videoRef={videoRef}

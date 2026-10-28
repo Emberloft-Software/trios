@@ -1,10 +1,16 @@
 # Supabase local config. `supabase start` reads this.
+#
+# WARNING: do NOT run `supabase config push` against production. It overwrites
+# the live project's settings with this file, and piping "n" into it only
+# declines the first prompt (later sections can still be applied). Change
+# production settings in the dashboard. Values below mirror production as of
+# 2026-10-16 so an accidental push does as little damage as possible.
 project_id = "tremigos"
 
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "storage", "graphql_public"]
+schemas = ["public", "graphql_public"]   # production exposes only these
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
@@ -23,8 +29,10 @@ file_size_limit = "25MiB"
 
 [auth]
 enabled = true
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+# Must match production (Dashboard -> Authentication -> URL Configuration).
+# `supabase config push` would overwrite the live values with these.
+site_url = "https://www.trimegos.com"
+additional_redirect_urls = ["https://www.trimegos.com/**", "https://trimegos.com/**", "https://trimegos.vercel.app/**", "http://localhost:3000/**"]
 jwt_expiry = 3600
 enable_signup = true
 
@@ -33,6 +41,14 @@ enable_signup = true
 enable_signup = true
 enable_confirmations = false   # local dev: skip email confirm; ON in production
 double_confirm_changes = true
+max_frequency = "1m0s"   # min gap between auth emails to one address (production)
+otp_length = 8
 
 [edge_runtime]
 enabled = true
+
+# Admins sign in with an authenticator app (TOTP). Leave both on: turning
+# verification off locks every admin out of /admin.
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true

@@ -21,7 +21,7 @@ export function OnboardingForm({ next }: { next: string }) {
       <h1 className="text-[1.875rem] font-extrabold">{copy.onboarding.title}</h1>
       <p className="mt-1 text-[0.9375rem] text-muted">{copy.onboarding.sub}</p>
       <form
-        className="glass mt-6 space-y-5 rounded-[1.75rem] p-6"
+        className="glass mt-6 space-y-5 rounded-2xl p-6"
         onSubmit={(e) => {
           e.preventDefault();
           setError(null);

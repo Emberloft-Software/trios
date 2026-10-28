@@ -39,7 +39,7 @@ export function AdminNav({ counts }: { counts: Record<"verifications" | "photos"
       <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-[calc(0.75rem+var(--safe-top))] lg:block lg:px-5 lg:pt-6">
         <div className="flex items-center gap-2">
           <Logo href="/admin" tone="white" size="sm" />
-          <span className="rounded-full bg-sun px-2 py-0.5 text-[0.625rem] font-extrabold uppercase tracking-wider text-plum">Admin</span>
+          <span className="rounded-lg bg-sun px-2 py-0.5 text-[0.625rem] font-extrabold uppercase tracking-wider text-plum">Admin</span>
         </div>
         <Link href="/feed" className="inline-flex items-center gap-1 text-[0.8125rem] font-semibold text-white/70 hover:text-white lg:mt-4">
           <ArrowLeft className="h-4 w-4" /> Back to app
@@ -62,7 +62,7 @@ export function AdminNav({ counts }: { counts: Record<"verifications" | "photos"
               <Icon className="h-4.5 w-4.5" />
               <span className="whitespace-nowrap">{l.label}</span>
               {n > 0 && (
-                <span className={`ml-auto rounded-full px-2 py-0.5 text-[0.6875rem] font-bold ${on ? "bg-coral text-white" : "bg-coral text-white"}`}>{n}</span>
+                <span className={`ml-auto rounded-lg px-2 py-0.5 text-[0.6875rem] font-bold ${on ? "bg-coral text-white" : "bg-coral text-white"}`}>{n}</span>
               )}
             </Link>
           );

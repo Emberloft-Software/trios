@@ -24,7 +24,7 @@
 
 ## Design system
 
-Palette comes from the logo: coral `#FF3450` (primary), sunshine `#FFBA30`, plum `#360253` (text/dark surfaces), cream `#FBF8F3`. Font: Plus Jakarta Sans. Surfaces are frosted glass (`glass`, `glass-strong`, `glass-dark` utilities) floating over the fixed `.ambient` colour blobs in `app/layout.tsx`; hero/dark panels use `bg-hero`. Primitives live in `components/ui/` (Button, Card, Field, Badge, Avatar, Notice, Sheet, SlotStrip, Logo, EmptyState). Base element styles are inside `@layer base` so Tailwind utilities can override them — keep it that way.
+Palette comes from the logo: coral `#FF3450` (primary), sunshine `#FFBA30`, plum `#360253` (text/dark surfaces), cream `#FBF8F3`. Fonts: Plus Jakarta Sans (headings/body) + Space Mono accent (`font-mono`, `eyebrow` utility: labels, badges, buttons, nav). Look is retro "desktop windows": the `glass` utility is now a paper card with a 2px plum outline and a hard offset shadow (`--shadow-soft` = `4px 4px 0 plum`), `glass-strong` is opaque cream chrome, `window-bar` is a title bar, `bg-hero` is flat plum with a dot grid, `.ambient` is cream with soft sun/coral waves. Prefer `rounded-xl`/`rounded-2xl` and `rounded-lg` chips over pills (`rounded-full` only for avatars and dots). Landing page pieces live in `components/marketing/` (`Window`, `DesktopIcon`, `Hero`, `PhoneCollage`). The hero is a full-width split: plum text panel + the owner-supplied rooftop sunset illustration (`public/photos/rooftop-sunset.webp`, ~735px wide, so never stretch it past about half a desktop screen); keep marketing imagery real art, not mocked-up UI. No small "/path" eyebrow labels above section headings. Primitives live in `components/ui/` (Button, Card, Field, Badge, Avatar, Notice, Sheet, SlotStrip, Logo, EmptyState). Base element styles are inside `@layer base` so Tailwind utilities can override them — keep it that way.
 
 Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + maskable), `app/icon.png`, `app/apple-icon.png`, `app/favicon.ico`. They were cut from the supplied logo artwork.
 
@@ -59,6 +59,8 @@ Brand assets: `public/brand/` (mark, wordmarks, og.png), `public/icons/` (PWA + 
 - Client warns before sending phone numbers/links in chat and labels received ones.
 - **Chat moderation:** every human chat message is matched against `moderation_terms` (`mod_matches()`: normalises case, character swaps, stretched and spelled-out letters). Matches are never blocked; they go to `chat_flags` and admins get a `chat_flagged` notification (max one per gig per 10 minutes). Admins review at `/admin/chat` and can remove the message (soft delete via `deleted_at`, shown live in chat as "removed by a moderator"), remove the sender from the gig (`admin_remove_crew_member`), or dismiss. Add words with a plain insert into `moderation_terms` (lowercase letters and spaces only). Disclosed in Terms §7 and the Privacy Policy.
 - **Password reset:** the email link lands on `/auth/reset`, a page with a Continue button. Opening it never uses the link (email scanners open links automatically); pressing Continue verifies it (`confirmResetAction`), signs that session straight out, and sets a single-use 15-minute `tm_reset` ticket cookie (only its SHA-256 is stored, `password_reset_tickets`). `/reset-password` only works with a valid ticket; saving sets the password via the service role and revokes every session (`revoke_all_sessions`). A reset link never logs anyone in. Failed Supabase links (`?error_code=...` on any page) are redirected by middleware to `/auth/reset`, which explains and offers a new link. Email links are built from `requestOrigin()` (`lib/request-origin.ts`, allow-listed hosts), not a fixed URL.
+- **Google sign-in:** `GoogleButton` on `/sign-in` (only rendered when Supabase reports the Google provider enabled, `lib/auth-providers.ts`) → `/auth/callback`. Google users get their name from `full_name`; date of birth, gender and Terms still come from `/onboarding`.
+- **Adding spots:** hosts can raise capacity while a gig is open (`increase_gig_capacity`, increase only, max 16; private gigs get one new single-use invite per added spot). `AddSpots` reloads the page after saving because in-place refreshes after server actions can stall in local production builds (see Discover note).
 - **Acceptable-use agreement:** `AcceptableUseGate` blocks the app until the account accepts (`profiles.aup_accepted_at`, via `accept_acceptable_use()`); text in `lib/copy/conduct.ts`.
 - **Wording:** "photos unlock" means *profile photos become visible*. There is no image sharing in chat; keep copy explicit about that.
 - **Crew vote:** `cast_kick_vote` — majority of other claimed members, min 2 votes, host can't be voted out. Removal files a `crew_vote_removal` report for admins.
@@ -74,7 +76,7 @@ npm run build
 npm run gen:types      # regenerate lib/database.types.ts from the linked project
 ```
 
-Migrations (`0001`–`0029`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
+Migrations (`0001`–`0030`, big ones split into `_partN` files) were applied to the hosted project with `psql` (see `supabase/README-ops.md`). Never edit an applied migration — add a new numbered one.
 
 ## Before you call any task done
 

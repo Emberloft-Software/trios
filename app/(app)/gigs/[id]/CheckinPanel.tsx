@@ -22,7 +22,7 @@ export function CheckinPanel({
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <section className="glass rounded-[1.75rem] p-5 ring-2 ring-mint/40">
+    <section className="glass rounded-2xl p-5 ring-2 ring-mint/40">
       <h2 className="text-[1.0625rem] font-bold">{copy.lobby.checkinTitle}</h2>
       <p className="mb-3 text-[0.8125rem] text-muted">{copy.lobby.checkinHint}</p>
       <ul className="space-y-2">

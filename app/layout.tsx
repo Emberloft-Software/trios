@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Space_Mono } from "next/font/google";
 import { brand } from "@/lib/brand";
 import { getSiteURL } from "@/lib/site-url";
 import { ServiceWorker } from "@/components/pwa/ServiceWorker";
@@ -10,6 +10,14 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-jakarta",
+  display: "swap",
+});
+
+// retro "desktop" accent: labels, badges, buttons, window titles
+const mono = Space_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-space-mono",
   display: "swap",
 });
 
@@ -51,13 +59,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={jakarta.variable}>
+    <html lang="en" className={`${jakarta.variable} ${mono.variable}`}>
       <body>
-        <div className="ambient" aria-hidden>
-          <span style={{ width: 520, height: 520, top: -160, right: -120, background: "#ff3450", opacity: 0.22 }} />
-          <span style={{ width: 460, height: 460, bottom: -140, left: -140, background: "#ffba30", opacity: 0.28 }} />
-          <span style={{ width: 380, height: 380, top: "40%", left: "55%", background: "#6f3f8f", opacity: 0.12 }} />
-        </div>
+        <div className="ambient" aria-hidden />
         <RenameBanner />
         {children}
         <ServiceWorker />

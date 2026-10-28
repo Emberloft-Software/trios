@@ -58,7 +58,7 @@ export default async function ChatFlagsPage({ searchParams }: { searchParams: Pr
       <PageHeader title="Chat flags" sub="Group chat messages that matched the moderation word list. Check the context before acting: it can be friendly banter or a false match." />
       <div className="mb-5 flex gap-2">
         {TABS.map(([k, l]) => (
-          <Link key={k} href={`/admin/chat?tab=${k}`} className={`rounded-full px-4 py-2 text-[0.875rem] font-semibold ${tab === k ? "bg-plum text-white" : "glass text-plum"}`}>{l}</Link>
+          <Link key={k} href={`/admin/chat?tab=${k}`} className={`rounded-lg px-4 py-2 text-[0.875rem] font-semibold ${tab === k ? "bg-plum text-white" : "glass text-plum"}`}>{l}</Link>
         ))}
       </div>
       {flags.length === 0 ? (
@@ -75,7 +75,7 @@ export default async function ChatFlagsPage({ searchParams }: { searchParams: Pr
             const inGig = (crew ?? []).some((c) => c.gig_id === f.gig_id && c.user_id === f.user_id && c.state === "claimed");
             const sev = SEVERITY[f.severity] ?? SEVERITY[1];
             return (
-              <li key={f.id} className="glass rounded-[1.5rem] p-4">
+              <li key={f.id} className="glass rounded-2xl p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge tone={sev.tone}>{sev.label}</Badge>
                   {f.categories.map((c: string) => <Badge key={c} tone="white">{c}</Badge>)}

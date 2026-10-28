@@ -8,25 +8,25 @@ import { MadeBy } from "@/components/marketing/MadeBy";
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
-      <aside className="bg-hero relative hidden overflow-hidden p-10 text-white lg:flex lg:flex-col lg:justify-between">
-        <Logo tone="white" href="/" />
+      <aside className="relative hidden overflow-hidden border-r-2 border-plum bg-sun-100 p-10 lg:flex lg:flex-col lg:justify-between">
+        <Logo href="/" />
         <div className="relative z-10 max-w-md">
-          <img src="/brand/icon-rounded.png" alt="" width={120} height={120} className="mb-8 rounded-[28%] shadow-[0_20px_60px_rgba(255,52,80,0.45)] animate-float" />
-          <h2 className="text-[2.5rem] font-extrabold leading-tight text-white">
+          <img src="/brand/icon-rounded.png" alt="" width={112} height={112} className="mb-8 -rotate-3 rounded-[26%] border-2 border-plum shadow-[5px_5px_0_var(--color-plum)] animate-float" />
+          <h2 className="text-[2.5rem] font-extrabold leading-tight">
             {copy.landing.heroTitle}
             <br />
-            <span className="text-gradient">{copy.landing.heroAccent}</span>
+            <span className="text-coral">{copy.landing.heroAccent}</span>
           </h2>
-          <p className="mt-4 text-[1.0625rem] text-white/75">{copy.platonicClause.body}</p>
+          <p className="mt-4 text-[1.0625rem] text-ink/75">{copy.platonicClause.body}</p>
         </div>
-        <p className="relative z-10 text-[0.8125rem] text-white/50">{copy.disclaimers.meetPublic}</p>
+        <p className="relative z-10 font-mono text-[0.75rem] text-plum/70">{copy.disclaimers.meetPublic}</p>
       </aside>
       <main className="flex flex-col px-4 pb-10 pt-[calc(1.25rem+var(--safe-top))] sm:px-8">
         <div className="lg:hidden">
           <Logo href="/" />
         </div>
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-8">{children}</div>
-        <nav className="flex justify-center gap-5 text-[0.8125rem] text-muted">
+        <nav className="flex justify-center gap-5 font-mono text-[0.75rem] text-muted">
           <Link href="/terms" className="hover:text-plum">Terms</Link>
           <Link href="/privacy" className="hover:text-plum">Privacy</Link>
           <Link href="/safety" className="hover:text-plum">Safety</Link>

@@ -127,7 +127,7 @@ export function InstallPrompt({ variant = "banner" }: { variant?: "banner" | "ca
 
   return (
     <>
-      <div className="glass-strong fixed inset-x-3 bottom-[calc(5.25rem+var(--safe-bottom))] z-40 flex items-center gap-3 rounded-3xl p-3 animate-rise md:bottom-5 md:left-auto md:right-5 md:max-w-sm">
+      <div className="glass-strong fixed inset-x-3 bottom-[calc(5.25rem+var(--safe-bottom))] z-40 flex items-center gap-3 rounded-2xl p-3 animate-rise md:bottom-5 md:left-auto md:right-5 md:max-w-sm">
         <img src="/brand/mark-64.png" alt="" width={44} height={44} className="rounded-[28%]" />
         <div className="min-w-0 flex-1">
           <p className="text-[0.9375rem] font-bold text-plum">{copy.install.title}</p>

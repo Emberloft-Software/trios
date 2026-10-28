@@ -15,6 +15,14 @@ export const discoverCopy = {
     resetConfirm: "Reset this link? The old one stops working and you get a fresh one for the same seat.",
     landingNote: "This is a private gig. It isn't listed anywhere, so this personal link is the only way in.",
   },
+  addSpots: {
+    title: "Make room for more",
+    hint: "Add spots while the gig is open. You can only go up, so nobody who already joined loses their place. Max 16.",
+    hintPrivate: "Add spots while the gig is open. Each new spot gets its own personal invite link. Max 16.",
+    save: (n: number) => (n === 1 ? "Add 1 spot" : `Add ${n} spots`),
+    saveIdle: "Add spots",
+    done: "Done. The new spots are open.",
+  },
   nearby: {
     allAreas: "All areas",
     closest: "Closest first",

@@ -10,6 +10,7 @@ import { GigPreview } from "./GigPreview";
 import { CrewList } from "./CrewList";
 import { LobbyChat } from "./LobbyChat";
 import { InvitePanel } from "./InvitePanel";
+import { AddSpots } from "./AddSpots";
 import { LeavePanel, HostControls } from "./LeavePanel";
 import { CheckinPanel } from "./CheckinPanel";
 import { PerkCard } from "./PerkCard";
@@ -73,6 +74,8 @@ export default async function GigPage({
               highlight={created === "1" && L.guestInvites.length > 0}
             />
           )}
+
+          {isHost && gig.status === "open" && <AddSpots gigId={gig.id} capacity={gig.capacity} isPrivate={gig.is_private} />}
 
           <GigDetails g={g} showCode />
           {locked && <Notice tone="info">{copy.safetyReminder}</Notice>}

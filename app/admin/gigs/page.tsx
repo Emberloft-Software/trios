@@ -38,7 +38,7 @@ export default async function AdminGigsPage({ searchParams }: { searchParams: Pr
       <PageHeader title="Gigs" sub="Everything posted. Cancel anything that breaks the rules. The crew is told and nobody's reliability is affected." />
       <div className="mb-5 flex gap-2">
         {TABS.map(([k, l]) => (
-          <Link key={k} href={`/admin/gigs?tab=${k}`} className={`rounded-full px-4 py-2 text-[0.875rem] font-semibold ${tab === k ? "bg-plum text-white" : "glass text-plum"}`}>{l}</Link>
+          <Link key={k} href={`/admin/gigs?tab=${k}`} className={`rounded-lg px-4 py-2 text-[0.875rem] font-semibold ${tab === k ? "bg-plum text-white" : "glass text-plum"}`}>{l}</Link>
         ))}
       </div>
       {rows.length === 0 ? (

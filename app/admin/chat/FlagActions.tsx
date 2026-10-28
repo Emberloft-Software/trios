@@ -51,7 +51,7 @@ export function FlagActions({
           <Check className="h-4 w-4" /> Dismiss (no problem)
         </Button>
         {userId && (
-          <Link href={`/admin/users/${userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[0.8125rem] font-semibold text-plum hover:bg-plum/5">
+          <Link href={`/admin/users/${userId}`} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-[0.8125rem] font-semibold text-plum hover:bg-plum/5">
             <UserRound className="h-4 w-4" /> Warn or restrict account
           </Link>
         )}

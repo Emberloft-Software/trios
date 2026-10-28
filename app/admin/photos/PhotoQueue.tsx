@@ -53,7 +53,7 @@ export function PhotoQueue({ items }: { items: PhotoItem[] }) {
   return (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {queue.map((p) => (
-        <article key={p.userId} className="glass overflow-hidden rounded-[1.75rem]">
+        <article key={p.userId} className="glass overflow-hidden rounded-2xl">
           <div className="relative">
             <a href={p.pendingUrl} target="_blank" rel="noreferrer">
               <img src={p.pendingUrl} alt={`Pending photo for ${p.name}`} className="aspect-square w-full bg-plum-50 object-cover" />

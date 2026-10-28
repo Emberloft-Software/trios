@@ -52,7 +52,7 @@ export function Sheet({
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        className="glass-strong relative max-h-[88dvh] w-full overflow-y-auto rounded-t-[1.75rem] p-5 pb-[calc(1.25rem+var(--safe-bottom))] outline-none animate-rise sm:max-w-md sm:rounded-[1.75rem] sm:pb-5"
+        className="glass-strong relative max-h-[88dvh] shadow-[6px_6px_0_var(--color-plum)] w-full overflow-y-auto rounded-t-[1.75rem] p-5 pb-[calc(1.25rem+var(--safe-bottom))] outline-none animate-rise sm:max-w-md sm:rounded-2xl sm:pb-5"
       >
         <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-plum/15 sm:hidden" aria-hidden />
         <div className="mb-3 flex items-start justify-between gap-3">

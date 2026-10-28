@@ -1,11 +1,11 @@
 import { forwardRef } from "react";
 
 export const fieldClass =
-  "w-full rounded-2xl bg-white/80 px-4 py-3 text-[1rem] text-ink ring-1 ring-line placeholder:text-muted/70 transition-shadow outline-none focus:bg-white focus:ring-2 focus:ring-coral/50 disabled:opacity-60";
+  "w-full rounded-xl border-2 border-plum bg-white px-4 py-3 text-[1rem] text-ink shadow-[2px_2px_0_var(--color-plum)] placeholder:text-muted/70 transition-shadow outline-none focus:shadow-[3px_3px_0_var(--color-coral)] focus:ring-2 focus:ring-coral/40 disabled:opacity-60";
 
 export function Label({ htmlFor, children, optional }: { htmlFor?: string; children: React.ReactNode; optional?: string }) {
   return (
-    <label htmlFor={htmlFor} className="mb-1.5 flex items-baseline justify-between text-[0.875rem] font-semibold text-plum">
+    <label htmlFor={htmlFor} className="mb-1.5 flex items-baseline justify-between font-mono text-[0.8125rem] font-bold text-plum">
       <span>{children}</span>
       {optional && <span className="text-[0.75rem] font-medium text-muted">{optional}</span>}
     </label>
@@ -73,10 +73,10 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(o.value)}
-            className={`rounded-full font-semibold transition-all ${size === "sm" ? "px-3.5 py-1.5 text-[0.8125rem]" : "px-4 py-2.5 text-[0.9375rem]"} ${
+            className={`rounded-lg border-2 border-plum font-semibold transition-all ${size === "sm" ? "px-3.5 py-1.5 text-[0.8125rem]" : "px-4 py-2.5 text-[0.9375rem]"} ${
               active
-                ? "bg-plum text-white shadow-[0_6px_16px_rgba(54,2,83,0.25)]"
-                : "bg-white/80 text-plum ring-1 ring-line hover:bg-white"
+                ? "bg-plum text-white shadow-[3px_3px_0_var(--color-coral)]"
+                : "bg-[var(--color-paper)] text-plum hover:bg-sun-100"
             }`}
           >
             {o.label}

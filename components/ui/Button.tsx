@@ -8,23 +8,25 @@ type Variant = "primary" | "secondary" | "dark" | "ghost" | "danger" | "glass";
 type Size = "sm" | "md" | "lg";
 
 const base =
-  "relative inline-flex select-none items-center justify-center gap-2 rounded-full font-semibold whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50";
+  "relative inline-flex select-none items-center justify-center gap-2 rounded-xl border-2 font-mono font-bold tracking-tight whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-100 disabled:pointer-events-none disabled:opacity-50";
+
+// Outlined "retro window" button: plum border + hard shadow that presses in.
+const pressable =
+  "border-plum shadow-[3px_3px_0_var(--color-plum)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_var(--color-plum)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_var(--color-plum)]";
 
 const sizes: Record<Size, string> = {
-  sm: "h-9 px-4 text-[0.8125rem]",
-  md: "h-11 px-5 text-[0.9375rem]",
-  lg: "h-13 px-7 text-base",
+  sm: "h-9 px-3.5 text-[0.75rem]",
+  md: "h-11 px-5 text-[0.8125rem]",
+  lg: "h-13 px-6 text-[0.875rem]",
 };
 
 const variants: Record<Variant, string> = {
-  primary:
-    "bg-coral text-white shadow-[var(--shadow-coral)] hover:bg-coral-600 hover:-translate-y-px",
-  secondary:
-    "bg-white text-plum ring-1 ring-line shadow-[var(--shadow-soft)] hover:-translate-y-px hover:shadow-[var(--shadow-lift)]",
-  dark: "bg-plum text-white shadow-[0_8px_22px_rgba(54,2,83,0.28)] hover:bg-plum-700 hover:-translate-y-px",
-  ghost: "text-plum hover:bg-plum/5",
-  danger: "bg-white text-coral-600 ring-1 ring-coral/30 hover:bg-coral-50",
-  glass: "glass text-plum hover:bg-white/80",
+  primary: `${pressable} bg-coral text-white hover:bg-coral-600`,
+  secondary: `${pressable} bg-[var(--color-paper)] text-plum hover:bg-sun-100`,
+  dark: "border-plum bg-plum text-white shadow-[3px_3px_0_var(--color-coral)] hover:-translate-x-px hover:-translate-y-px hover:bg-plum-700 hover:shadow-[4px_4px_0_var(--color-coral)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_var(--color-coral)]",
+  ghost: "border-transparent text-plum hover:bg-plum/5", // plain text button
+  danger: `${pressable} bg-[var(--color-paper)] text-coral-600 hover:bg-coral-50`,
+  glass: `${pressable} bg-[var(--color-paper)] text-plum hover:bg-sun-100`,
 };
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

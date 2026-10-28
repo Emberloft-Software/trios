@@ -90,7 +90,7 @@ function GigRow({ row, isHost }: { row: Row; isHost: boolean }) {
   const on = head >= g.min_to_confirm && g.claimed_count >= 2;
   return (
     <li>
-      <Link href={`/gigs/${g.id}`} className="glass flex items-center gap-4 rounded-3xl p-3 pr-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]">
+      <Link href={`/gigs/${g.id}`} className="glass flex items-center gap-4 rounded-2xl p-3 pr-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]">
         <div className="flex w-14 shrink-0 flex-col items-center rounded-2xl bg-white/80 py-2 leading-none ring-1 ring-line">
           <span className="text-[0.625rem] font-bold tracking-wider text-coral">{t.dow}</span>
           <span className="text-[1.375rem] font-extrabold text-plum">{t.day}</span>

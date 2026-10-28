@@ -10,7 +10,7 @@ const v = copy.verification;
 
 export function ExplainerScreen({ error, starting, onStart }: { error: string | null; starting: boolean; onStart: () => void }) {
   return (
-    <div className="glass rounded-[1.75rem] p-6">
+    <div className="glass rounded-2xl p-6">
       <div className="mb-4 flex items-center gap-3">
         <span className="grid h-12 w-12 place-items-center rounded-2xl bg-coral-50 text-coral"><ScanFace className="h-6 w-6" /></span>
         <h2 className="text-[1.125rem] font-bold">{v.explainer.heading}</h2>
@@ -34,7 +34,7 @@ export function ExplainerScreen({ error, starting, onStart }: { error: string | 
 export function BlockedScreen({ message, onRetry }: { message: string; onRetry: () => void }) {
   const ios = typeof navigator !== "undefined" && /iPhone|iPad/.test(navigator.userAgent);
   return (
-    <div className="glass rounded-[1.75rem] p-6">
+    <div className="glass rounded-2xl p-6">
       <Notice tone="danger" title={message}>{ios ? v.cameraIosHint : null}</Notice>
       <Button variant="secondary" className="mt-4" onClick={onRetry}>
         <RotateCcw className="h-4 w-4" /> {v.tryAgain}
@@ -45,8 +45,8 @@ export function BlockedScreen({ message, onRetry }: { message: string; onRetry: 
 
 export function DoneScreen() {
   return (
-    <div className="glass rounded-[1.75rem] p-8 text-center animate-rise">
-      <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-3xl bg-mint-50 text-mint"><CheckCircle2 className="h-8 w-8" /></span>
+    <div className="glass rounded-2xl p-8 text-center animate-rise">
+      <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-mint-50 text-mint"><CheckCircle2 className="h-8 w-8" /></span>
       <h2 className="text-[1.25rem] font-bold">{v.sent}</h2>
       <ButtonLink href="/me" variant="secondary" className="mt-5">{v.backToProfile}</ButtonLink>
       <Link href="/feed" className="sr-only">{copy.nav.feed}</Link>

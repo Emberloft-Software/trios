@@ -36,7 +36,7 @@ export function PushToggle() {
   }
 
   return (
-    <section className="glass mb-5 flex flex-wrap items-center gap-3 rounded-[1.75rem] p-4" aria-live="polite">
+    <section className="glass mb-5 flex flex-wrap items-center gap-3 rounded-2xl p-4" aria-live="polite">
       <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${on ? "bg-mint-50 text-mint" : "bg-plum-50 text-plum"}`}>
         {on ? <BellRing className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
       </span>

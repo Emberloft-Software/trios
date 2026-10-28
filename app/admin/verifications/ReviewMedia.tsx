@@ -18,7 +18,7 @@ export function ReviewMedia({ current, mediaUrl, mediaErr, videoRef }: {
   }, [rate, mediaUrl, videoRef]);
 
   return (
-    <div className="glass rounded-[1.75rem] p-4">
+    <div className="glass rounded-2xl p-4">
       <div className="grid gap-3 sm:grid-cols-[1.7fr_1fr]">
         <div>
           <p className="mb-1.5 text-[0.6875rem] font-bold uppercase tracking-wider text-muted">Recording</p>
@@ -38,7 +38,7 @@ export function ReviewMedia({ current, mediaUrl, mediaErr, videoRef }: {
           {current.isVideo && (
             <div className="mt-2 flex items-center gap-1.5">
               {[0.5, 1, 1.5].map((r) => (
-                <button key={r} onClick={() => setRate(r)} className={`rounded-full px-2.5 py-1 text-[0.75rem] font-bold ${rate === r ? "bg-plum text-white" : "bg-white/70 text-plum ring-1 ring-line"}`}>{r}×</button>
+                <button key={r} onClick={() => setRate(r)} className={`rounded-lg px-2.5 py-1 text-[0.75rem] font-bold ${rate === r ? "bg-plum text-white" : "bg-white/70 text-plum ring-1 ring-line"}`}>{r}×</button>
               ))}
               <span className="ml-auto text-[0.6875rem] text-muted">{current.mime}{current.bytes ? ` · ${(current.bytes / 1048576).toFixed(1)} MB` : ""}</span>
             </div>

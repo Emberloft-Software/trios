@@ -33,7 +33,7 @@ export default async function VenuesPage({
       <form method="get" className="mb-6 flex gap-2">
         <input name="q" defaultValue={q ?? ""} placeholder="Search venues"
           className="flex-1 rounded-2xl ring-1 ring-line bg-white px-3 py-2 text-[0.9375rem] outline-none" />
-        <button className="rounded-full ring-1 ring-line bg-coral px-5 text-white">
+        <button className="rounded-lg ring-1 ring-line bg-coral px-5 text-white">
           Search
         </button>
       </form>

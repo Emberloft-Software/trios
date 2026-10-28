@@ -41,7 +41,7 @@ export function GigCard({ gig, friend, km }: { gig: FeedGig | FriendGig; friend?
   return (
     <Link
       href={`/gigs/${gig.id}`}
-      className="group glass block overflow-hidden rounded-[1.75rem] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]"
+      className="group glass block overflow-hidden rounded-2xl transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]"
     >
       <div className={`relative h-36 overflow-hidden bg-gradient-to-br ${CATEGORY_TINT[gig.activity_category] ?? "from-plum-700 to-plum"}`}>
         {photo ? (
@@ -55,11 +55,11 @@ export function GigCard({ gig, friend, km }: { gig: FeedGig | FriendGig; friend?
           <span className="text-[1.375rem] font-extrabold text-plum">{tile.day}</span>
           <span className="text-[0.625rem] font-bold tracking-wider text-muted">{tile.mon}</span>
         </div>
-        <span className="glass-strong absolute right-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.75rem] font-semibold text-plum">
+        <span className="glass-strong absolute right-3 top-3 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.75rem] font-semibold text-plum">
           <ActivityIcon slug={gig.activity_slug} className="h-3.5 w-3.5" /> {gig.activity_name}
         </span>
         {gig.host_guests > 0 && (
-          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-sun px-2.5 py-1 text-[0.75rem] font-bold text-plum shadow">
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-lg bg-sun px-2.5 py-1 text-[0.75rem] font-bold text-plum shadow">
             <UserPlus className="h-3.5 w-3.5" /> {copy.guests.badge(gig.host_guests)}
           </span>
         )}

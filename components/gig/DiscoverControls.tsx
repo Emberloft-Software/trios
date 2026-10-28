@@ -40,14 +40,14 @@ export function DiscoverControls({
   }
 
   const pill = (on: boolean) =>
-    `inline-flex h-10 items-center gap-1.5 rounded-full px-4 text-[0.875rem] font-semibold transition ${
-      on ? "bg-plum text-white" : "glass text-plum hover:bg-white"
+    `inline-flex h-10 items-center gap-1.5 rounded-lg px-4 font-mono text-[0.8125rem] font-bold transition ${
+      on ? "border-2 border-plum bg-plum text-white shadow-[3px_3px_0_var(--color-coral)]" : "glass text-plum hover:bg-sun-100"
     }`;
 
   return (
     <div className="mb-6">
       <div className="flex flex-wrap items-center gap-2">
-        <label className="glass relative inline-flex h-10 items-center rounded-full pl-3.5 pr-2 text-plum focus-within:ring-2 focus-within:ring-coral">
+        <label className="glass relative inline-flex h-10 items-center rounded-lg pl-3.5 pr-2 text-plum focus-within:ring-2 focus-within:ring-coral">
           <MapPin aria-hidden className="h-4 w-4 shrink-0" />
           <span className="sr-only">{t.areaLabel}</span>
           <select

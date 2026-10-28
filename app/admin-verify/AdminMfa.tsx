@@ -11,6 +11,17 @@ import { Notice } from "@/components/ui/Notice";
 
 type Enrolment = { factorId: string; qr: string; secret: string };
 
+/** Supabase MFA errors in plain words (codes from GoTrue). */
+function explain(err: { code?: string; message: string }): string {
+  if (err.code?.startsWith("mfa_totp_") && err.code.endsWith("_not_enabled"))
+    return "Authenticator sign-in is switched off for this project. In Supabase, go to Authentication, Multi-Factor, turn TOTP back on (enrolment and verification), then try again.";
+  if (err.code === "mfa_verification_failed" || /invalid|expired/i.test(err.message))
+    return "That code didn't match. Wait for a fresh code and try again. If it keeps failing, check your phone's clock is set automatically.";
+  if (err.code === "mfa_challenge_expired") return "That took too long. Enter a fresh code.";
+  if (err.code === "over_request_rate_limit") return "Too many attempts. Wait a minute and try again.";
+  return `Verification failed (${err.code ?? "error"}). Try again.`;
+}
+
 /** Admin-only screen: enrol an authenticator app, or enter its current code. */
 export function AdminMfa({ mode, factorId }: { mode: "enroll" | "challenge"; factorId: string | null }) {
   const supabase = useMemo(() => createClient(), []);
@@ -27,7 +38,7 @@ export function AdminMfa({ mode, factorId }: { mode: "enroll" | "challenge"; fac
     for (const f of list?.all ?? []) if (f.factor_type === "totp" && f.status === "unverified") await supabase.auth.mfa.unenroll({ factorId: f.id });
     const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: `Admin ${new Date().toISOString().slice(0, 10)}` });
     setBusy(false);
-    if (error || !data) return setError("Couldn't start set-up. Refresh and try again.");
+    if (error || !data) return setError(error ? explain(error) : "Couldn't start set-up. Refresh and try again.");
     setEnrolment({ factorId: data.id, qr: data.totp.qr_code, secret: data.totp.secret });
   }
 
@@ -41,7 +52,7 @@ export function AdminMfa({ mode, factorId }: { mode: "enroll" | "challenge"; fac
     if (error) {
       setBusy(false);
       setCode("");
-      return setError(/invalid|expired/i.test(error.message) ? "That code didn't match. Wait for a new one and try again." : "Verification failed. Try again.");
+      return setError(explain(error));
     }
     window.location.assign("/admin"); // full load so the server sees the upgraded session
   }
@@ -70,7 +81,7 @@ export function AdminMfa({ mode, factorId }: { mode: "enroll" | "challenge"; fac
           : "Enter the current code from your authenticator app to open the admin area."}
       </p>
 
-      <div className="glass mt-6 rounded-[1.75rem] p-6">
+      <div className="glass mt-6 rounded-2xl p-6">
         {mode === "challenge" ? (
           codeForm
         ) : !enrolment ? (

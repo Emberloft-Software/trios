@@ -18,7 +18,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
 
   return (
     <div className="grid min-h-[70dvh] place-items-center px-5 text-center">
-      <div className="glass max-w-sm rounded-[2rem] p-8">
+      <div className="glass max-w-sm rounded-2xl p-8">
         <img src="/brand/mark-256.png" alt="" width={72} height={72} className="mx-auto rounded-[28%]" />
         <h1 className="mt-5 text-[1.375rem] font-bold">{copy.errorPage.title}</h1>
         <p className="mt-2 text-[0.9375rem] text-muted">{copy.errorPage.body}</p>

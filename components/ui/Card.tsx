@@ -4,9 +4,9 @@ type Tone = "glass" | "solid" | "plum" | "tint";
 
 const tones: Record<Tone, string> = {
   glass: "glass",
-  solid: "bg-white ring-1 ring-line shadow-[var(--shadow-soft)]",
+  solid: "bg-[var(--color-paper)] border-2 border-plum shadow-[var(--shadow-soft)]",
   plum: "bg-hero text-white",
-  tint: "bg-plum-50 ring-1 ring-plum-100",
+  tint: "bg-plum-50 border-2 border-plum/30",
 };
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -44,7 +44,7 @@ export function SectionTitle({
 }) {
   return (
     <div className={`mb-3 flex items-center justify-between gap-3 ${className}`}>
-      <h2 className="text-[1.0625rem] font-bold">{children}</h2>
+      <h2 className="eyebrow text-plum">{children}</h2>
       {action}
     </div>
   );

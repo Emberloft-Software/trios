@@ -37,7 +37,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
       <PageHeader title="Reports" sub="Priority categories are pinned to the top. Reporters are never revealed to the person reported." />
       <div className="mb-5 flex gap-2">
         {[["open", "Open"], ["closed", "Resolved"]].map(([k, l]) => (
-          <Link key={k} href={`/admin/reports?tab=${k}`} className={`rounded-full px-4 py-2 text-[0.875rem] font-semibold ${tab === k ? "bg-plum text-white" : "glass text-plum"}`}>{l}</Link>
+          <Link key={k} href={`/admin/reports?tab=${k}`} className={`rounded-lg px-4 py-2 text-[0.875rem] font-semibold ${tab === k ? "bg-plum text-white" : "glass text-plum"}`}>{l}</Link>
         ))}
       </div>
 
@@ -51,7 +51,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
             const reporter = r.reporter_id ? byId.get(r.reporter_id) : null;
             const gig = r.gig_id ? gigById.get(r.gig_id) : null;
             return (
-              <article key={r.id} className={`glass rounded-[1.5rem] p-5 ${priority && r.status === "open" ? "ring-2 ring-coral" : ""}`}>
+              <article key={r.id} className={`glass rounded-2xl p-5 ${priority && r.status === "open" ? "ring-2 ring-coral" : ""}`}>
                 <div className="flex flex-wrap items-center gap-2">
                   {priority && <Badge tone="coral">Priority</Badge>}
                   {r.category === "crew_vote_removal" && <Badge tone="sun">Crew vote</Badge>}

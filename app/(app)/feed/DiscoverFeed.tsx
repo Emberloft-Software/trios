@@ -69,8 +69,8 @@ export function DiscoverFeed({
               type="button"
               onClick={() => update({ cat: c.key })}
               aria-pressed={active}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-[0.875rem] font-semibold transition ${
-                active ? "bg-plum text-white shadow-[0_6px_16px_rgba(54,2,83,0.25)]" : "glass text-plum hover:bg-white"
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2 font-mono text-[0.8125rem] font-bold transition ${
+                active ? "border-2 border-plum bg-plum text-white shadow-[3px_3px_0_var(--color-coral)]" : "glass text-plum hover:bg-sun-100"
               }`}
             >
               {Icon && <Icon aria-hidden className="h-4 w-4" />} {c.label}

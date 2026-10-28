@@ -36,7 +36,7 @@ export function AppNav({
   return (
     <>
       {/* Top bar */}
-      <header className="glass-strong sticky top-0 z-30 border-x-0 border-t-0 pt-[var(--safe-top)]">
+      <header className="sticky top-0 z-30 border-b-2 border-plum bg-cream pt-[var(--safe-top)]">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <Logo href="/feed" size="sm" />
           <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
@@ -49,8 +49,8 @@ export function AppNav({
                     key={t.href}
                     href={t.href}
                     aria-current={active ? "page" : undefined}
-                    className={`rounded-full px-4 py-2 text-[0.9375rem] font-semibold transition-colors ${
-                      active ? "bg-plum text-white" : "text-plum hover:bg-plum/5"
+                    className={`rounded-lg border-2 px-3.5 py-1.5 font-mono text-[0.8125rem] font-bold transition-colors ${
+                      active ? "border-plum bg-plum text-white" : "border-transparent text-plum hover:border-plum hover:bg-sun-100"
                     }`}
                   >
                     {t.label}
@@ -60,20 +60,20 @@ export function AppNav({
           </nav>
           <div className="flex items-center gap-1.5">
             {isAdmin && (
-              <Link href="/admin" className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-[0.8125rem] font-semibold text-plum hover:bg-plum/5 sm:inline-flex">
+              <Link href="/admin" className="hidden items-center gap-1.5 rounded-lg px-3 py-2 font-mono text-[0.75rem] font-bold text-plum hover:bg-plum/5 sm:inline-flex">
                 <Shield className="h-4 w-4" /> {copy.nav.admin}
               </Link>
             )}
             <Link
               href="/gigs/new"
-              className="hidden h-10 items-center gap-1.5 rounded-full bg-coral px-4 text-[0.875rem] font-semibold text-white shadow-[var(--shadow-coral)] hover:bg-coral-600 md:inline-flex"
+              className="hidden h-10 items-center gap-1.5 rounded-xl border-2 border-plum bg-coral px-4 font-mono text-[0.8125rem] font-bold text-white shadow-[3px_3px_0_var(--color-plum)] transition-transform hover:-translate-y-px hover:bg-coral-600 md:inline-flex"
             >
               <Plus className="h-4 w-4" strokeWidth={2.5} /> {copy.nav.newGig}
             </Link>
             <Link
               href="/notifications"
               aria-label={`${copy.nav.notifications}${unread ? ` (${unread} new)` : ""}`}
-              className="relative grid h-10 w-10 place-items-center rounded-full text-plum hover:bg-plum/5"
+              className="relative grid h-10 w-10 place-items-center rounded-xl border-2 border-transparent text-plum hover:border-plum hover:bg-sun-100"
             >
               <Bell className="h-5 w-5" />
               {unread > 0 && (
@@ -92,7 +92,7 @@ export function AppNav({
       {/* Bottom tab bar (phones / installed app) */}
       <nav
         aria-label="Main"
-        className="glass-strong fixed inset-x-0 bottom-0 z-30 border-x-0 border-b-0 pb-[var(--safe-bottom)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-plum bg-cream pb-[var(--safe-bottom)] md:hidden"
       >
         <ul className="mx-auto grid h-[4.25rem] max-w-md grid-cols-5 items-center px-2">
           {tabs.map((t) => {
@@ -104,7 +104,7 @@ export function AppNav({
                   <Link
                     href={t.href}
                     aria-label={t.label}
-                    className="-mt-6 grid h-14 w-14 place-items-center rounded-2xl bg-coral text-white shadow-[var(--shadow-coral)] ring-4 ring-cream transition-transform active:scale-95"
+                    className="-mt-6 grid h-14 w-14 place-items-center rounded-2xl border-2 border-plum bg-coral text-white shadow-[3px_3px_0_var(--color-plum)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_var(--color-plum)]"
                   >
                     <Icon className="h-6 w-6" strokeWidth={2.5} />
                   </Link>
@@ -116,7 +116,7 @@ export function AppNav({
                 <Link
                   href={t.href}
                   aria-current={active ? "page" : undefined}
-                  className={`flex flex-col items-center gap-0.5 py-1 text-[0.6875rem] font-semibold ${active ? "text-coral" : "text-muted"}`}
+                  className={`flex flex-col items-center gap-0.5 py-1 font-mono text-[0.625rem] font-bold ${active ? "text-coral-600" : "text-muted"}`}
                 >
                   {t.href === "/me" ? (
                     <Avatar name={name} src={avatarUrl} size={24} className={active ? "ring-2 ring-coral" : ""} />

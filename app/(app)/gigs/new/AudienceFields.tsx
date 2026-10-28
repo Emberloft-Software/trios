@@ -58,7 +58,7 @@ export function AudienceFields({
               type="button"
               disabled={hostAge < a || hostAge > b}
               onClick={() => onAges(a, b)}
-              className={`rounded-full px-3.5 py-1.5 text-[0.8125rem] font-semibold transition disabled:opacity-35 ${
+              className={`rounded-lg px-3.5 py-1.5 text-[0.8125rem] font-semibold transition disabled:opacity-35 ${
                 a === ageMin && b === ageMax ? "bg-plum text-white" : "bg-white/80 text-plum ring-1 ring-line hover:bg-white"
               }`}
             >

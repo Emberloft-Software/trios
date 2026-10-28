@@ -12,7 +12,7 @@ export default function SafetyPage() {
       <p className="mt-3 max-w-2xl text-[1.0625rem] text-muted">{s.intro}</p>
 
       <div className="mt-10 grid gap-5 md:grid-cols-2">
-        <section className="glass rounded-[1.75rem] p-6">
+        <section className="glass rounded-2xl p-6">
           <h2 className="flex items-center gap-2 text-[1.125rem] font-bold"><ShieldCheck className="h-5 w-5 text-mint" /> {s.weCheckTitle}</h2>
           <ul className="mt-4 space-y-2.5 text-[0.9375rem]">
             {s.weCheck.map((x) => (
@@ -20,7 +20,7 @@ export default function SafetyPage() {
             ))}
           </ul>
         </section>
-        <section className="glass rounded-[1.75rem] p-6">
+        <section className="glass rounded-2xl p-6">
           <h2 className="flex items-center gap-2 text-[1.125rem] font-bold"><ShieldX className="h-5 w-5 text-coral" /> {s.weDontTitle}</h2>
           <ul className="mt-4 space-y-2.5 text-[0.9375rem]">
             {s.weDont.map((x) => (
@@ -31,7 +31,7 @@ export default function SafetyPage() {
         </section>
       </div>
 
-      <section className="bg-hero mt-5 rounded-[1.75rem] p-7 text-white">
+      <section className="bg-hero mt-5 rounded-2xl p-7 text-white">
         <h2 className="text-[1.375rem] font-bold text-white">{s.tipsTitle}</h2>
         <ul className="mt-4 grid gap-3 sm:grid-cols-2">
           {s.meetingTips.map((x) => (
@@ -40,7 +40,7 @@ export default function SafetyPage() {
         </ul>
       </section>
 
-      <section className="glass mt-5 rounded-[1.75rem] p-7">
+      <section className="glass mt-5 rounded-2xl p-7">
         <h2 className="text-[1.375rem] font-bold">{s.rulesTitle}</h2>
         <ol className="mt-4 space-y-2.5 text-[0.9375rem]">
           {s.rules.map((x, i) => (

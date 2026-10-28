@@ -83,7 +83,7 @@ export default async function VerificationsPage() {
 
       <section className="mt-12">
         <h2 className="mb-3 text-[1.125rem] font-bold">Recent decisions</h2>
-        <ul className="glass divide-y divide-line rounded-3xl">
+        <ul className="glass divide-y divide-line rounded-2xl">
           {(history ?? []).length === 0 && <li className="p-5 text-[0.875rem] text-muted">No decisions yet.</li>}
           {(history ?? []).map((h) => (
             <li key={h.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-[0.875rem]">

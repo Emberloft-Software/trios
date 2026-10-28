@@ -12,7 +12,7 @@ export async function updateSession(request: NextRequest) {
   // Supabase sends failed email links (expired, already used) back with
   // ?error_code=... on whatever page it lands; show a proper explanation.
   const linkError = request.nextUrl.searchParams.get("error_code");
-  if (linkError && !request.nextUrl.pathname.startsWith("/auth/")) {
+  if (linkError && linkError.startsWith("otp_") && !request.nextUrl.pathname.startsWith("/auth/")) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/reset";
     url.search = `?error_code=${encodeURIComponent(linkError.slice(0, 40))}`;

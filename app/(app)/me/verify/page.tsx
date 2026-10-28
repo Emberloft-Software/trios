@@ -18,14 +18,14 @@ export default async function VerifyPage() {
     <div className="mx-auto max-w-lg">
       <PageHeader title={v.title} sub={v.meaning} />
       {status === "verified" ? (
-        <div className="glass rounded-[1.75rem] p-6">
+        <div className="glass rounded-2xl p-6">
           <VerifiedBadge />
           <p className="mt-3 text-[0.9375rem]">{v.approved}</p>
         </div>
       ) : status === "pending" ? (
         <Notice tone="info" title={v.pendingStatus} />
       ) : !hasPhoto ? (
-        <div className="glass rounded-[1.75rem] p-6">
+        <div className="glass rounded-2xl p-6">
           <Notice tone="warn">{v.needPhoto}</Notice>
           <ButtonLink href="/me" className="mt-4">{v.needPhotoCta}</ButtonLink>
         </div>

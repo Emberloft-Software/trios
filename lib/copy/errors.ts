@@ -14,6 +14,7 @@ export const errorsCopy = {
     profile_missing: "Your profile isn't set up yet. Reload and try again.",
     capacity_too_low: "A gig needs at least three people.",
     capacity_too_high: "Keep it to 16 people or fewer.",
+    capacity_not_increased: "Pick a bigger group size than the current one.",
     too_many_guests: "Leave at least one spot open for the public.",
     bad_age_range: "Check the age range.",
     host_outside_age_range: "Your own age needs to be inside the age range.",

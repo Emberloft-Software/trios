@@ -37,7 +37,7 @@ export function AcceptableUseGate() {
         aria-modal="true"
         aria-labelledby="aup-title"
         tabIndex={-1}
-        className="glass-strong max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] p-5 pb-[calc(1.25rem+var(--safe-bottom))] outline-none sm:rounded-[1.75rem] sm:p-6"
+        className="glass-strong max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] p-5 pb-[calc(1.25rem+var(--safe-bottom))] outline-none sm:rounded-2xl sm:p-6"
       >
         <div className="mb-3 flex items-center gap-3">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-plum text-white">

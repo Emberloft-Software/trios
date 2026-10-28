@@ -54,7 +54,7 @@ export function ModerationForm({
 
   return (
     <div className="space-y-4">
-      <section className="glass space-y-3 rounded-[1.5rem] p-5">
+      <section className="glass space-y-3 rounded-2xl p-5">
         <h2 className="text-[1rem] font-bold">Moderation</h2>
         <Select value={action} onChange={(e) => setAction(e.target.value as ModAction)} aria-label="Action">
           {LADDER.map((l) => <option key={l.action} value={l.action}>{l.label}</option>)}
@@ -71,7 +71,7 @@ export function ModerationForm({
         </Button>
       </section>
 
-      <section className="glass space-y-2 rounded-[1.5rem] p-5">
+      <section className="glass space-y-2 rounded-2xl p-5">
         <h2 className="text-[1rem] font-bold">Quick actions</h2>
         <Button block variant="secondary" loading={pending && which === "verify"} disabled={pending}
           onClick={() => run("verify", () => setVerificationAction(targetId, !verified), verified ? "Verification revoked." : "Marked verified.")}>
@@ -89,7 +89,7 @@ export function ModerationForm({
         </Button>
       </section>
 
-      <section className="glass space-y-3 rounded-[1.5rem] p-5">
+      <section className="glass space-y-3 rounded-2xl p-5">
         <h2 className="text-[1rem] font-bold">Correct age / gender</h2>
         <div className="grid grid-cols-2 gap-2">
           <div><Label htmlFor="adob">Date of birth</Label><Input id="adob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} className="!py-2" /></div>

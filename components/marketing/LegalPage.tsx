@@ -21,7 +21,7 @@ export function LegalPage({
       </header>
       <div className="mt-10 grid gap-8 lg:grid-cols-[240px_1fr]">
         <nav aria-label="Contents" className="hidden lg:block">
-          <ol className="glass sticky top-24 space-y-1 rounded-3xl p-4 text-[0.8125rem]">
+          <ol className="glass sticky top-24 space-y-1 rounded-2xl p-4 text-[0.8125rem]">
             {sections.map((s) => (
               <li key={s.id}>
                 <a href={`#${s.id}`} className="block rounded-xl px-2 py-1.5 font-medium text-muted hover:bg-white/70 hover:text-plum">
@@ -31,7 +31,7 @@ export function LegalPage({
             ))}
           </ol>
         </nav>
-        <article className="glass space-y-8 rounded-[2rem] p-6 sm:p-10">
+        <article className="glass space-y-8 rounded-2xl p-6 sm:p-10">
           {sections.map((s) => (
             <section key={s.id} id={s.id} className="scroll-mt-24">
               <h2 className="text-[1.25rem] font-bold">{s.title}</h2>

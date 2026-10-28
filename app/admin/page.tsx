@@ -45,7 +45,7 @@ export default async function AdminDashboard() {
         {queues.map((q) => {
           const Icon = q.icon;
           return (
-            <Link key={q.href} href={q.href} className="glass group rounded-[1.5rem] p-5 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]">
+            <Link key={q.href} href={q.href} className="glass group rounded-2xl p-5 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)]">
               <div className="flex items-center justify-between">
                 <span className={`grid h-11 w-11 place-items-center rounded-2xl ${q.tint}`}><Icon className="h-5.5 w-5.5" /></span>
                 <ArrowRight className="h-5 w-5 text-muted transition group-hover:translate-x-1" />
@@ -61,7 +61,7 @@ export default async function AdminDashboard() {
         {stats.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.label} className="glass rounded-[1.5rem] p-4">
+            <div key={s.label} className="glass rounded-2xl p-4">
               <Icon className="h-4.5 w-4.5 text-muted" />
               <p className="mt-2 text-[1.5rem] font-extrabold text-plum tabular">{s.n}</p>
               <p className="text-[0.75rem] font-semibold text-muted">{s.label}</p>
@@ -75,7 +75,7 @@ export default async function AdminDashboard() {
           <h2 className="mb-1 text-[1.125rem] font-bold">Gigs at risk</h2>
           <p className="mb-3 text-[0.8125rem] text-muted">Open, locking within 6 hours, still under minimum.</p>
           {risky.length === 0 ? (
-            <div className="glass rounded-3xl p-5 text-[0.875rem] text-muted">Nothing at risk right now.</div>
+            <div className="glass rounded-2xl p-5 text-[0.875rem] text-muted">Nothing at risk right now.</div>
           ) : (
             <ul className="space-y-2">
               {risky.map((g) => (
@@ -95,7 +95,7 @@ export default async function AdminDashboard() {
         <section>
           <h2 className="mb-1 text-[1.125rem] font-bold">Recent admin activity</h2>
           <p className="mb-3 text-[0.8125rem] text-muted">From the audit log.</p>
-          <ul className="glass divide-y divide-line rounded-3xl">
+          <ul className="glass divide-y divide-line rounded-2xl">
             {(recent.data ?? []).length === 0 && <li className="p-5 text-[0.875rem] text-muted">No actions yet.</li>}
             {(recent.data ?? []).map((a) => (
               <li key={a.id} className="flex items-center justify-between gap-3 px-4 py-3 text-[0.875rem]">

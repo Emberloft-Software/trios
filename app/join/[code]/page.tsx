@@ -58,14 +58,14 @@ export default async function JoinPage({ params }: { params: Promise<{ code: str
           </div>
         ) : (
           <div className="mt-8 animate-rise">
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-sun-100 px-3 py-1 text-[0.8125rem] font-bold text-[#6b4400]">
+            <p className="inline-flex items-center gap-1.5 rounded-lg bg-sun-100 px-3 py-1 text-[0.8125rem] font-bold text-[#6b4400]">
               <UserPlus className="h-4 w-4" /> {copy.invite.landingTitle(g.host_name)}
             </p>
             <h1 className="mt-3 text-[2rem] font-extrabold">{g.title}</h1>
             <p className="mt-1 text-[0.9375rem] text-muted">{copy.invite.landingSub}</p>
             {g.is_private && <Notice tone="info" className="mt-3" compact>{copy.privacy.landingNote}</Notice>}
 
-            <div className="glass mt-6 space-y-4 rounded-[1.75rem] p-5">
+            <div className="glass mt-6 space-y-4 rounded-2xl p-5">
               <p className="flex items-center gap-2 font-semibold text-plum">
                 <ActivityIcon slug={g.activity_slug} className="h-5 w-5 text-coral" /> {g.activity_name}
               </p>

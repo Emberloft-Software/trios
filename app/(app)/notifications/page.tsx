@@ -32,7 +32,7 @@ export default async function NotificationsPage() {
       {rows.length === 0 ? (
         <EmptyState title={n.empty} />
       ) : (
-        <ul className="glass divide-y divide-line overflow-hidden rounded-[1.75rem]">
+        <ul className="glass divide-y divide-line overflow-hidden rounded-2xl">
           {rows.map((r) => {
             const Icon = iconForKind(r.kind);
             return (

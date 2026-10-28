@@ -27,7 +27,7 @@ export function PerkCard({
   const [done, setDone] = useState(alreadyRedeemed);
 
   return (
-    <section className="rounded-[1.75rem] bg-gradient-to-br from-sun to-[#ff9a3d] p-5 text-plum shadow-[var(--shadow-soft)]">
+    <section className="rounded-2xl bg-gradient-to-br from-sun to-[#ff9a3d] p-5 text-plum shadow-[var(--shadow-soft)]">
       <p className="flex items-center gap-2 text-[1.0625rem] font-bold"><Gift className="h-5 w-5" /> {copy.gig.perkTitle}</p>
       <p className="mt-1 text-[0.9375rem]">{perk}</p>
       <p className="mt-4 text-[0.6875rem] font-bold uppercase tracking-wider opacity-70">{copy.gig.showCode}</p>

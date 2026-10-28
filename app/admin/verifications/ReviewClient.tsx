@@ -123,7 +123,7 @@ export function ReviewClient({ items }: { items: ReviewItem[] }) {
       <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
         <ReviewMedia current={current} mediaUrl={mediaUrl} mediaErr={mediaErr} videoRef={videoRef} />
         <div className="space-y-4">
-          <div className="glass rounded-[1.75rem] p-5">
+          <div className="glass rounded-2xl p-5">
             <p className="flex items-center gap-2 font-bold text-plum"><ScanFace className="h-5 w-5" /> The check</p>
             <p className="mt-3 text-[0.75rem] font-semibold text-muted">Code they should say</p>
             <p className="text-[2rem] font-extrabold tracking-[0.2em] text-plum tabular">{current.challenge.code}</p>
@@ -133,7 +133,7 @@ export function ReviewClient({ items }: { items: ReviewItem[] }) {
             </ol>
           </div>
 
-          <div className="glass rounded-[1.75rem] p-5">
+          <div className="glass rounded-2xl p-5">
             <div className="flex items-center gap-3">
               <Avatar name={current.name} src={current.photoUrl} size={40} />
               <div className="min-w-0">
@@ -150,7 +150,7 @@ export function ReviewClient({ items }: { items: ReviewItem[] }) {
             {current.device && <p className="mt-3 text-[0.75rem] text-muted">Device: {current.device}</p>}
           </div>
 
-          <div className="glass space-y-3 rounded-[1.75rem] p-5">
+          <div className="glass space-y-3 rounded-2xl p-5">
             <Select aria-label="Reject or retake reason" value={reason} onChange={(e) => setReason(e.target.value as Reason)}>
               {REASONS.map((r) => <option key={r} value={r}>{v.rejectReasons[r]}</option>)}
             </Select>

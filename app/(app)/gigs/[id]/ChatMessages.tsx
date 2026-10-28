@@ -26,7 +26,7 @@ export function ChatMessages({
         if (m.system_kind) {
           return (
             <p key={m.id} className="my-2 text-center">
-              <span className="inline-block rounded-full bg-plum/5 px-3 py-1 text-[0.75rem] font-semibold text-muted">
+              <span className="inline-block rounded-lg bg-plum/5 px-3 py-1 text-[0.75rem] font-semibold text-muted">
                 {copy.chat.system[m.system_kind] ?? m.body}
               </span>
             </p>

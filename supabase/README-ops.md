@@ -8,7 +8,7 @@ The hosted project is `swvbgmoljmvkvihxtakp` (ap-south-1). The direct `db.<ref>.
 psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmoljmvkvihxtakp dbname=postgres sslmode=require" -v ON_ERROR_STOP=1 -f supabase/migrations/00XX_name.sql
 ```
 
-`0001`–`0029` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
+`0001`–`0030` + `seed.sql` are applied (the big schema/function files are split into `_partN` files; same content, same order). The old Trio migrations are archived in `supabase/_legacy/` and are **not** used.
 
 ## First admin
 
@@ -17,6 +17,7 @@ psql "host=aws-1-ap-south-1.pooler.supabase.com port=5432 user=postgres.swvbgmol
 ## Auth settings (Supabase dashboard → Authentication)
 
 - **URL Configuration:** Site URL `https://www.trimegos.com` (the address people actually use; the bare domain forwards to www). Redirect URLs must include every domain the app is served from, e.g. `https://trimegos.vercel.app/**`, `https://trimegos.com/**`, `https://www.trimegos.com/**`, `http://localhost:3000/**`. A link pointing anywhere not listed is silently replaced with the Site URL.
+- **Providers → Google:** create an OAuth client (Web application) in Google Cloud Console, add `https://swvbgmoljmvkvihxtakp.supabase.co/auth/v1/callback` as an authorised redirect URI, then paste the client ID and secret into Supabase and enable Google. The "Continue with Google" button appears automatically within a minute of enabling.
 - **Multi-Factor → TOTP (authenticator app): enabled.** Admins can't open `/admin` without it. Lost phone: another admin (or SQL) can remove the factor with `delete from auth.mfa_factors where user_id = '<id>';`, then that admin enrols again on next visit.
 - **Reset email template (optional, recommended):** set the "Reset password" link to `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery` so the link works even when opened in a different browser or device than the one that requested it (the default link only works in the same browser).
 

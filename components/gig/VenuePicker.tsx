@@ -93,7 +93,7 @@ export function VenuePicker({ value, onPick }: { value: PickedVenue | null; onPi
               </p>
             )}
             {value.isPartner && value.partnerPerk && (
-              <p className="mt-1 inline-block rounded-full bg-sun-100 px-2.5 py-0.5 text-[0.75rem] font-semibold text-[#6b4400]">{value.partnerPerk}</p>
+              <p className="mt-1 inline-block rounded-lg bg-sun-100 px-2.5 py-0.5 text-[0.75rem] font-semibold text-[#6b4400]">{value.partnerPerk}</p>
             )}
             {value.mapsUrl && (
               <a href={value.mapsUrl} target="_blank" rel="noreferrer noopener" className="mt-1 flex items-center gap-1 text-[0.8125rem] font-semibold text-coral-600 hover:underline">

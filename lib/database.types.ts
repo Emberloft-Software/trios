@@ -2196,6 +2196,45 @@ export type Database = {
       gen_invite_code: { Args: never; Returns: string }
       gen_venue_slug: { Args: { p_name: string }; Returns: string }
       gig_is_confirmed: { Args: { p_gig_id: string }; Returns: boolean }
+      increase_gig_capacity: {
+        Args: { p_capacity: number; p_gig_id: string }
+        Returns: {
+          activity_id: string
+          age_max: number
+          age_min: number
+          cancelled_reason: string | null
+          capacity: number
+          chat_opened_at: string | null
+          claimed_count: number
+          code: string
+          cost_note: string | null
+          created_at: string
+          duration_min: number
+          gender_pref: Database["public"]["Enums"]["gig_gender"]
+          host_guests: number
+          host_id: string
+          id: string
+          invite_code: string
+          is_private: boolean
+          lat: number
+          lng: number
+          locks_at: string
+          min_to_confirm: number
+          notes: string | null
+          place_label: string
+          reserved_slots: number
+          starts_at: string
+          status: Database["public"]["Enums"]["gig_status"]
+          title: string
+          venue_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "gigs"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       invite_friend: {
         Args: { p_friend: string; p_gig_id: string }
         Returns: undefined

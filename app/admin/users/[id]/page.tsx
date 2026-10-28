@@ -58,7 +58,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
     <div>
       <Link href="/admin/users" className="inline-flex items-center gap-1 text-[0.875rem] font-semibold text-muted hover:text-plum"><ArrowLeft className="h-4 w-4" /> Users</Link>
 
-      <div className="glass mt-3 flex flex-wrap items-center gap-4 rounded-[1.75rem] p-5">
+      <div className="glass mt-3 flex flex-wrap items-center gap-4 rounded-2xl p-5">
         <Avatar name={p.display_name} src={publicAvatarUrl(p.avatar_path)} size={72} />
         <div className="min-w-0 flex-1">
           <h1 className="text-[1.75rem] font-extrabold">{p.display_name}</h1>
@@ -78,7 +78,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_380px]">
         <div className="space-y-5">
-          <div className="glass grid grid-cols-3 gap-3 rounded-[1.5rem] p-5 sm:grid-cols-6">
+          <div className="glass grid grid-cols-3 gap-3 rounded-2xl p-5 sm:grid-cols-6">
             <Stat label="Hosted" value={hosted.count ?? 0} />
             <Stat label="Attended" value={attended} />
             <Stat label="Removed others" value={(removalsGiven.data ?? []).length} danger={(removalsGiven.data ?? []).length >= 3} />
@@ -178,7 +178,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="glass rounded-[1.5rem] p-5">
+    <section className="glass rounded-2xl p-5">
       <h2 className="mb-3 text-[1rem] font-bold">{title}</h2>
       {children}
     </section>

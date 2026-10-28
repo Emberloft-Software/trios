@@ -19,7 +19,7 @@ export function ResetForm({ email }: { email: string }) {
       <h1 className="text-[1.875rem] font-extrabold">{c.newPasswordTitle}</h1>
       {email && <p className="mt-1 text-[0.9375rem] text-muted">{c.newPasswordFor(email)}</p>}
       <form
-        className="glass mt-6 space-y-4 rounded-[1.75rem] p-6"
+        className="glass mt-6 space-y-4 rounded-2xl p-6"
         onSubmit={(e) => {
           e.preventDefault();
           setError(null);

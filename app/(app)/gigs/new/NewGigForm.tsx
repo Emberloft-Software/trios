@@ -169,7 +169,7 @@ export function NewGigForm({
         <GroupSize capacity={capacity} onCapacity={changeCapacity} guests={guests} onGuests={setGuests} isPrivate={isPrivate} />
       </Step>
 
-      <div className="glass space-y-4 rounded-[1.75rem] p-5">
+      <div className="glass space-y-4 rounded-2xl p-5">
         <Checkbox id="agree" checked={agree} onChange={setAgree}>{copy.platonicClause.checkbox}</Checkbox>
         <Notice tone="info" compact>{copy.disclaimers.meetPublic}</Notice>
       </div>
