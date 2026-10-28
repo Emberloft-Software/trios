@@ -29,13 +29,6 @@ export const appCopy = {
     meetPublic: "Meet in public, sort your own transport, and tell someone where you're going.",
     footer: `${N} connects people for group activities. We don't run, supervise or attend gigs. Meeting people you don't know carries risk. Use your judgement, meet in public, and leave if anything feels off.`,
   },
-  rename: {
-    title: `Tremigos is now ${N}`,
-    body: "Same crew, new name. Our new home is",
-    domain: "trimegos.com",
-    after: "Your account, gigs and chats come with you.",
-    dismiss: "Dismiss",
-  },
   install: {
     title: "Install Trimegos",
     body: "Add it to your home screen for the full-screen app. It's faster, works with your camera for verification, and opens straight to your gigs.",

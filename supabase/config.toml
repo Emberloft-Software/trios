@@ -5,7 +5,7 @@
 # declines the first prompt (later sections can still be applied). Change
 # production settings in the dashboard. Values below mirror production as of
 # 2026-10-16 so an accidental push does as little damage as possible.
-project_id = "tremigos"
+project_id = "trimegos"
 
 [api]
 enabled = true

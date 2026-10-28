@@ -51,7 +51,8 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: Deno.env.get("EMAIL_FROM") ?? "Trimegos <hello@tremigos.app>",
+          from: Deno.env.get("EMAIL_FROM") ?? "Trimegos <trimegos@gmail.com>",
+          reply_to: "trimegos@gmail.com",
           to: email,
           subject: SUBJECTS[n.kind] ?? "Trimegos",
           text: `Open Trimegos to see the details.`,

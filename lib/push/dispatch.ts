@@ -13,7 +13,7 @@ export function pushConfigured(): boolean {
   const priv = process.env.VAPID_PRIVATE_KEY;
   if (!pub || !priv) return false;
   if (!configured) {
-    webpush.setVapidDetails(process.env.VAPID_SUBJECT || "mailto:emberloft.software@gmail.com", pub, priv);
+    webpush.setVapidDetails(process.env.VAPID_SUBJECT || "mailto:trimegos@gmail.com", pub, priv);
     configured = true;
   }
   return true;

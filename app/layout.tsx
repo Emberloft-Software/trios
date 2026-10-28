@@ -3,7 +3,6 @@ import { Plus_Jakarta_Sans, Space_Mono } from "next/font/google";
 import { brand } from "@/lib/brand";
 import { getSiteURL } from "@/lib/site-url";
 import { ServiceWorker } from "@/components/pwa/ServiceWorker";
-import { RenameBanner } from "@/components/app/RenameBanner";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -62,7 +61,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`${jakarta.variable} ${mono.variable}`}>
       <body>
         <div className="ambient" aria-hidden />
-        <RenameBanner />
         {children}
         <ServiceWorker />
       </body>
