@@ -6,7 +6,7 @@ Paste everything below the line into Claude Code at the repo root, or say "Run d
 
 ## Your role
 
-Act as a senior product lead who leads market, design and marketing research and then delivers the result. Work for a three-person team that covers both development and marketing. Every recommendation must be something three people can actually do. Ask before anything hard to reverse: deleting data, changing the hosted database, renaming the brand, or removing features.
+Act as a senior product lead who leads market, design and marketing research and then delivers the result. The team is 3 people and they will cover **every area**: development, design, research, marketing, sales, community and operations. Don't drop or shrink an area because of team size. Plan the work so 3 people can carry it, and sequence it if needed. You're expected to **propose improvements, new features and changes of direction** whenever the evidence supports them. Nothing in the current product is protected. Ask before anything hard to reverse: deleting data, changing the hosted database, renaming the brand, or removing features.
 
 ## Context you must load first
 
@@ -17,8 +17,9 @@ Act as a senior product lead who leads market, design and marketing research and
 Facts about the current state:
 - Trimegos is a group-meetup web app and PWA for Sri Lanka. Gigs need at least 3 people, meet in public places, and it is deliberately not a dating app.
 - It's pre-launch. There are 10 accounts, all test data, and they can be deleted later (with confirmation, see Phase 5).
-- The team is 3 people covering development and marketing. The budget is small.
-- **Everything is open to change:** design system, palette, font, surfaces, IA, flows, features, monetization and positioning. The brand name stays "Trimegos" unless the research finds a serious problem. If it does, raise it as a decision. Don't rename anything yourself.
+- The team is 3 people who will cover every area between them. The budget is small, so prefer cheap and fast ways to learn, but never leave an area out.
+- **Everything is open to change:** design system, palette, font, surfaces, IA, flows, features, monetization, positioning, target audience and the product direction itself. If the research points to a better direction (a different core audience, wedge activity, use case or business model), say so plainly and back it with evidence. The brand name stays "Trimegos" unless the research finds a serious problem. If it does, raise it as a decision. Don't rename anything yourself.
+- **Add features where they're needed.** Any gap found in research (safety, retention, liquidity, venue value, onboarding, social proof and so on) should become a concrete feature proposal, not just a note.
 - The team wants a **clean white/light theme** treated as a serious candidate direction.
 - Language: **English UI first**, built so it's ready for i18n. Sinhala and Tamil come later, but plan for them now.
 - Geography: **Colombo first.** Pick the starting neighbourhoods from evidence. Kandy, Galle and the rest of the expansion path come later.
@@ -60,6 +61,8 @@ One file per area in `docs/research/`:
 12. `12-unit-economics.md`: Infra cost per active user at 100, 1k and 10k users (Supabase, Vercel, push, storage). Cost to win a venue and its lifetime value, break-even, and how long the money lasts.
 13. `13-expansion.md`: How to expand: Colombo neighbourhoods, then Kandy and Galle, then the diaspora and regional markets. Define the traction thresholds that unlock each step and what has to change at each (language, payments, law).
 14. `14-risks.md`: A risk register with likelihood, impact, an early-warning signal and a mitigation for each risk.
+15. `15-feature-opportunities.md`: Every improvement and new feature the research suggests, for players, hosts, venues and admins, each traced to the finding behind it. Examples to evaluate (not to assume): recurring gigs, groups or clubs, waitlists, check-in and show-up proof, post-gig ratings or kudos, gig templates, sharing to WhatsApp and Instagram, a calendar view, women-only gigs, venue self-serve, referrals, achievements. Score each on impact, effort, risk and how much it helps liquidity. Also list the existing features that should be cut, simplified or reworked, and why.
+16. `16-direction-options.md`: 3 to 5 alternative product directions compared with the current one. Examples: campus-first, sports-only, newcomers and expats in Colombo, corporate team outings, venue-led events, travel or weekend trips. For each: target audience, wedge, monetization, how it fits the research, the main risk, and what it would cost to switch from the current code. Recommend whether to stay, adjust or change direction.
 
 ## Phase 2: Design research
 
@@ -83,8 +86,8 @@ One file per area in `docs/research/`:
 
 1. `40-strategy.md`: A one-page strategy covering who it's for, positioning, the wedge activities, launch zones, monetization timing and the north star metric.
 2. `41-metrics-plan.md`: The north star (proposed: gigs that ran with 3 or more people checked in). Activation, fill rate, show-up rate, week-1/4/8 retention, the venue metrics, the target for each, and the analytics events to implement.
-3. `42-roadmap.md`: A 12-week roadmap for 3 people, split into research-validated must-haves, should-haves, and things that are cut.
-4. `43-decisions.md`: Every decision that needs an owner's call, with options, a recommendation and evidence (for example: design direction, the glass vs white surface, venue pricing, native timing).
+3. `42-roadmap.md`: A 12-week roadmap across every area (product, design, engineering, research, marketing, venue sales, community, operations). Give each of the 3 people their workstreams per week. Split it into research-validated must-haves, should-haves, new features from `15-feature-opportunities.md`, and things that are cut.
+4. `43-decisions.md`: Every decision that needs an owner's call, with options, a recommendation and evidence. Examples: product direction (from `16-direction-options.md`), which new features to build, which existing features to cut, design direction, the glass vs white surface, venue pricing, native timing.
 5. `README.md`: An index of every research doc with a one-line summary of each.
 
 **Stop here.** Summarize the top 10 findings and list the decisions in `43-decisions.md`. Wait for approval before Phase 5.
@@ -94,6 +97,7 @@ One file per area in `docs/research/`:
 Use the approved decisions to:
 1. **Rebuild the design system**: tokens in `app/globals.css` `@theme`, `components/ui/*`, fonts and the layout background. Update the CLAUDE.md "Design system" section to match.
 2. **Redesign every screen** to the approved direction and IA, marketing, app and admin included. Check each at 375px and 1280px with screenshots.
+2b. **Build the approved new features and rework or remove the approved cuts** from `15-feature-opportunities.md`. If the product direction changed, reshape the flows, copy and data model to match. Do one feature per commit, and give each one its own new migration where needed.
 3. **Fix every file** flagged in Phase 0: hard-rule violations, files over 200 lines, hardcoded strings, dead code.
 4. **Make it i18n-ready**: restructure `lib/copy/` into keyed English locale files that Sinhala and Tamil can later drop into, plus a font fallback stack. Don't translate yet.
 5. **Add analytics and error monitoring** to match `41-metrics-plan.md`. Choose privacy-respecting tools, update the Privacy Policy, and keep payloads free of personal data.

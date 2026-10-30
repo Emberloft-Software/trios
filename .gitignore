@@ -35,3 +35,4 @@ yarn-error.log*
 # web push keys (generated locally, copy into .env.local / Vercel)
 push-keys.local.env
 /marketing/
+/docs/research/
