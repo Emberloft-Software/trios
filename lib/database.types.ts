@@ -1112,6 +1112,66 @@ export type Database = {
         }
         Relationships: []
       }
+      new_gig_pushes: {
+        Row: {
+          created_at: string
+          gig_id: string
+          pushed_at: string | null
+          skipped: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gig_id: string
+          pushed_at?: string | null
+          skipped?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gig_id?: string
+          pushed_at?: string | null
+          skipped?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "new_gig_pushes_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "friend_hosted_gigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "new_gig_pushes_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gig_feed"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "new_gig_pushes_gig_id_fkey"
+            columns: ["gig_id"]
+            isOneToOne: false
+            referencedRelation: "gigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "new_gig_pushes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "new_gig_pushes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_outbox: {
         Row: {
           created_at: string
@@ -1283,6 +1343,7 @@ export type Database = {
           interests: string[]
           is_admin: boolean
           joining_restricted_until: string | null
+          notify_new_gigs: boolean
           posting_restricted_until: string | null
           reliability_band: Database["public"]["Enums"]["reliability_band"]
           suspended_until: string | null
@@ -1310,6 +1371,7 @@ export type Database = {
           interests?: string[]
           is_admin?: boolean
           joining_restricted_until?: string | null
+          notify_new_gigs?: boolean
           posting_restricted_until?: string | null
           reliability_band?: Database["public"]["Enums"]["reliability_band"]
           suspended_until?: string | null
@@ -1337,6 +1399,7 @@ export type Database = {
           interests?: string[]
           is_admin?: boolean
           joining_restricted_until?: string | null
+          notify_new_gigs?: boolean
           posting_restricted_until?: string | null
           reliability_band?: Database["public"]["Enums"]["reliability_band"]
           suspended_until?: string | null
@@ -1914,6 +1977,7 @@ export type Database = {
           interests: string[]
           is_admin: boolean
           joining_restricted_until: string | null
+          notify_new_gigs: boolean
           posting_restricted_until: string | null
           reliability_band: Database["public"]["Enums"]["reliability_band"]
           suspended_until: string | null
@@ -2014,6 +2078,17 @@ export type Database = {
           user_id: string
         }[]
       }
+      claim_new_gig_push_batch: {
+        Args: { p_limit?: number }
+        Returns: {
+          activity: string
+          gig_id: string
+          place: string
+          starts_at: string
+          title: string
+          user_id: string
+        }[]
+      }
       claim_push_batch: {
         Args: { p_limit?: number }
         Returns: {
@@ -2081,6 +2156,7 @@ export type Database = {
           interests: string[]
           is_admin: boolean
           joining_restricted_until: string | null
+          notify_new_gigs: boolean
           posting_restricted_until: string | null
           reliability_band: Database["public"]["Enums"]["reliability_band"]
           suspended_until: string | null
@@ -2430,6 +2506,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      set_new_gig_alerts: { Args: { p_on: boolean }; Returns: undefined }
       start_verification: {
         Args: never
         Returns: {

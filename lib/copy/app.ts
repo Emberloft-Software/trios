@@ -66,6 +66,12 @@ export const appCopy = {
       unsupported: "This browser can't show push notifications.",
       iosInstall: "On iPhone, add Trimegos to your Home Screen first (Share, then Add to Home Screen), then open it from there to turn on notifications.",
       failed: "Couldn't turn on notifications. Try again in a moment.",
+      promptTitle: "Don't miss your crew",
+      promptBody: "Get a ping when a new gig opens up for you, when your gig fills up, and when the group chat is buzzing.",
+      notNow: "Not now",
+      newGigTitle: (title: string) => `New gig: ${title}`,
+      newGigAlerts: "Alerts for new gigs",
+      newGigAlertsHint: "A ping when someone posts a gig that's open to you. Max 3 a day.",
     },
     kinds: {
       gig_confirmed: "Your gig is full and the group chat is open.",

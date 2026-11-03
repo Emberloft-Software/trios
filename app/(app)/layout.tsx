@@ -4,6 +4,7 @@ import { publicAvatarUrl } from "@/lib/avatar";
 import { AppNav } from "@/components/app/AppNav";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { AcceptableUseGate } from "@/components/app/AcceptableUseGate";
+import { PushPrompt } from "./PushPrompt";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { supabase, user, profile } = await getViewer();
@@ -25,7 +26,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         isAdmin={profile.is_admin}
         unread={unread ?? 0}
       />
-      <main className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6 md:pt-8">{children}</main>
+      <main className="mx-auto w-full max-w-6xl px-4 pt-5 sm:px-6 md:pt-8">
+        {profile.aup_accepted_at && <PushPrompt />}
+        {children}
+      </main>
       {profile.aup_accepted_at ? <InstallPrompt /> : <AcceptableUseGate />}
     </div>
   );

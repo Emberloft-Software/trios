@@ -37,3 +37,11 @@ export async function deletePushSubscriptionAction(endpoint: string): Promise<{ 
   const { error } = await supabase.rpc("delete_push_subscription", { p_endpoint: endpoint });
   return { ok: !error };
 }
+
+/** "Alerts for new gigs" switch on the Activity page. */
+export async function setNewGigAlertsAction(on: boolean): Promise<{ ok: boolean }> {
+  if (typeof on !== "boolean") return { ok: false };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_new_gig_alerts", { p_on: on });
+  return { ok: !error };
+}

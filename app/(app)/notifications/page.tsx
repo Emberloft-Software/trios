@@ -8,12 +8,13 @@ import { copy } from "@/lib/copy";
 import { MarkReadOnView } from "./MarkReadOnView";
 import { iconForKind } from "./kind-icons";
 import { PushToggle } from "./PushToggle";
+import { NewGigAlerts } from "./NewGigAlerts";
 import { notificationHref, notificationText } from "@/lib/notifications";
 
 export const metadata = { title: "Activity" };
 
 export default async function NotificationsPage() {
-  const { supabase, user } = await getViewer();
+  const { supabase, user, profile } = await getViewer();
   const { data } = await supabase
     .from("notification_outbox")
     .select("id, kind, gig_id, payload, read_at, created_at")
@@ -29,6 +30,7 @@ export default async function NotificationsPage() {
       <PageHeader title={n.title} />
       <MarkReadOnView hasUnread={unread} />
       <PushToggle />
+      <NewGigAlerts initial={profile?.notify_new_gigs ?? true} />
       {rows.length === 0 ? (
         <EmptyState title={n.empty} />
       ) : (

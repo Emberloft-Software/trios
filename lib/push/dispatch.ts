@@ -3,6 +3,7 @@ import webpush, { WebPushError } from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notificationHref, notificationText } from "@/lib/notifications";
 import { copy } from "@/lib/copy";
+import { formatGigTime } from "@/lib/time";
 
 type Db = ReturnType<typeof createAdminClient>;
 let configured = false;
@@ -22,6 +23,7 @@ export function pushConfigured(): boolean {
 export interface DispatchResult {
   claimed: number;
   chats: number;
+  newGigs: number;
   sent: number;
   removed: number;
   failed: number;
@@ -43,14 +45,17 @@ interface Push {
  */
 export async function dispatchPendingPushes(limit = 100): Promise<DispatchResult> {
   const db = createAdminClient();
-  const [notes, chats] = await Promise.all([
+  const [notes, chats, fresh] = await Promise.all([
     db.rpc("claim_push_batch", { p_limit: limit }),
     db.rpc("claim_chat_push_batch", { p_limit: limit * 2 }),
+    db.rpc("claim_new_gig_push_batch", { p_limit: limit * 2 }),
   ]);
   if (notes.error) throw new Error(`claim_push_batch: ${notes.error.message}`);
   if (chats.error) throw new Error(`claim_chat_push_batch: ${chats.error.message}`);
   const rows = notes.data ?? [];
   const chatRows = chats.data ?? [];
+  if (fresh.error) console.error("claim_new_gig_push_batch:", fresh.error.message); // never block the others
+  const freshRows = fresh.data ?? [];
 
   const gigIds = [...new Set(rows.map((r) => r.gig_id).filter((g): g is string => !!g))];
   const { data: gigs } = gigIds.length ? await db.from("gigs").select("id, title").in("id", gigIds) : { data: [] };
@@ -71,9 +76,16 @@ export async function dispatchPendingPushes(limit = 100): Promise<DispatchResult
       url: `/gigs/${c.gig_id}`,
       tag: `chat:${c.gig_id}`, // replaces the previous chat ping for this gig
     })),
+    ...freshRows.map((f) => ({
+      userId: f.user_id,
+      title: copy.notifications.push.newGigTitle(f.title),
+      body: [f.activity, formatGigTime(f.starts_at), f.place].filter(Boolean).join(" · "),
+      url: `/gigs/${f.gig_id}`,
+      tag: `new-gig:${f.gig_id}`,
+    })),
   ];
   const result = await deliver(db, pushes);
-  return { claimed: rows.length, chats: chatRows.length, ...result };
+  return { claimed: rows.length, chats: chatRows.length, newGigs: freshRows.length, ...result };
 }
 
 async function deliver(db: Db, pushes: Push[]) {
